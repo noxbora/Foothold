@@ -7,29 +7,28 @@ checklists and tool references, written while working through lab platforms
 The vault is built around one idea: **a note earns its place by being reachable.**
 Every note links to at least one non-index note, every technique note states what
 its output *means* rather than just listing commands, and a linter
-(`PLAYBOOK/00-Index/vault-check.py`) fails the build when that stops being true.
+(`00-Index/vault-check.py`) fails the build when that stops being true.
 
 ## Where to start
 
 | If you are… | Open |
 |---|---|
-| New here | [`PLAYBOOK/00-Index/Start-Here.md`](PLAYBOOK/00-Index/Start-Here.md) |
-| Starting a box | [`PLAYBOOK/01-Workflow/Pentest-Workflow.md`](PLAYBOOK/01-Workflow/Pentest-Workflow.md) |
-| Sitting on a Linux shell | [`PLAYBOOK/02-Techniques/Linux/Linux-Run-Sheet.md`](PLAYBOOK/02-Techniques/Linux/Linux-Run-Sheet.md) |
-| Sitting on a Windows shell | [`PLAYBOOK/02-Techniques/Windows/Windows-Run-Sheet.md`](PLAYBOOK/02-Techniques/Windows/Windows-Run-Sheet.md) |
-| Out of ideas | [`PLAYBOOK/01-Workflow/Stuck-Checklist.md`](PLAYBOOK/01-Workflow/Stuck-Checklist.md) |
+| New here | [`00-Index/Start-Here.md`](00-Index/Start-Here.md) |
+| Starting a box | [`01-Workflow/Pentest-Workflow.md`](01-Workflow/Pentest-Workflow.md) |
+| Sitting on a Linux shell | [`02-Techniques/Linux/Linux-Run-Sheet.md`](02-Techniques/Linux/Linux-Run-Sheet.md) |
+| Sitting on a Windows shell | [`02-Techniques/Windows/Windows-Run-Sheet.md`](02-Techniques/Windows/Windows-Run-Sheet.md) |
+| Out of ideas | [`01-Workflow/Stuck-Checklist.md`](01-Workflow/Stuck-Checklist.md) |
 
 ## Layout
 
 ```text
-PLAYBOOK/
-  00-Index/        entry point, note template, vault health, linter
-  01-Workflow/     decision layer — phases, methods, checklists
-  02-Techniques/   the attacks, grouped by the surface they attack
-    Web/  Services/  Linux/  Windows/  Active-Directory/  Cloud/
-  03-Operations/   what you do on any target in any phase — shells, transfer,
-                   pivoting, looting, and Tools/ for flag references
-  04-Reference/    lookup material — security terms, general English, and the failure messages that mislead
+00-Index/        entry point, note template, vault health, linter
+01-Workflow/     decision layer — phases, methods, checklists
+02-Techniques/   the attacks, grouped by the surface they attack
+  Web/  Services/  Linux/  Windows/  Active-Directory/  Cloud/
+03-Operations/   what you do on any target in any phase — shells, transfer,
+                 pivoting, looting, and Tools/ for flag references
+04-Reference/    lookup material — security terms, general English, and the failure messages that mislead
 ```
 
 The tree runs on **one axis**: it answers *what is in front of me*, never *what am I trying
@@ -38,8 +37,10 @@ surface and is spent in more than one phase is an operation, not a technique of 
 The linter enforces it: every folder declares the `type` and `platform` a note inside it must
 carry, so a misfiled note fails the run instead of looking plausible.
 
-`PLAYBOOK/` is self-contained: everything the vault publishes lives under it, and
-nothing else does — copying that one folder carries the whole thing.
+This repository is the playbook and nothing else. The Obsidian vault it lives in
+also holds private study material, which stays out of git entirely rather than
+relying on an ignore rule — cloning this repo carries the whole playbook and no
+part of anything personal.
 
 Notes are best read in [Obsidian](https://obsidian.md) — `[[wikilinks]]` and the
 graph view are the point. They render fine on GitHub, minus the links.
@@ -62,12 +63,12 @@ not aspirations. `seed` means placeholder, and only using a note on a box promot
 past `guided`.
 Filenames are `Title-Case-With-Hyphens`; service notes are `PORT-Service`.
 Full house style lives in
-[`Start-Here.md`](PLAYBOOK/00-Index/Start-Here.md#conventions).
+[`Start-Here.md`](00-Index/Start-Here.md#conventions).
 
 ## Linter
 
 ```bash
-python3 PLAYBOOK/00-Index/vault-check.py
+python3 00-Index/vault-check.py
 ```
 
 Twenty-three checks covering what Dataview cannot see — link topology (broken targets,
@@ -87,8 +88,8 @@ Exits non-zero when anything needs attention, so it can gate a commit hook.
 Two read-only modes print a list and exit 0 instead:
 
 ```bash
-python3 PLAYBOOK/00-Index/vault-check.py --gaps      # what the notes admit is missing
-python3 PLAYBOOK/00-Index/vault-check.py --fluency   # what you lean on and cannot yet do
+python3 00-Index/vault-check.py --gaps      # what the notes admit is missing
+python3 00-Index/vault-check.py --fluency   # what you lean on and cannot yet do
 ```
 
 ## Scope and disclaimer
