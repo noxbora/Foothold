@@ -1,0 +1,41 @@
+# ============================================================
+#  .gitignore — what git must never look at
+# ------------------------------------------------------------
+#  Git tracks every file in this folder unless it is listed
+#  here. A line below means: "pretend this does not exist."
+#  Nothing listed here is ever committed, pushed, or published.
+# ============================================================
+
+# ── Obsidian ────────────────────────────────────────────────
+# Per-machine state: open panes, window size, plugin caches.
+# Changes every time the app is opened, means nothing to a reader.
+.obsidian/
+.trash/
+
+# ── macOS clutter ───────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ── iCloud placeholder files ────────────────────────────────
+*.icloud
+
+# ── Secrets: never commit these, wherever they are ──────────
+# Belt and braces. These are blocked anywhere.
+*.pem
+*.key
+*.ppk
+*.ovpn
+*.kdbx
+*.p12
+id_rsa*
+id_ed25519*
+.env
+.envrc
+.aws/
+
+# ── Personal study material: not part of the shippable playbook ──
+# A whole folder, not a list of filenames. The previous version named
+# the files individually and stopped covering them the moment they moved.
+DOJO/

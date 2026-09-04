@@ -1,0 +1,44 @@
+#!/bin/sh
+# PLAYBOOK pre-commit guard — a second lock behind .gitignore.
+# Blocks the commit if anything secret-shaped is staged.
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+fail=0
+
+# 1. Secret-shaped content in the staged text.
+#    This file is excluded from its own scan - it necessarily contains the patterns.
+pat='AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ssh-rsa AAAA|gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9]{32,}'
+hits=$(git diff --cached -U0 -- . ':(exclude).githooks/*' | grep -nEi "^\+.*($pat)" | head -20)
+if [ -n "$hits" ]; then
+  echo "BLOCKED — something that looks like a live secret is staged:"
+  printf '%s\n' "$hits"
+  echo "   If it is a lab placeholder, mask it. To override: git commit --no-verify"
+  fail=1
+fi
+
+[ "$fail" -ne 0 ] && exit 1
+
+# 2. Vault linter — warns, never blocks (auto-sync must not stall).
+#    It prints the failing items rather than a bare "there are issues": Obsidian Git
+#    commits on a timer, so this output is often the only place the breakage is named
+#    before it scrolls past. Only the failing families are shown — the `ok` lines are
+#    noise on a commit — and the count comes from the linter's own final line.
+# The linter sits at PLAYBOOK/00-Index/ when the repo root is the vault, and at
+# 00-Index/ when the repo root is PLAYBOOK itself. Resolve it rather than assume.
+checker=""
+for candidate in PLAYBOOK/00-Index/vault-check.py 00-Index/vault-check.py; do
+  [ -f "$candidate" ] && checker="$candidate" && break
+done
+
+if [ -n "$checker" ]; then
+  out=$(python3 "$checker" 2>&1)
+  if [ $? -ne 0 ]; then
+    echo "note: vault-check.py is not clean — the commit still goes through."
+    printf '%s\n' "$out" | grep -v '^  ok   ' | sed '1,2d;/^$/d' | sed 's/^/   /'
+    echo "   full run: python3 $checker"
+  fi
+fi
+
+exit 0
