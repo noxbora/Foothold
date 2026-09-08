@@ -39,8 +39,9 @@ id_ed25519*
 # A whole folder, not a list of filenames. The previous version named
 # the files individually and stopped covering them the moment they moved.
 DOJO/
-# The current DOJO is a sibling of PLAYBOOK, outside this Git repository.
-# This pattern only applies if a DOJO directory is created inside it.
+DOJO.md
+# DOJO lives beside PLAYBOOK, outside this repository. These two lines only bite
+# if a copy is ever made inside it.
 
 # Python verification caches
 __pycache__/

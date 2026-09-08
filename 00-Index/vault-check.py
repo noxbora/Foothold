@@ -9,13 +9,108 @@ This covers the rest. Run from anywhere:
 
 Exit code is 0 when clean, 1 when any check fails — so it can gate a commit hook.
 
-One read-only mode prints a list and exits 0 instead of checking anything:
+Three modes do something else and exit 0 instead of checking anything:
 
-    --gaps      every `## Gaps` line in the Playbook — the backlog of missing work
-    --fluency   what the vault leans on hardest that you cannot yet do — DOJO's input
+    --gaps            every `## Gaps` line in the Playbook — the backlog of missing work
+    --fluency         what the vault leans on hardest that you cannot yet do
+    --unwrap <path>   REWRITE a file (or a folder, recursively) so each paragraph, list
+                      item and callout line is one source line again. This is the repair
+                      for the hard-wrap check: the check finds the damage, this undoes it.
 """
-import os, re, sys, collections, datetime
+import os, re, sys, collections, datetime, pathlib
 from urllib.parse import unquote, urlsplit
+
+# ── --unwrap: the repair tool, kept in here so the vault carries one script ──
+# Obsidian renders a single newline as a visible break, so a paragraph wrapped at 100
+# columns shows ragged half-empty lines in reading view. Reflowing is the reader's job.
+# Never touched: frontmatter, fenced code, tables, headings, rules, block starts.
+FENCE   = re.compile(r'^\s*(`{3,}|~{3,})')
+HEADING = re.compile(r'^#{1,6}\s')
+LIST    = re.compile(r'^(\s*)([-*+]\s+|\d+[.)]\s+)')
+RULE    = re.compile(r'^\s*(-{3,}|\*{3,}|_{3,})\s*$')
+TABLE   = re.compile(r'^\s*\|')
+QUOTE   = re.compile(r'^\s*>\s?')
+CALLOUT = re.compile(r'^\s*>\s*\[!\w+\]')
+HTML    = re.compile(r'^\s*<')
+
+def block_start(l):
+    """A line that must begin its own output line."""
+    return (not l.strip() or HEADING.match(l) or LIST.match(l) or RULE.match(l)
+            or TABLE.match(l) or HTML.match(l) or FENCE.match(l))
+
+def unwrap(src):
+    lines = src.split('\n')
+    out, i, n = [], 0, len(lines)
+
+    # frontmatter passes through untouched
+    if lines and lines[0].strip() == '---':
+        out.append(lines[0]); i = 1
+        while i < n and lines[i].strip() != '---':
+            out.append(lines[i]); i += 1
+        if i < n:
+            out.append(lines[i]); i += 1
+
+    while i < n:
+        l = lines[i]
+
+        if FENCE.match(l):                       # code fence: copy verbatim to its closer
+            marker = FENCE.match(l).group(1)
+            out.append(l); i += 1
+            while i < n and not lines[i].lstrip().startswith(marker):
+                out.append(lines[i]); i += 1
+            if i < n:
+                out.append(lines[i]); i += 1
+            continue
+
+        if not l.strip() or HEADING.match(l) or RULE.match(l) or TABLE.match(l) or HTML.match(l):
+            out.append(l); i += 1
+            continue
+
+        if QUOTE.match(l):                       # callout / blockquote
+            # A callout's `> [!type]` marker must stay on its own line: text joined onto it
+            # becomes the callout TITLE in Obsidian, not its body.
+            if CALLOUT.match(l):
+                out.append(l.rstrip()); i += 1
+                continue
+            buf, i = l.rstrip(), i + 1
+            while i < n and QUOTE.match(lines[i]):
+                body = QUOTE.sub('', lines[i], count=1)
+                if not body.strip():             # blank quote line ends the paragraph
+                    break
+                if LIST.match(body) or HEADING.match(body) or FENCE.match(body):
+                    break
+                buf += ' ' + body.strip()
+                i += 1
+            out.append(buf)
+            continue
+
+        # paragraph or list item: swallow indented continuation lines
+        buf, i = l.rstrip(), i + 1
+        while i < n and not block_start(lines[i]) and not QUOTE.match(lines[i]):
+            buf += ' ' + lines[i].strip()
+            i += 1
+        out.append(buf)
+
+    return re.sub(r'[ \t]+$', '', '\n'.join(out), flags=re.M)
+
+if '--unwrap' in sys.argv:
+    args = sys.argv[sys.argv.index('--unwrap') + 1:]
+    if not args:
+        sys.exit('usage: vault-check.py --unwrap <file.md | folder>\n'
+                 '  a folder is walked recursively; files are REWRITTEN in place.')
+    target = pathlib.Path(args[0])
+    if not target.exists():
+        sys.exit(f'no such path: {target}')
+    targets = [target] if target.is_file() else sorted(target.rglob('*.md'))
+    changed = 0
+    for p in targets:
+        s = p.read_text(encoding='utf-8')
+        r = unwrap(s)
+        if r != s:
+            p.write_text(r, encoding='utf-8'); changed += 1
+    print(f'{changed} file(s) rewrapped')
+    sys.exit(0)
+
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)                      # vault dir that holds 00-Index/

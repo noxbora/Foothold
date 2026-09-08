@@ -96,9 +96,9 @@ python3 00-Index/vault-check.py
 
 Thirty checks in seven families. A clean run means every implemented check passed; it says nothing about whether a command is correct, a filter discriminates, or a note has been learned.
 
-**Links:** broken targets, orphans, notes that link only to hubs, unresolved heading anchors, and anything more than two hops from [[Start-Here]] — that last one is stricter than the orphan check, because a note can be well linked and still sit four hops from the entrance.
+**Links:** broken targets, orphans, notes that link only to hubs, two notes sharing a filename (which makes every `[[wikilink]]` to that name ambiguous), heading *and* block anchors that do not resolve, relative Markdown links including the ones in `.github/README.md`, and anything more than two hops from [[Start-Here]] — that last one is stricter than the orphan check, because a note can be well linked and still sit four hops from the entrance.
 
-**Frontmatter:** present, six fields in order, every value inside its vocabulary, `updated` a real date that is not in the future.
+**Frontmatter:** present, six fields in order, every value inside its vocabulary, `updated` a date that exists on the calendar and is not in the future.
 
 **Placement:** every note's folder against that same frontmatter — each folder declares the `type` and `platform` a note inside it must carry, and a note sitting in a folder no rule claims (loose at `02-Techniques/` root, or in a new folder nobody wrote down) fails as well. This is the check that keeps the tree on one axis; the reasoning is in [[Start-Here#Conventions|Start Here → Conventions]].
 
@@ -110,7 +110,7 @@ That check originally looked only at `bash`/`cmd`/`powershell` fences, which let
 
 It also requires that a **sweeping command carry its own filter**. Anything the `**Noise**` bullet tells you to ignore by eye belongs inside the command instead: `tasklist`, `ps aux`, `wmic service get`, `schtasks /query`, `netstat`, `Get-CimInstance Win32_*`, `Get-ScheduledTask`, `systemctl list-units` and a rooted `find -perm` all fail unless something narrows the result. A deliberate unfiltered baseline is marked `<!-- raw-ok -->` above the fence, with the note saying why the whole list is the point.
 
-Last in this family, two rules about the shape of the prose itself: no hard-wrapping, which Obsidian renders as a ragged line break, and no paragraph over 120 words, which is a wall of text on a phone.
+Last in this family, two rules about the shape of the prose itself: no hard-wrapping, which Obsidian renders as a ragged line break, and no paragraph over 120 words, which is a wall of text on a phone. `python3 00-Index/vault-check.py --unwrap <file>` repairs a file that drifted — the check finds the damage, that mode undoes it.
 
 It also requires that jargon have somewhere to be looked up — every acronym and product name appearing in prose must have an entry in one of the A–Z reference notes, because a note that explains a term inline still leaves the other sixty-eight notes using it cold. Terms deliberately left undefined (protocols that already own a service note, products, file formats, CVE ids) sit in the check's own `ALLOW` list, so leaving one out is a decision on the record rather than an omission.
 

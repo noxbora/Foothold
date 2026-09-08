@@ -122,7 +122,7 @@ A fence tagged `text` does not escape the rule. Four variants of one tool stacke
 
 Do not hard-wrap prose. Obsidian renders a single newline as a real line break unless "Strict line breaks" is switched on, so a paragraph broken at a fixed column shows up ragged in reading view — the last word of each source line stranded against the right margin, and zooming does not repair it because the break is in the file.
 
-Write each paragraph, each list item and each callout body as ONE source line and let the reader's window do the wrapping. A callout's marker line (the `[!important]`, `[!warning]` or `[!note]` line) keeps its own line, because text joined onto it becomes the callout title instead of its body. Code fences and tables are exempt: their line breaks are content. `vault-check.py` enforces this, and `00-Index/unwrap.py` repairs a file that drifted.
+Write each paragraph, each list item and each callout body as ONE source line and let the reader's window do the wrapping. A callout's marker line (the `[!important]`, `[!warning]` or `[!note]` line) keeps its own line, because text joined onto it becomes the callout title instead of its body. Code fences and tables are exempt: their line breaks are content. `vault-check.py` enforces this, and `python3 00-Index/vault-check.py --unwrap <file>` repairs a file that drifted.
 
 One source line is not a licence for one enormous line. A paragraph over 120 words is a wall on a phone screen, and the linter fails it — break the thought where it turns, not where the margin happens to fall.
 
