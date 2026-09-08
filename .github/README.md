@@ -14,26 +14,26 @@ its output *means* rather than just listing commands, and a linter
 | If you are… | Open |
 |---|---|
 | New here | [`Start-Here.md`](../Start-Here.md) |
-| Starting a box | [`01-Workflow/Pentest-Workflow.md`](../01-Workflow/Pentest-Workflow.md) |
-| Sitting on a Linux shell | [`02-Techniques/Linux/Linux-Run-Sheet.md`](../02-Techniques/Linux/Linux-Run-Sheet.md) |
-| Sitting on a Windows shell | [`02-Techniques/Windows/Windows-Run-Sheet.md`](../02-Techniques/Windows/Windows-Run-Sheet.md) |
-| Out of ideas | [`01-Workflow/Stuck-Checklist.md`](../01-Workflow/Stuck-Checklist.md) |
+| Starting a box | [`Workflow/Pentest-Workflow.md`](../Workflow/Pentest-Workflow.md) |
+| Sitting on a Linux shell | [`Techniques/Linux/Linux-Run-Sheet.md`](../Techniques/Linux/Linux-Run-Sheet.md) |
+| Sitting on a Windows shell | [`Techniques/Windows/Windows-Run-Sheet.md`](../Techniques/Windows/Windows-Run-Sheet.md) |
+| Out of ideas | [`Workflow/Stuck-Checklist.md`](../Workflow/Stuck-Checklist.md) |
 
 ## Layout
 
 ```text
 Start-Here.md    entry point, house style, weekly review
 vault-check.py   the linter
-01-Workflow/     decision layer — phases, methods, checklists
-02-Techniques/   the attacks, grouped by the surface they attack
+Workflow/     decision layer — phases, methods, checklists
+Techniques/   the attacks, grouped by the surface they attack
   Web/  Services/  Linux/  Windows/  Active-Directory/  Cloud/
-03-Operations/   what you do on any target in any phase — shells, transfer,
+Operations/   what you do on any target in any phase — shells, transfer,
                  pivoting, looting, and Tools/ for flag references
-04-Reference/    lookup material — security terms, general English, and the failure messages that mislead
+Reference/    lookup material — security terms, general English, and the failure messages that mislead
 ```
 
 The tree runs on **one axis**: it answers *what is in front of me*, never *what am I trying
-to do* — that second question belongs to `01-Workflow/`. A technique that attacks no single
+to do* — that second question belongs to `Workflow/`. A technique that attacks no single
 surface and is spent in more than one phase is an operation, not a technique of somewhere.
 The linter enforces it: every folder declares the `type` and `platform` a note inside it must
 carry, so a misfiled note fails the run instead of looking plausible.

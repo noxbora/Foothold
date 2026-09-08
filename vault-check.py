@@ -334,11 +334,11 @@ for n in notes:
 fail['Frontmatter outside the six-field schema'] = sorted(schema)
 
 # A folder is this vault's second index, and an index only works if it means exactly one
-# thing. `02-Techniques/` is grouped by the SURFACE attacked — what is in front of you —
+# thing. `Techniques/` is grouped by the SURFACE attacked — what is in front of you —
 # because that is the question you have when you do not yet know a note's name. The other
-# question, "what am I trying to do", is `01-Workflow/`'s job. Both axes were in use at once
+# question, "what am I trying to do", is `Workflow/`'s job. Both axes were in use at once
 # until 2026-08-28: recon notes were split across three folders, credential notes sat under
-# a goal name, and two notes with no home at all lived loose at `02-Techniques/` root. A
+# a goal name, and two notes with no home at all lived loose at `Techniques/` root. A
 # convention nothing enforces is a convention that drifts, so this map is the enforcement.
 #
 # A `None` platform means the folder constrains `type` only. Services are cross-platform by
@@ -348,23 +348,23 @@ PLACEMENT = {
     # Start-Here sits loose at the Playbook root, on its own. It is the entrance and the
     # only meta note left in the vault, so the root claims `index` and nothing else.
     '':                               ({'index'},     {'any'}),
-    '01-Workflow':                    ({'workflow'},  {'any'}),
-    '02-Techniques/Web':              ({'technique'}, {'web'}),
+    'Workflow':                    ({'workflow'},  {'any'}),
+    'Techniques/Web':              ({'technique'}, {'web'}),
     # `service` = a note about ONE port. A technique that works against services in
     # general attacks the same surface but is not a port, so it keeps `type: technique` —
     # the folder is the surface, the type says which of the two it is. None is filed that
     # way today; the allowance stays because the distinction is the rule, not the example.
-    '02-Techniques/Services':         ({'service', 'technique'}, None),
-    '02-Techniques/Linux':            ({'technique'}, {'linux'}),
-    '02-Techniques/Windows':          ({'technique'}, {'windows'}),
-    '02-Techniques/Active-Directory': ({'technique'}, {'windows'}),
-    '02-Techniques/Cloud':            ({'technique'}, {'cloud'}),
+    'Techniques/Services':         ({'service', 'technique'}, None),
+    'Techniques/Linux':            ({'technique'}, {'linux'}),
+    'Techniques/Windows':          ({'technique'}, {'windows'}),
+    'Techniques/Active-Directory': ({'technique'}, {'windows'}),
+    'Techniques/Cloud':            ({'technique'}, {'cloud'}),
     # The tie-breaker that keeps the surface axis honest: a technique that belongs to no
     # single surface and is used in more than one phase is an operation, not a technique of
     # somewhere. `platform: any` is exactly that test, so it is the folder's entry condition.
-    '03-Operations':                  ({'technique'}, {'any'}),
-    '03-Operations/Tools':            ({'tool'},      None),
-    '04-Reference':                   ({'reference'}, {'any'}),
+    'Operations':                  ({'technique'}, {'any'}),
+    'Operations/Tools':            ({'tool'},      None),
+    'Reference':                   ({'reference'}, {'any'}),
 }
 
 place = []
@@ -704,7 +704,7 @@ fail['Hard-wrapped prose (renders as a ragged line break)'] = sorted(wrapped)
 # The A-Z notes are the dictionary of record; ALLOW is everything deliberately not in it —
 # protocols that already have their own service note, products, file formats, CVE ids, and
 # the fragments the tokeniser produces from combined forms. Anything else is a real gap:
-# define it in 04-Reference/Security-Terms.md, or add it here and say why.
+# define it in Reference/Security-Terms.md, or add it here and say why.
 LEX_NOTES = ('Security-Terms', 'English-Vocabulary')
 
 ALLOW = set("""
@@ -774,7 +774,7 @@ for n in notes:
                 continue
             seen.add(lexkey(tok))
             jargon.append(f'{notes[n]}:{i}: "{tok}" is used but defined nowhere — '
-                          f'add it to 04-Reference/Security-Terms.md')
+                          f'add it to Reference/Security-Terms.md')
 
 fail['Jargon with no entry in the A-Z reference'] = sorted(jargon)
 

@@ -59,7 +59,7 @@ The entrance. Find the row that describes what you are **holding** right now —
 
 **[[Stuck-Checklist]]** — flat, unordered, deliberately scrappy. Read top to bottom when a box has gone quiet. Every line ends in a note, because a reminder with no destination is not usable at the hour you need one.
 
-`01-Workflow/` also holds **method notes that are not spines** — currently [[Public-Exploit-Workflow]]. The difference is how you arrive: a spine is the method behind a whole phase and you navigate *by* it, so it belongs on this page. A method note serves one class of technique and is reached from the notes that need it. Four notes in the folder, three of them here, and nothing was forgotten.
+`Workflow/` also holds **method notes that are not spines** — currently [[Public-Exploit-Workflow]]. The difference is how you arrive: a spine is the method behind a whole phase and you navigate *by* it, so it belongs on this page. A method note serves one class of technique and is reached from the notes that need it. Four notes in the folder, three of them here, and nothing was forgotten.
 
 ---
 
@@ -131,25 +131,29 @@ One rule keeps the field honest: **only a box promotes a note to `cold`.** Re-re
 The tree answers *what is in front of me*. It deliberately does not answer *what am I trying to do* — that is what the three spines above are for, and a tree that tries to answer both makes you guess twice.
 
 ```text
-Start-Here.md    this note — the entrance, the house style, the weekly review
-01-Workflow/     decision layer — phases, methods, checklists
-02-Techniques/   the attacks, grouped by the surface they attack
-   Web/                the application
-   Services/           a service on a port
-   Linux/              the Linux host itself
-   Windows/            the Windows host itself
-   Active-Directory/   the domain
-   Cloud/              cloud identity and services
-03-Operations/   what you do on any target in any phase — shells, transfer, pivoting, looting
-   Tools/              flag references, one per tool
-04-Reference/    lookup material that is not a technique
+Start-Here.md         this note — the entrance, the house style, the weekly review
+Workflow/             decision layer — phases, methods, checklists
+Techniques/           the attacks, grouped by the surface they attack
+    Web/                 the application
+    Services/            a service on a port
+    Linux/               the Linux host itself
+    Windows/             the Windows host itself
+    Active-Directory/    the domain
+    Cloud/               cloud identity and services
+Operations/           what you do on any target in any phase — shells, transfer, pivoting, looting
+    Tools/               flag references, one per tool
+Reference/            lookup material that is not a technique
+
+The order above is not alphabetical and Obsidian sorts alphabetically, so it is held by the
+Custom File Explorer sorting plugin, reading a `sorting-spec` block in the frontmatter of
+`DOJO.md`. Remove the plugin and the tree falls back to A-Z — nothing but the view changes.
 ```
 
-**Choosing one.** Name the surface the technique attacks; file it there. When it attacks no single surface *and* is spent in more than one phase, it is an operation rather than a technique of somewhere — `03-Operations/`, where its `platform` will read `any`. That is the same test written twice, which is why the linter can check it: every folder above declares the `type` and `platform` a note inside it must carry, so a misfiled note fails the run instead of sitting there looking plausible.
+**Choosing one.** Name the surface the technique attacks; file it there. When it attacks no single surface *and* is spent in more than one phase, it is an operation rather than a technique of somewhere — `Operations/`, where its `platform` will read `any`. That is the same test written twice, which is why the linter can check it: every folder above declares the `type` and `platform` a note inside it must carry, so a misfiled note fails the run instead of sitting there looking plausible.
 
 Worth knowing why the rule is stated this sharply. Until 2026-08-28 the tree ran two axes at once — surface for `Web/` and `Services/`, goal for `Recon/`, `Privilege-Escalation/` and `Access-and-Movement/`. No individual note was in a wrong place; what was wrong is that the rule could not say where the *next* one went.
 
-Discovery notes ended up spread across three folders, credential notes were filed by what they were for rather than what they attacked, and two notes with no answer at all sat loose at `02-Techniques/` root. Active Directory is the case that forced the issue: it produces enumeration, credential, escalation and persistence notes at once, and under a goal axis a single domain would have scattered across four folders on the way in.
+Discovery notes ended up spread across three folders, credential notes were filed by what they were for rather than what they attacked, and two notes with no answer at all sat loose at `Techniques/` root. Active Directory is the case that forced the issue: it produces enumeration, credential, escalation and persistence notes at once, and under a goal axis a single domain would have scattered across four folders on the way in.
 
 **Four layers per command.** Technique, service, and tool notes follow the skeleton below, and since 2026-08-29 every section that carries a command carries four things, always in this order:
 
