@@ -18,9 +18,6 @@
 .Spotlight-V100
 .Trashes
 
-# ── iCloud placeholder files ────────────────────────────────
-*.icloud
-
 # ── Secrets: never commit these, wherever they are ──────────
 # Useful guardrails, not a guarantee that all secrets are detected.
 *.pem

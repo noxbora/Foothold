@@ -27,12 +27,15 @@ SORT updated ASC
 
 ## Where the vault stands
 
-A healthy trend is `seed` shrinking and `solid` growing, week over week.
+A healthy trend is `seed` shrinking and `solid` growing, week over week. Every value in the vocabulary gets a column whether or not anything sits in it — a `0` is a reading, and a row that quietly vanishes is not.
 
 ```dataview
-TABLE length(rows) AS count
+TABLE WITHOUT ID
+  length(filter(rows, (r) => r.status = "seed")) AS seed,
+  length(filter(rows, (r) => r.status = "working")) AS working,
+  length(filter(rows, (r) => r.status = "solid")) AS solid
 WHERE type AND type != "index"
-GROUP BY status
+GROUP BY true
 ```
 
 ## Coverage by platform
@@ -40,9 +43,14 @@ GROUP BY status
 A map of where you have been, not a to-do list. Windows being thinner than Linux is information, not a failure.
 
 ```dataview
-TABLE length(rows) AS notes
+TABLE WITHOUT ID
+  length(filter(rows, (r) => r.platform = "linux")) AS linux,
+  length(filter(rows, (r) => r.platform = "windows")) AS windows,
+  length(filter(rows, (r) => r.platform = "web")) AS web,
+  length(filter(rows, (r) => r.platform = "cloud")) AS cloud,
+  length(filter(rows, (r) => r.platform = "any")) AS any
 WHERE type = "technique" OR type = "service"
-GROUP BY platform
+GROUP BY true
 ```
 
 ## Where the knowledge came from
@@ -50,9 +58,14 @@ GROUP BY platform
 `source` is the field you cannot reconstruct later. A `thm` / `htb` note may carry lab-specific IPs, flag formats, and versions; a `field` note should not.
 
 ```dataview
-TABLE length(rows) AS notes
+TABLE WITHOUT ID
+  length(filter(rows, (r) => r.source = "thm")) AS thm,
+  length(filter(rows, (r) => r.source = "htb")) AS htb,
+  length(filter(rows, (r) => r.source = "lab")) AS lab,
+  length(filter(rows, (r) => r.source = "field")) AS field,
+  length(filter(rows, (r) => r.source = "reading")) AS reading
 WHERE type AND type != "index"
-GROUP BY source
+GROUP BY true
 ```
 
 ## What you can do without the note open
@@ -60,9 +73,13 @@ GROUP BY source
 `status` above grades the notes. This grades you against them, and the two are independent — the row that matters is a note the vault leans on hard that is still `unseen`.
 
 ```dataview
-TABLE length(rows) AS notes
+TABLE WITHOUT ID
+  length(filter(rows, (r) => r.fluency = "unseen")) AS unseen,
+  length(filter(rows, (r) => r.fluency = "guided")) AS guided,
+  length(filter(rows, (r) => r.fluency = "cold")) AS cold,
+  length(filter(rows, (r) => r.fluency = "teach")) AS teach
 WHERE type AND type != "index" AND type != "reference"
-GROUP BY fluency
+GROUP BY true
 ```
 
 `python3 00-Index/vault-check.py --fluency` gives the same field ranked by how many notes point at each one. That ranking, not a feeling about what is interesting, is what picks next week's DOJO mats.
