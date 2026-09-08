@@ -13,11 +13,11 @@ its output *means* rather than just listing commands, and a linter
 
 | If you are… | Open |
 |---|---|
-| New here | [`00-Index/Start-Here.md`](00-Index/Start-Here.md) |
-| Starting a box | [`01-Workflow/Pentest-Workflow.md`](01-Workflow/Pentest-Workflow.md) |
-| Sitting on a Linux shell | [`02-Techniques/Linux/Linux-Run-Sheet.md`](02-Techniques/Linux/Linux-Run-Sheet.md) |
-| Sitting on a Windows shell | [`02-Techniques/Windows/Windows-Run-Sheet.md`](02-Techniques/Windows/Windows-Run-Sheet.md) |
-| Out of ideas | [`01-Workflow/Stuck-Checklist.md`](01-Workflow/Stuck-Checklist.md) |
+| New here | [`00-Index/Start-Here.md`](../00-Index/Start-Here.md) |
+| Starting a box | [`01-Workflow/Pentest-Workflow.md`](../01-Workflow/Pentest-Workflow.md) |
+| Sitting on a Linux shell | [`02-Techniques/Linux/Linux-Run-Sheet.md`](../02-Techniques/Linux/Linux-Run-Sheet.md) |
+| Sitting on a Windows shell | [`02-Techniques/Windows/Windows-Run-Sheet.md`](../02-Techniques/Windows/Windows-Run-Sheet.md) |
+| Out of ideas | [`01-Workflow/Stuck-Checklist.md`](../01-Workflow/Stuck-Checklist.md) |
 
 ## Layout
 
@@ -47,15 +47,15 @@ graph view are the point. They render fine on GitHub, minus the links.
 
 ## Conventions
 
-Every note opens with five frontmatter fields:
+Every note opens with six frontmatter fields:
 
 ```yaml
 type: technique        # workflow | technique | service | tool | reference | index
 platform: linux        # linux | windows | web | cloud | any
 status: working        # seed | working | solid
 fluency: unseen        # unseen | guided | cold | teach
-source: htb            # thm | htb | lab | field | reading
-updated: 2026-08-25
+source: thm            # thm | htb | lab | field | reading
+updated: 2026-09-08
 ```
 
 `status` grades the note and `fluency` grades the reader; both are honest labels,
@@ -63,7 +63,7 @@ not aspirations. `seed` means placeholder, and only using a note on a box promot
 past `guided`.
 Filenames are `Title-Case-With-Hyphens`; service notes are `PORT-Service`.
 Full house style lives in
-[`Start-Here.md`](00-Index/Start-Here.md#conventions).
+[`Start-Here.md`](../00-Index/Start-Here.md#conventions).
 
 ## Linter
 
@@ -71,7 +71,7 @@ Full house style lives in
 python3 00-Index/vault-check.py
 ```
 
-Twenty-three checks covering what Dataview cannot see — link topology (broken targets,
+Thirty checks covering what Dataview cannot see — link topology (broken targets,
 orphans, hub-only notes, unresolved anchors, anything more than two hops from the
 entry point), frontmatter conformance (six fields, in order, values inside their
 vocabulary, a real non-future date), folder placement (each folder's declared `type`

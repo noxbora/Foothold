@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-02
+updated: 2026-09-08
 ---
 
 # Kerberoasting
@@ -21,14 +21,14 @@ GetUserSPNs.py 'domain.local/user:password' -dc-ip <dc ip>
 
 - no `-request` on this first run → you get the table only. Requesting every ticket in the domain before you have read the table is louder, and hands you a pile of hashes most of which are not worth a wordlist.
 - `-dc-ip` → the domain controller to query. Omit it and the tool resolves the domain name through your own resolver, which on a lab network is a hang and then a connection error that reads as the domain being unreachable.
-- the filter you would otherwise have to write is already inside this tool: it asks the directory only for accounts that have a service name *and* are user accounts. Machine accounts also carry service names, and their passwords are 120 random characters rotated automatically — enumerate service names by hand over the directory protocol and you will collect those too, and spend a night on something that has never once been cracked.
+- the filter you would otherwise have to write is already inside this tool: it asks the directory only for accounts that have a service name *and* are user accounts. Machine accounts also carry service names, and their passwords are 120 random characters rotated automatically — enumerate service names by hand over the directory protocol and you will collect those too, and spend a night on something that has never once been cracked. Managed service accounts are the same class of waste, for the same reason.
 
 **What you will see**
 
 - **Found** — a table with six columns: the service name, the account, `MemberOf`, `PasswordLastSet`, `LastLogon` and `Delegation`. Read the third and fourth before anything else; they decide whether the crack is worth starting.
 - **Empty** — `No entries found!` with the bind having plainly succeeded. This is the rare place where empty means empty: nobody has registered a service name on a user account. It is not a permission problem, because a failed bind errors instead of returning a table. A small domain genuinely produces this.
 - **Error** — `STATUS_LOGON_FAILURE` is the credential, not the attack. `KRB_AP_ERR_SKEW` is your clock. A timeout is usually `-dc-ip` pointing at the wrong host, or at the file server rather than the domain controller.
-- **Noise** — an account whose `MemberOf` is blank is a member of nothing but the default user group, so cracking its password buys you exactly the access you already have. `krbtgt` sometimes appears in the table and is never the answer.
+- **Noise** — an account whose `MemberOf` is blank belongs to nothing beyond its primary group, so cracking its password buys you exactly the access you already have. That attribute never lists the primary group, which is `Domain Users` on an ordinary account, so blank means *no extra groups*, not *no groups*. `krbtgt` sometimes appears in the table and is never the answer.
 
 **Then** — a name with a real group in `MemberOf` goes to the next section. An empty `MemberOf` on every row means this domain has nothing here for you: go back to [[AD-Authentication]] and spend the credential on finding a host where it is administrator ([[Active-Directory-Lateral-Movement]]). An empty table means the same thing, sooner.
 
@@ -63,7 +63,7 @@ hashcat -m 13100 -a 0 tgs.txt /usr/share/wordlists/rockyou.txt
 
 Two columns decide the whole attack and both are printed by the first command, before any ticket is requested. `MemberOf` is the payout: it is what the password buys, and blank means it buys nothing you do not already have. `PasswordLastSet` is the probability: a date several years old means a password chosen under an older policy by a person who has since left, while a recent date on an unmemorable account name usually means the domain is managing that password automatically and it will not crack.
 
-The reason this works at all is worth keeping straight, because it explains the one thing that surprises people: nothing is exploited, and nothing is bypassed. The domain controller is doing exactly what it is designed to do — issuing a ticket for a service to a user who asked. The flaw is that the ticket is encrypted with a human-chosen password and the domain will hand it to anyone, so the attack lives entirely on your own machine after the request. There is no lockout, no retry limit, and no second request to detect.
+The reason this works at all is worth keeping straight, because it explains the one thing that surprises people: nothing is exploited, and nothing is bypassed. The domain controller is doing exactly what it is designed to do — issuing a ticket for a service to a user who asked. The flaw is that the ticket is encrypted with a human-chosen password and the domain will hand it to anyone, so the attack lives entirely on your own machine after the request. There is no lockout and no retry limit, because the guessing happens on your disk. The ticket request itself is an ordinary logged event, so the attack is quiet, not invisible.
 
 ## Rarely — worth one command, not worth a step
 

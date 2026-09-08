@@ -4,7 +4,7 @@ platform: linux
 status: working
 fluency: guided
 source: reading
-updated: 2026-09-04
+updated: 2026-09-08
 ---
 
 # Linux Run Sheet
@@ -121,12 +121,14 @@ getcap -r / 2>/dev/null
 **Why now** — steps 1-3 looked at files sitting still. This one looks at what is actually running, because a process owned by root that you can talk to, feed, or restart is as good as a SUID binary and shows up nowhere in a permissions sweep.
 
 ```bash
-ps -eo user,pid,cmd --no-headers | grep -vE '\[' | grep -vE '(^| )/(usr/)?s?bin/|/usr/lib/|/usr/libexec/'
+ps -eo user,pid,cmd --ww --no-headers | grep -vE '\[' | grep -vE ' /(usr/)?s?bin/[^ ]+$| /usr/lib(exec)?/[^ ]+$'
 ```
 
 - Same discriminator as the SUID sweep and the same reason: the distribution's own binaries live in `/bin`, `/sbin`, `/usr/bin`, `/usr/sbin`, `/usr/lib`. What is left runs from `/opt`, `/srv`, `/home`, `/usr/local` or is a script — and that is the only part of a 200-line process list you were ever going to act on.
+- **The `$` at the end of the exclusion is load-bearing.** A stock interpreter running somebody's script — `monitor 812 /bin/bash /usr/local/bin/healthcheck` — contains `/bin/bash`, so an unanchored exclusion deletes the exact line you came for. Anchored, a line only dies when the stock path is the **last** thing on it, which means nothing was handed to it.
+- What it still hides: a planted binary sitting in `/usr/bin` under a stock name. What it lets through: a stock daemon carrying flags, `/usr/sbin/sshd -D`, because the line does not end at the path. Two or three of those are normal. Two hundred lines back means the quoting broke and the filter never ran at all.
 - `grep -vE '\['` → drops kernel threads, which show as `[kworker/0:1]`. There are dozens and none of them are yours to influence.
-- `-eo user,pid,cmd` rather than `aux` → the same information with the columns you need and none of the CPU/memory noise that pushes the command line off the right edge of a narrow shell.
+- `-eo user,pid,cmd` rather than `aux` → the same information with the columns you need and none of the CPU/memory noise that pushes the command line off the right edge of a narrow shell. `--ww` → never truncate at the terminal width, or the script path you are hunting is cut off the right edge anyway.
 - A surviving line running as a **non-standard user from a non-standard path** — `monitor 812 /bin/bash /usr/local/bin/healthcheck` — is the signal to go read that script and the unit or cron entry that launches it. The exploitable detail (a `PATH` override, a bare command name) is in the file, never in the process list.
 
 ```bash

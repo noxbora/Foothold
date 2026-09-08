@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: reading
-updated: 2026-08-31
+updated: 2026-09-08
 ---
 
 # Windows Run Sheet
@@ -192,7 +192,7 @@ schtasks /query /fo csv /v | findstr /i /v /c:"\Microsoft\Windows\"
 reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
 ```
 
-- Machine-wide startup entries. Anything here runs at boot as whoever logs in; a writable target here is the same trick as a writable service binary.
+- Machine-wide startup entries. `HKLM\...\Run` fires at **logon**, not at boot, and the entry runs as the account that signs in — so a writable target here pays out only when somebody with more privilege than you logs on. That is a wait with no guarantee attached; weigh it against a service you can restart yourself.
 
 ```cmd
 dir "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"

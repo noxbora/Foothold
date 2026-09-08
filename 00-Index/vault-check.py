@@ -15,6 +15,7 @@ One read-only mode prints a list and exits 0 instead of checking anything:
     --fluency   what the vault leans on hardest that you cannot yet do — DOJO's input
 """
 import os, re, sys, collections, datetime
+from urllib.parse import unquote, urlsplit
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)                      # vault dir that holds 00-Index/
@@ -23,11 +24,15 @@ HUBS = {'Start-Here', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet'
 SKELETON_TYPES = {'technique', 'service', 'tool'}
 
 notes, text = {}, {}
+duplicate_names = []
 for r, d, fs in os.walk(ROOT):
     d[:] = [x for x in d if not x.startswith('.')]
     for f in fs:
         if f.endswith('.md'):
             p = os.path.join(r, f)
+            if f[:-3] in notes:
+                duplicate_names.append(f'{notes[f[:-3]]} and {os.path.relpath(p, ROOT)}')
+                continue
             notes[f[:-3]] = os.path.relpath(p, ROOT)
             text[f[:-3]] = open(p, encoding='utf-8', errors='replace').read()
 
@@ -57,6 +62,7 @@ for n in notes:
             inbound[tgt].add(n)
 
 fail = collections.OrderedDict()
+fail['Duplicate note names (ambiguous wikilinks)'] = sorted(duplicate_names)
 
 fail['Broken links (target note does not exist)'] = sorted(
     f'{s} -> [[{t}]]' for s in notes for t in outbound[s] if t not in notes)
@@ -95,13 +101,49 @@ anchor_issues = []
 for n in notes:
     for m in re.finditer(r'\[\[([^\]]+)\]\]', prose(text[n])):
         raw = m.group(1).split('|')[0]
-        if '#' not in raw or '#^' in raw:
+        if '#' not in raw:
             continue
         tgt, anchor = raw.split('#', 1)
         tgt = tgt.strip() or n
-        if tgt in notes and anchor.strip() not in bad_anchors(tgt):
+        anchor = anchor.strip()
+        if tgt not in notes:
+            continue
+        if anchor.startswith('^'):
+            resolves = bool(re.search(r'(?m)(?:^|\s)' + re.escape(anchor) + r'\s*$', prose(text[tgt])))
+        else:
+            resolves = anchor in bad_anchors(tgt)
+        if not resolves:
             anchor_issues.append(f'{notes[n]} -> [[{tgt}#{anchor.strip()}]]')
-fail['Heading anchors that do not resolve'] = sorted(set(anchor_issues))
+fail['Heading or block anchors that do not resolve'] = sorted(set(anchor_issues))
+
+# Inline Markdown file links, including the repository's hidden README.
+# This deliberately does not crawl external URLs or treat examples as live links.
+markdown_links = []
+documents = [(os.path.join(ROOT, notes[n]), text[n]) for n in notes]
+readme = os.path.join(ROOT, '.github', 'README.md')
+if os.path.isfile(readme):
+    documents.append((readme, open(readme, encoding='utf-8').read()))
+for path, body in documents:
+    # Keep inline code in labels; remove fences only.
+    body = re.sub(r'```.*?```', '', body, flags=re.S)
+    for m in re.finditer(r'(?<!!)\[[^\]\n]+\]\((<[^>]+>|[^\s)]+)\)', body):
+        raw = m.group(1).strip('<>')
+        parts = urlsplit(raw)
+        if parts.scheme or parts.netloc:
+            continue
+        target = os.path.normpath(os.path.join(os.path.dirname(path), unquote(parts.path))) if parts.path else path
+        issue = None
+        if not os.path.isfile(target):
+            issue = 'missing file'
+        elif parts.fragment and target.endswith('.md'):
+            target_text = open(target, encoding='utf-8').read()
+            heads = re.findall(r'(?m)^#{1,6}\s+(.+?)\s*$', re.sub(r'```.*?```', '', target_text, flags=re.S))
+            slugs = {re.sub(r'[^\w\- ]', '', h.lower()).replace(' ', '-') for h in heads}
+            if unquote(parts.fragment) not in slugs:
+                issue = 'missing heading'
+        if issue:
+            markdown_links.append(f'{os.path.relpath(path, ROOT)} -> {raw}: {issue}')
+fail['Relative Markdown links that do not resolve'] = sorted(markdown_links)
 
 INVISIBLE = {'\u00a0': 'NBSP', '\u200b': 'zero-width space',
              '\u00ad': 'soft hyphen', '\ufeff': 'BOM'}
@@ -189,6 +231,11 @@ for n in notes:
         schema.append(f'{notes[n]}: updated: {f["updated"]!r} is not YYYY-MM-DD')
     elif f['updated'] > TODAY:
         schema.append(f'{notes[n]}: updated: {f["updated"]} is in the future')
+    else:
+        try:
+            datetime.date.fromisoformat(f['updated'])
+        except ValueError:
+            schema.append(f'{notes[n]}: updated: {f["updated"]!r} is not a valid calendar date')
 
 fail['Frontmatter outside the six-field schema'] = sorted(schema)
 
@@ -877,7 +924,7 @@ for n in notes:
 
 fail['Emphasis markers that will not render'] = sorted(glued)
 
-print(f'PLAYBOOK vault check — {len(notes)} notes\n' + '=' * 46)
+print(f'PLAYBOOK vault check — {len(notes)} notes, {len(fail)} checks\n' + '=' * 46)
 bad = 0
 for label, items in fail.items():
     if items:

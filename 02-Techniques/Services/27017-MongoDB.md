@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: lab
-updated: 2026-08-30
+updated: 2026-09-08
 ---
 
 # 27017 — MongoDB
@@ -58,7 +58,9 @@ db.<collection>.find().pretty()
 
 Two judgements govern this port, and the first one is the reason not to move on too quickly.
 
-**Access here is binary, and the access itself is the finding.** MongoDB has no permission layer waiting behind the prompt: once a connection is accepted without a credential, every database on the server is readable, and there is no second gate to test. So the result is decided at the connect, not at the data — an instance holding nothing but the three stock databases is exactly as misconfigured as one holding a `users` collection, and it is reported the same way. Walking the data tells you what the exposure is worth; it does not tell you whether there is one.
+**With authentication off, access is binary and the access itself is the finding.** MongoDB has no permission layer waiting behind the prompt: once a connection is accepted without a credential, every database on the server is readable, and there is no second gate to test. So the result is decided at the connect, not at the data — an instance holding nothing but the three stock databases is exactly as misconfigured as one holding a `users` collection, and it is reported the same way. Walking the data tells you what the exposure is worth; it does not tell you whether there is one.
+
+**A credential changes that.** If you had to authenticate to get in, roles apply: one readable collection proves that collection and nothing more, so write down what you actually read.
 
 **A reachable 27017 is itself evidence, not just an opportunity.** Modern MongoDB binds to loopback by default, so a port answering from another machine means somebody deliberately changed the bind address. That edit is made in the same configuration file, in the same sitting, as the authentication setting — which is why a Mongo you can reach at all is far more often a Mongo you can enter than the base rate would suggest. Treat `requires authentication` as the surprise, and go looking for the credential in [[Config-File-Looting]] rather than assuming the route is closed.
 

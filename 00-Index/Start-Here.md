@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-04
+updated: 2026-09-08
 ---
 
 # Start Here
@@ -198,10 +198,7 @@ python3 00-Index/vault-check.py --gaps
 
 Maintaining a second copy here would just drift from that one. What follows is the curated short list: the missing pieces most likely to block a box, in rough order of how often they come up. When one is written, its `## Gaps` line disappears from the generated list on its own.
 
-1. **File upload bypass** — often the shortest route to a web shell.
-2. **[[Security-Terms#^ssrf|SSRF]]** — absent from `02-Techniques/Web/` entirely.
-3. **Credential capture on the wire** — Responder, [[Security-Terms#^netntlmv2|NetNTLMv2]]. [[Hash-Cracking]] can spend those hashes but nothing covers collecting them.
-4. **Services with no note** — SNMP (161), [[Security-Terms#^ldap|LDAP]] (389), [[Security-Terms#^nfs|NFS]] (2049).
-5. **Pivoting beyond SSH** — proxychains, chisel, ligolo, socat relays.
-6. **Active Directory** — [[Security-Terms#^bloodhound|BloodHound]], delegation, [[Security-Terms#^dcsync|DCSync]], forged tickets. Authentication and [[Kerberoasting]] are written; everything that follows the first credential is not.
-7. **Reporting** — [[Pentest-Workflow#Phase 6 — Reporting|Phase 6]] is empty on purpose.
+1. **Credential capture on the wire** — Responder, [[Security-Terms#^netntlmv2|NetNTLMv2]]. [[Hash-Cracking]] can spend those hashes but nothing covers collecting them.
+2. **Pivoting beyond SSH** — chisel, ligolo, socat relays. [[Pivoting-and-Tunneling]] owns the SSH tunnel and the proxychains chain; nothing covers pivoting from a host with no `ssh` client on it.
+3. **Active Directory** — [[Security-Terms#^bloodhound|BloodHound]], delegation, [[Security-Terms#^dcsync|DCSync]], forged tickets. Authentication and [[Kerberoasting]] are written; everything that follows the first credential is not.
+4. **Reporting** — [[Pentest-Workflow#Phase 6 — Reporting|Phase 6]] is empty on purpose.

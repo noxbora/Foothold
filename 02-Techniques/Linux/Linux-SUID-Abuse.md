@@ -4,7 +4,7 @@ platform: linux
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # Linux — SUID & SGID Abuse
@@ -49,7 +49,7 @@ find / -type f \( -perm -4000 -o -perm -2000 \) -printf '%M %u %p\n' 2>/dev/null
 - **Found** — an `s` in the owner execute slot for SUID, or in the group execute slot for SGID. A path under `/opt`, `/usr/local` or a home directory; an interpreter, an editor, a pager or a compression tool anywhere; or a stock-looking path with a date years newer than its neighbours.
 - **Empty** — from the SUID sweep, almost always a mistake rather than a finding. Every Linux host ships a dozen SUID binaries, so nothing at all means the `-perm` argument was wrong or the `2>/dev/null` swallowed the output. From the SGID sweep, a short list is normal. Genuinely empty on both, with the syntax verified, closes this category — and sends you to the capability sweep, not to the next category.
 - **Error** — `find: paths must precede expression` means an argument landed in the wrong order. `Permission denied` lines appearing anyway means the redirect was attached to the pipeline rather than to `find` itself.
-- **Noise** — `passwd`, `su`, `sudo`, `mount`, `umount`, `ping`, `chsh`, `chfn`, `newgrp`, `gpasswd`, `pkexec` are expected SUID on nearly every host. On the SGID side, `wall`, `write`, `ssh-agent`, `expiry` and `crontab` are equally standard. A capital `S` instead of `s` means the set-bit is on but the execute bit is not: you cannot run it, so it is a misconfiguration rather than a path.
+- **Noise** — `passwd`, `su`, `sudo`, `mount`, `umount`, `ping`, `chsh`, `chfn`, `newgrp`, `gpasswd`, `pkexec` are expected SUID on nearly every host. On the SGID side, `wall`, `write`, `ssh-agent`, `expiry` and `crontab` are equally standard. A capital `S` instead of `s` means the set-bit is on and that slot's execute bit is not; read the other two slots before writing it off, because the file may still be executable through one of them.
 
 **Then** — a non-stock hit goes to the mode column below, then to the rule that decides what it is worth. Cross-check the binary name on **[[Security-Terms#^gtfobins|GTFOBins]]** (`https://gtfobins.github.io`), a public catalogue of ordinary Unix binaries listing, for each one, the exact keystrokes that make it read a file, write a file, or spawn a shell when it runs with borrowed privilege.
 
@@ -69,7 +69,7 @@ An empty or stock-only result goes to [[Linux-Capabilities]]: a capped interpret
 
 - `s` in the **owner** execute slot → SUID; the process runs as the owner, `root` above.
 - `s` in the **group** execute slot → SGID; it runs as the group. `shadow` is not root, but the `shadow` group reads `/etc/shadow` — judge the group by what it can reach, not by whether the word says root.
-- capital `S` → the set-bit is on and the execute bit is off. Nobody can run it, including you.
+- capital `S` → the set-bit is on and *that slot's* execute bit is off. It is not a blanket block: `-rwSr--r--` has no execute bit anywhere and nobody runs it, while `-rwSr-xr-x` still runs for group and other, and still runs as the owner.
 - an owner that is a **service account** — a non-human account a daemon runs under, such as `www-data`, `mysql` or `backup`, normally with no password and no login shell — rather than root is still worth taking. It is a lateral move rather than an escalation, and on a chained host that is usually the intended path.
 
 ## The rule that decides everything
@@ -248,7 +248,7 @@ ltrace /usr/local/bin/SUSPECT 2>&1 | grep -E 'system|exec|popen|fopen'
 ```
 
 - This shows what the binary actually calls rather than what it contains. A `system("gzip …")` line is the same finding as above, confirmed instead of guessed.
-- `ltrace` is missing on many hardened hosts and refuses to trace a `setuid` binary as a normal user on others. A refusal here is a property of the tracer, not of the target.
+- `ltrace` is missing on many hardened hosts and refuses to trace a `setuid` binary as a normal user on others. A refusal here is a property of the tracer, not of the target. Linux also drops the SUID elevation for a traced process, so a trace that does run shows you the call path and never the privileged behaviour.
 
 ```bash
 mount | grep -E 'nosuid|noexec'

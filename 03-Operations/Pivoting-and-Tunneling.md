@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: thm
-updated: 2026-08-31
+updated: 2026-09-08
 ---
 
 # Pivoting and Tunneling
@@ -55,7 +55,7 @@ ssh -D 1080 christine@TARGET_IP -N
 - **Error** — `proxychains: could not connect to 127.0.0.1:1080` means the `-D` tunnel is not up (the `ssh` died, or you are pointing at the wrong port). `Connection refused` inside a chain that otherwise works is a normal closed-port result, not a proxy failure.
 - **Noise** — proxychains is **slow**, and a slow scan looks like a hung one. Keep the port set small (`-p 22,80,443,445,3389`) and expect timeouts; a UDP scan through SOCKS does not work at all and its empty result is meaningless, not a finding.
 
-**Then** — an internal host with open ports becomes your next target: run the [[Linux-Run-Sheet]] against it *through* the proxy. If it exposes a service you have credentials for, you may prefer a targeted `-L` forward (section 1) to that one port for speed. No reachable hosts at all closes this pivot.
+**Then** — an internal host with open ports becomes your next target: scan it *through* the proxy, and once you have a shell on it the run sheet for its platform starts again from step 1. If it exposes a service you have credentials for, you may prefer a targeted `-L` forward (section 1) to that one port for speed. No reachable hosts at all closes this pivot.
 
 ## 3 — A host that cannot dial out: remote forward
 

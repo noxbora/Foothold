@@ -4,7 +4,7 @@ platform: linux
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # Linux — PATH Abuse
@@ -98,7 +98,7 @@ find / -writable -type d 2>/dev/null | grep -vE '^/(proc|sys|run)' | sort -u
 
 - `-writable` → asks the kernel rather than reading mode bits, so it accounts for your group memberships and for ACLs. Reasoning about `ls -ld` output instead is how you conclude a directory is closed when it is not.
 - `grep -vE '^/(proc|sys|run)'` → those three are writable in places by design and none of it is useful here. Without the filter the real answers are buried in `/proc/<pid>` entries.
-- `sort -u` → the walk revisits paths through symlinks; without this the same directory appears several times.
+- `sort -u` → sorts and drops duplicates so the list reads in one pass. `find` does not follow directory symlinks unless you ask it to, so this is tidying rather than a correction.
 
 **What you will see**
 
@@ -129,7 +129,7 @@ export PATH=$PATH:/tmp   ->   /usr/local/bin:/usr/bin:/bin:/tmp     <- searched 
 ```
 
 - when the hijacked name is a real command — `whoami`, `ls`, `ps`, `service` — appending puts you behind `/usr/bin`, which already has it, and your file is never reached.
-- `hash -r` → bash remembers where it found a command and ignores `$PATH` on the next call. This bites when *testing* the hijack in your own shell; it does not affect a C program's `system()`, which starts a fresh shell each time.
+- `hash -r` → bash remembers where it found a command and ignores `$PATH` on the next call. This bites when *testing* the hijack in your own shell; it does not affect a C program's `system()`, which starts a fresh shell each time. Assigning to `PATH` clears that cache as well, which is why an export sometimes appears to work without this line.
 
 **What you will see**
 
@@ -153,7 +153,7 @@ printf '#!/bin/bash\n/bin/bash\n' > whoami
 ```
 
 ```bash
-chmod 777 whoami
+chmod 700 whoami
 ```
 
 ```bash
@@ -165,7 +165,7 @@ id
 ```
 
 - the filename must match the string from the previous step **exactly**. It is not a name you choose — the binary chose it at compile time, and the match is the entire mechanism.
-- `chmod 777` → executable is the part that matters; `+x` alone is enough. A file that is present but not executable is skipped by `PATH` resolution as if it were not there, and produces `command not found` rather than a permission error.
+- `chmod 700` → executable is the part that matters, and the owner bit is enough here: a root-triggered command runs your file whoever else can read it, so there is no reason to make it world-writable. A file that is present but not executable is skipped by `PATH` resolution as if it were not there, and produces `command not found` rather than a permission error.
 - confirm with `id`, not with `whoami` → `whoami` is now your own script and will print whatever you told it to. This is the single most confusing way to misread a successful exploit.
 
 **What you will see**
@@ -234,7 +234,7 @@ find / -writable -type d -path '*/lib*' 2>/dev/null
 
 **An absolute path closes this vector and that is a good outcome, not a wasted hour.** `system("/usr/bin/whoami")` never consults `$PATH`. Write it down as a clean negative and judge the binary on what it does in-process instead: [[Linux-SUID-Abuse]].
 
-**Two lines in `sudo -l` decide this vector for sudo entries specifically.** `secure_path=` replaces `$PATH` with a fixed value, so nothing you export survives into the sudo'd command. `env_keep+=PATH` in the same Defaults line is the opposite finding and reopens it → [[Linux-Sudo-Abuse]].
+**Two lines in `sudo -l` decide this vector for sudo entries specifically.** `secure_path=` replaces `$PATH` with a fixed value, so nothing you export survives into the sudo'd command. `env_keep+=PATH` reopens it only where `secure_path` is absent — set both and `secure_path` wins, so read the two together rather than treating `env_keep` as the answer → [[Linux-Sudo-Abuse]].
 
 **An empty element in `$PATH` is a finding on its own.** A leading `:`, a trailing `:`, a `::`, or a literal `.` means the **current directory** is searched. No `export` is needed at all: write your file into whatever directory the privileged program runs from.
 

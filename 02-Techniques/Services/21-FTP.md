@@ -4,7 +4,7 @@ platform: linux
 status: working
 fluency: guided
 source: reading
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # 21 — FTP
@@ -151,11 +151,11 @@ put probe.txt probe.txt
 **Why now** — the share has more than a handful of files and clicking through it in the client is slow and lossy. Mirror the whole tree once, then grep it locally at your own speed with tools the FTP prompt does not have.
 
 ```bash
-wget -m --no-passive ftp://anonymous:anonymous@<ip>
+wget -m ftp://anonymous:anonymous@<ip>
 ```
 
 - `-m` → mirror: recursive, keeps timestamps, no depth limit. This is the flag that fixes `mget`'s non-recursive behaviour.
-- `--no-passive` → forces active mode. Drop it the moment the transfer stalls, because active is usually the mode that does *not* work from behind NAT.
+- Passive is `wget`'s default, and it is the mode that works from behind NAT because **your** side opens the data connection. Reach for `--no-passive` only when a passive transfer stalls and you want to know whether the server's advertised passive port is reachable at all.
 
 **What you will see**
 

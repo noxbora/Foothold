@@ -4,7 +4,7 @@ platform: linux
 status: working
 fluency: guided
 source: lab
-updated: 2026-08-31
+updated: 2026-09-08
 ---
 
 # 22 — SSH
@@ -49,7 +49,7 @@ ssh mark@10.112.165.56 "id; sudo -l"
 
 - **Found** — a shell prompt as the target user, or, for the one-shot form, the command's output followed by the connection closing. Run `id` first thing to confirm who you landed as.
 - **Empty** — a key that connects but drops you at a locked or `nologin` shell means the account exists and is deliberately shell-less; the credential is valid but this user is not a login route. That is a finding about *which* user to target, not a failure.
-- **Error** — `Permission denied (publickey)` means password auth is **off** — you need a key, and a better password will never work. `Permission denied (publickey,password)` means passwords are still accepted, so credential attacks are in play. `Connection refused` is nothing listening on that port; `Connection timed out` is filtered — reach it through a tunnel. `REMOTE HOST IDENTIFICATION HAS CHANGED` in a lab is almost always the box being rebuilt, not a [[Security-Terms#^mitm|MITM]] — clear the offending `known_hosts` line and reconnect.
+- **Error** — `Permission denied (publickey)` means password auth is **off** — you need a key, and a better password will never work. `Permission denied (publickey,password)` means passwords are still accepted, so credential attacks are in play. A `Match` block in `sshd_config` can offer a different list to a different user or address, so read it as this account's answer rather than the whole server's. `Connection refused` is nothing listening on that port; `Connection timed out` is filtered — reach it through a tunnel. `REMOTE HOST IDENTIFICATION HAS CHANGED` in a lab is almost always the box being rebuilt, not a [[Security-Terms#^mitm|MITM]] — clear the offending `known_hosts` line and reconnect.
 - **Noise** — the fingerprint-acceptance prompt on first connect (`Are you sure you want to continue connecting`) is routine, not a security event; type `yes`.
 
 **Then** — a shell goes straight to [[Linux-Local-Enumeration]] and the [[Linux-Run-Sheet]] as this user. `Permission denied (publickey)` sends you to hunt a key in [[Config-File-Looting]] (reusable keys and passphrases hide in configs and shell history). `(publickey,password)` with no password in hand goes to a targeted guess built from [[Custom-Wordlist-Attack-Chain]], not a blind rockyou run.

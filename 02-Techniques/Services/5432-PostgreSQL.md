@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: thm
-updated: 2026-08-30
+updated: 2026-09-08
 ---
 
 # 5432 — PostgreSQL
@@ -45,12 +45,13 @@ SELECT * FROM flag;
 
 - `\l` → list every database. The one with an application name, not `postgres`/`template0`/ `template1`, is where the data is.
 - `\c <db>` → connect to that database; the meta-commands that follow act on it.
-- `\dt` → list tables in the current database. Forget the `\c` first and `\dt` reports "no relations found" because you are still in the empty default database — which reads as an empty server when it is not.
+- `\dt` → list the tables in the current database. Forget the `\c` first and `\dt` answers "Did not find any relations." because you are still standing in the empty default database, which reads as an empty server when it is not.
+- `\dt` also shows only what the schema search path covers, so a database whose tables live in another schema answers exactly the same way with the tables sitting right there. `\dn` lists the schemas and `\dt *.*` lists across all of them.
 
 **What you will see**
 
 - **Found** — a table listing, then rows containing credentials, hashes, tokens or flags.
-- **Empty** — `\dt` showing "Did not find any relations." *after* a correct `\c` is a genuinely empty database; the same message before the `\c` is just the wrong database.
+- **Empty** — "Did not find any relations." is three different answers wearing one message: the wrong database (no `\c` yet), the right database with its tables in another schema, or a genuinely empty one. Run `\dt *.*` before you accept the third.
 - **Error** — `permission denied for table <name>` means the account sees the table exists but cannot read it — a scoped user, so hunt a higher-privileged credential.
 - **Noise** — `postgres`, `template0` and `template1` are on every instance; they are the engine's own databases, not target data.
 
@@ -70,3 +71,4 @@ The recurring trap here is misreading *where* you are connected. A refusal is fa
 
 - No `COPY ... FROM PROGRAM` command-execution walk-through for a superuser account.
 - Nothing on reading server-side files with `pg_read_file()` short of superuser.
+

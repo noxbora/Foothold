@@ -4,7 +4,7 @@ platform: web
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-09-08
 ---
 
 # Authentication Attacks
@@ -71,7 +71,7 @@ ffuf -w /usr/share/seclists/Usernames/Names/names.txt:USER \
 
 ## Spray passwords against confirmed usernames
 
-**Why now** — you hold real usernames. Now you spend them, and the constraint that shapes this step is lockout: a few common passwords against many users is safe, while many passwords against one user locks the account and ends the route.
+**Why now** — you hold real usernames. Now you spend them, and the constraint that shapes this step is lockout: a few common passwords against many users is safe, while many passwords against one user locks the account and ends the route. Spraying keeps the attempts per account low only while each round is one password; the round itself is still one attempt against every user in the list.
 
 ```bash
 ffuf -w users-found.txt:U -w /usr/share/seclists/Passwords/Common-Credentials/10-million-password-list-top-100.txt:P \
@@ -81,7 +81,7 @@ ffuf -w users-found.txt:U -w /usr/share/seclists/Passwords/Common-Credentials/10
 ```
 
 - two wordlists with `:U` and `:P` → named inputs, referenced by name in the body
-- `-mode clusterbomb` → every username against every password. `-mode pineapple` (positional pairs) is what you want when you have matched user:pass pairs from a breach dump instead
+- `-mode clusterbomb` → every username against every password. `-mode pitchfork` (positional pairs) is what you want when you have matched user:pass pairs from a breach dump instead
 - `-fs 4242` → **the number from the manual baseline, not a guess.** Filtering is the whole game here: pick the wrong dimension and you either see everything or nothing. Use `-fc` when the status differs, `-fs`/`-fw` when only the body does, and `-fr` for a failure string
 - filter on **failure**, not success → you know exactly what a failed login looks like because you produced one by hand; you do not yet know what success looks like. Hiding the known failure and looking at what remains is more reliable than predicting the hit
 - `-p 0.2` → a delay between requests. Slower, and often the difference between a full run and a lockout that ends the engagement
@@ -91,7 +91,7 @@ ffuf -w users-found.txt:U -w /usr/share/seclists/Passwords/Common-Credentials/10
 
 - **Found** — one or two rows standing apart from the rest: a different size, a 302 to a dashboard, or a `Set-Cookie` carrying a session. Confirm by logging in manually before building anything on it.
 - **Empty** — the honest reading is "not these passwords for these users". Before accepting it, check that the filter is not hiding the hit — rerun with the filter removed and eyeball ten rows to confirm they really are all failures. Then either widen the password list or accept that credentials are not the way in and move to the logic flaws below.
-- **Error** — responses that suddenly become uniform partway through a run mean rate limiting or lockout engaged, and every result after that point is meaningless. A 403 arriving instantly for every request is a WAF that has recognised the tool.
+- **Error** — responses that suddenly become uniform partway through a run mean rate limiting or lockout engaged, and every result after that point is meaningless. A 403 arriving instantly for every request is a WAF that has recognised the tool, or a blanket block on your address.
 - **Noise** — an application that returns 200 for both success and failure makes status filtering useless, which is why the baseline matters. Also: a "successful" response that is really a generic error page of a different size. Always confirm a hit by hand.
 
 **Then** — working credentials go to the application, and then to every other service on the host, because reuse across a web login and SSH or SMB is common enough to be worth ten minutes. If the login is behind a per-request CSRF token, this whole approach needs a session-handling macro: [[Burp-Suite]]. If password guessing is closed, [[SQL-Injection]] bypasses the credential check entirely rather than solving it.
@@ -137,14 +137,14 @@ curl -s -b 'logged_in=true; admin=true; role=administrator' http://target.thm/ac
 
 - **Found** — content you should not be able to see: an admin panel, another user's data, a page that previously redirected to login.
 - **Empty** — a redirect back to the login page means the server checks a real session, which closes this specific shortcut. That is a normal, well-built application; it says nothing about the other sections.
-- **Error** — a 500 after tampering with a signed cookie means the signature check ran and threw. Informative: it confirms the cookie is validated, and it names the mechanism in the stack trace if errors are verbose.
+- **Error** — a 500 after tampering with a signed cookie means the application choked on your value rather than ignoring it, so something reads and parses that cookie. Compare against an untampered request before naming the mechanism; a verbose stack trace usually names it for you.
 - **Noise** — a page that renders differently because of a *display* preference cookie (theme, language) is not an authorisation bypass. The test is whether you can reach data, not whether the page changed.
 
 **Then** — a working bypass is access; carry it forward and enumerate what the elevated view exposes. A rejected tamper on a JWT is worth one more step — [[Hash-Cracking]] against the signature can recover a weak secret and turn a rejected token into a valid one.
 
 ## Reading the output
 
-Every attack in this note is a differential, so the discipline is the same throughout: know what "no" looks like before you go looking for "yes". The failure mode that costs the most time is a filter chosen by habit rather than by measurement — `-fc 200` on an application that answers 200 for everything hides nothing and shows everything, and ten thousand rows of noise reads exactly like a tool that is not working.
+Every attack in this note is a differential, so the discipline is the same throughout: know what "no" looks like before you go looking for "yes". The failure mode that costs the most time is a filter chosen by habit rather than by measurement — `-fc 200` on an application that answers 200 for everything filters out every response there is, hit included, so a run that threw away the answer looks exactly like a run that found nothing.
 
 The second thing that spans the note: these attacks interfere with each other. Enumeration creates accounts, spraying triggers lockouts, and a lockout invalidates the very signal your enumeration depended on. Run them in the order above, take the baseline before you make any noise, and if you must guess passwords, guess a few against many users rather than many against one.
 

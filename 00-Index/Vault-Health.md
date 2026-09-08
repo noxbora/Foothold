@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-04
+updated: 2026-09-08
 ---
 
 # Vault Health
@@ -94,7 +94,7 @@ Link topology and note structure. That is `00-Index/vault-check.py` — run it d
 python3 00-Index/vault-check.py
 ```
 
-Twenty-eight checks in seven families.
+Thirty checks in seven families. A clean run means every implemented check passed; it says nothing about whether a command is correct, a filter discriminates, or a note has been learned.
 
 **Links:** broken targets, orphans, notes that link only to hubs, unresolved heading anchors, and anything more than two hops from [[Start-Here]] — that last one is stricter than the orphan check, because a note can be well linked and still sit four hops from the entrance.
 
