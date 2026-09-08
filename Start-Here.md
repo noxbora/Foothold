@@ -9,9 +9,7 @@ updated: 2026-09-08
 
 # Start Here
 
-The entry point to the PLAYBOOK vault. Everything else is reachable from here in at most two hops.
-
-House style and health: [[Note-Template]] · [[Vault-Health]]
+The entry point to the PLAYBOOK vault. Everything else is reachable from here in at most two hops. House style, the note skeleton and the weekly review all live further down this page — this is the only meta note in the vault.
 
 ---
 
@@ -30,7 +28,7 @@ Four ways to tell them apart, cheapest first:
 
 The rule that follows: **an empty result is not a finding until you have shown it is not a permission problem.** Until then it is an unanswered question, and it belongs on the list of things still to check rather than the list of things ruled out.
 
-This is also why every command in this vault carries a **What you will see** block with a separate **Empty** line, and a **Then** block that gives Empty its own destination — see [[Note-Template]] for the shape and the [[Linux-Run-Sheet]] for it applied end to end. When output is lying to you in some other way, [[Stuck-Checklist]] has the rest.
+This is also why every command in this vault carries a **What you will see** block with a separate **Empty** line, and a **Then** block that gives Empty its own destination — see **The note skeleton** below for the shape and the [[Linux-Run-Sheet]] for it applied end to end. When output is lying to you in some other way, [[Stuck-Checklist]] has the rest.
 
 ---
 
@@ -105,7 +103,7 @@ The rule still outlives the check: a linter only recognises wording it has been 
 
 Box narratives, IPs, credentials and flags are simply not kept here. Strip them at the moment you write the note; if a box is worth a narrative, that narrative lives outside this vault entirely, and nothing in the Playbook ever links out to it — a link into a folder this repo does not contain breaks the moment the vault is cloned anywhere else.
 
-**Every note opens with frontmatter.** Five fields, nothing more:
+**Every note opens with frontmatter.** Six fields, in this order, nothing more:
 
 ```yaml
 ---
@@ -118,14 +116,22 @@ updated: 2026-08-26
 ---
 ```
 
-`status` is the honest label, not an aspiration: `seed` = a placeholder, `working` = usable but thin, `solid` = trust it. `source` answers the one question you cannot recover later — is this command lab-specific or general? [[Vault-Health]] queries these fields.
+`source` answers the one question you cannot recover later — is this command lab-specific or general? The two grading fields, `status` and `fluency`, are defined below.
+
+**Two grades, and they are independent.** `status` grades the note, `fluency` grades you. They move separately, and the gap between them is the only thing in the frontmatter that predicts a lost afternoon: a `solid` note at `fluency: unseen` looks finished from every angle and will still leave you reading it for the first time on a live box.
+
+`status` is the honest label, not an aspiration: `seed` = a placeholder, `working` = usable but thin, `solid` = trust it.
+
+`fluency` is defined by something you have done, never by how the note feels when you read it: `unseen` = you could produce none of it back · `guided` = you can work through it with the note open · `cold` = you have used it on a box without opening the note · `teach` = you can say why it works and diagnose it when it does not.
+
+One rule keeps the field honest: **only a box promotes a note to `cold`.** Re-reading does not, revising does not, recognising it in a write-up does not. `guided` is where an unfinished note is supposed to sit, and there is no shame in a vault that is mostly `guided` — only in a vault that claims otherwise. `vault-check.py --fluency` ranks everything below `cold` by how many notes point at it, which turns the field into next week's DOJO mats instead of a number nobody reads.
 
 **Folders — one axis, and the linter holds it there.**
 
 The tree answers *what is in front of me*. It deliberately does not answer *what am I trying to do* — that is what the three spines above are for, and a tree that tries to answer both makes you guess twice.
 
 ```text
-00-Index/        the vault's own meta notes — this one, the template, the health panel
+Start-Here.md    this note — the entrance, the house style, the weekly review
 01-Workflow/     decision layer — phases, methods, checklists
 02-Techniques/   the attacks, grouped by the surface they attack
    Web/                the application
@@ -145,7 +151,7 @@ Worth knowing why the rule is stated this sharply. Until 2026-08-28 the tree ran
 
 Discovery notes ended up spread across three folders, credential notes were filed by what they were for rather than what they attacked, and two notes with no answer at all sat loose at `02-Techniques/` root. Active Directory is the case that forced the issue: it produces enumeration, credential, escalation and persistence notes at once, and under a goal axis a single domain would have scattered across four folders on the way in.
 
-**Note skeleton — four layers per command.** Technique, service, and tool notes follow [[Note-Template]], and since 2026-08-29 every section that carries a command carries four things, always in this order:
+**Four layers per command.** Technique, service, and tool notes follow the skeleton below, and since 2026-08-29 every section that carries a command carries four things, always in this order:
 
 1. **Why now** — what you already hold that makes this the next move, and what it would add. If you cannot write this line, you do not need the command yet.
 2. **The command, and the flag that is easy to omit** — with the concrete failure omitting it produces. `-h → host` carries nothing; "without this, the one hit you want scrolls off the screen" carries an hour.
@@ -188,12 +194,120 @@ A complete note with no known holes correctly has **no** `## Gaps` section — t
 
 ---
 
+## The note skeleton
+
+Copy this into a new technique, service or tool note and fill what applies. Leave a section out rather than pad it: an empty `## Reading` is a claim that the output is self-evident. Workflow and reference notes do not use this skeleton — they carry no commands.
+
+<!-- dup-ok -->
+````markdown
+---
+type: service          # workflow | technique | service | tool | reference | index
+platform: windows      # linux | windows | web | cloud | any
+status: working        # seed | working | solid
+fluency: unseen        # unseen | guided | cold | teach
+source: htb            # thm | htb | lab | field | reading
+updated: 2026-09-08
+---
+
+# <Name>
+
+<One line: what this is, and the moment in an engagement it belongs to.>
+
+## <The question this step answers>
+
+**Why now** — <what you already hold that makes this the next move, and what you are hoping to learn.>
+
+```bash
+<command>
+```
+
+- `<flag>` → <what it does>
+- `<flag>` → <the one that is easy to omit, and the failure omitting it produces>
+
+**What you will see**
+
+- **Found** — <what a real hit looks like, concretely: the shape of the line, the words in it>
+- **Empty** — <what nothing means here: clean host, or not permitted to see it. Say which.>
+- **Error** — <the specific errors this command produces and what each is telling you>
+- **Noise** — <what looks like a hit but is not: defaults, documentation, placeholders>
+
+**Then** — <where each outcome sends you, Empty included.>
+
+## Reading the output
+
+<Only what spans the whole note: how two findings combine, what the note cannot see.>
+
+## Next
+
+- [[<note>]] — <why you go there after this one>
+
+## Gaps
+
+- <what this note does not cover>
+````
+
+---
+
+## What the linter enforces
+
+`python3 vault-check.py` from the Playbook root. Exit code 0 when clean, so it can gate a commit hook. The rules below are the ones worth knowing before you write, rather than after the run fails.
+
+- **Filter, do not dump.** Whatever you would write under **Noise**, put in the command instead — a note that prints two hundred rows and explains underneath which hundred and ninety to ignore has handed the eliminating back to you mid-box. Name the discriminator and say why it discriminates, say what the filter would hide, and give the expected count. A deliberate unfiltered baseline is marked `<!-- raw-ok -->` above the fence, with the note saying why.
+- **One runnable command per fence.** The copy button takes a whole block, so two commands in one block means neither can be taken with a click. A command spanning several lines is still one command. A `text` fence does not escape the rule: stacked flag references fail, output samples and interactive client verbs pass.
+- **Four layers on every command section**, with all four outcomes labelled. A catalog of interchangeable payloads is exempt with `<!-- layers-ok -->` above the fence.
+- **One source line per paragraph.** Obsidian renders a hard-wrapped line as a ragged break. `python3 vault-check.py --unwrap <file>` repairs a file that drifted. Nothing over 120 words either — that is a wall of text on a phone.
+- **Jargon needs an entry** in one of the A–Z reference notes; the check keeps its own `ALLOW` list for terms deliberately left undefined.
+- The rest run without your help: broken links, orphans, duplicate filenames, unresolved heading and block anchors, the two-hop rule, frontmatter schema and vocabulary, folder placement, one H1 and no skipped levels, the three-callout vocabulary, invisible characters, room-specific residue, English-only prose, lexicon drift, repeated code blocks, and `updated` older than the last commit that changed the body.
+
+**Reading the graph line.** The run ends with something like `Graph: 346 links, 83 from hubs (23%), 263 lateral`. Hub links come out of this note and the workflow notes and provide *findability*; lateral links run note-to-note and provide *flow*. Hub share well under half is comfortable. It is a ratio, not a score: neglect the hubs and the share drops while the vault gets worse. Watch the direction over months, not the number.
+
+---
+
+## Weekly review
+
+Two Dataview panels, and the rest comes from the script. The panels have no `FROM` clause on purpose — they select on frontmatter rather than folder paths, so they survive the vault root moving.
+
+**Where the vault stands.** A healthy trend is `seed` shrinking and `solid` growing, week over week.
+
+```dataview
+TABLE WITHOUT ID
+  length(filter(rows, (r) => r.status = "seed")) AS seed,
+  length(filter(rows, (r) => r.status = "working")) AS working,
+  length(filter(rows, (r) => r.status = "solid")) AS solid
+WHERE type AND type != "index"
+GROUP BY true
+```
+
+**Stale — untouched for 90+ days.** Mostly `solid` reference material on a living vault. A `seed` or `working` note surfacing here is the nudge.
+
+```dataview
+TABLE status, updated
+WHERE type AND type != "index" AND updated <= date(today) - dur(90 days)
+SORT updated ASC
+```
+
+Then, in the same sitting:
+
+```bash
+python3 vault-check.py
+```
+
+```bash
+python3 vault-check.py --fluency
+```
+
+```bash
+python3 vault-check.py --gaps
+```
+
+---
+
 ## Known backlog
 
 The full, current backlog is **generated from the notes**, not maintained by hand — every `## Gaps` line across the vault, in one list:
 
 ```bash
-python3 00-Index/vault-check.py --gaps
+python3 vault-check.py --gaps
 ```
 
 Maintaining a second copy here would just drift from that one. What follows is the curated short list: the missing pieces most likely to block a box, in rough order of how often they come up. When one is written, its `## Gaps` line disappears from the generated list on its own.

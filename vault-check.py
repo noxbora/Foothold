@@ -4,8 +4,8 @@
 Dataview queries frontmatter; it cannot inspect link topology or note structure.
 This covers the rest. Run from anywhere:
 
-    python3 00-Index/vault-check.py            # from the vault root
-    python3 /path/to/00-Index/vault-check.py   # from anywhere
+    python3 vault-check.py            # from the Playbook root
+    python3 /path/to/vault-check.py   # from anywhere
 
 Exit code is 0 when clean, 1 when any check fails — so it can gate a commit hook.
 
@@ -113,9 +113,8 @@ if '--unwrap' in sys.argv:
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)                      # vault dir that holds 00-Index/
-HUBS = {'Start-Here', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet',
-        'Note-Template', 'Vault-Health'}
+ROOT = HERE                                       # the Playbook root: this file sits in it
+HUBS = {'Start-Here', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet'}
 SKELETON_TYPES = {'technique', 'service', 'tool'}
 
 notes, text = {}, {}
@@ -266,7 +265,7 @@ DUP_MIN = 40
 
 code_owner = collections.defaultdict(set)
 for n in notes:
-    if n == 'Note-Template':                      # its blocks *are* the template
+    if n == 'Start-Here':                         # its skeleton block *is* the template
         continue
     for m in re.finditer(r'(?m)^(<!-- dup-ok -->\n)?```[^\n]*\n(.*?)^```', text[n], re.S):
         if m.group(1):                            # explicitly allowed
@@ -346,7 +345,9 @@ fail['Frontmatter outside the six-field schema'] = sorted(schema)
 # nature (SMB is both), and a tool note's `platform` describes what the tool targets, not
 # where the note belongs.
 PLACEMENT = {
-    '00-Index':                       ({'index'},     {'any'}),
+    # Start-Here sits loose at the Playbook root, on its own. It is the entrance and the
+    # only meta note left in the vault, so the root claims `index` and nothing else.
+    '':                               ({'index'},     {'any'}),
     '01-Workflow':                    ({'workflow'},  {'any'}),
     '02-Techniques/Web':              ({'technique'}, {'web'}),
     # `service` = a note about ONE port. A technique that works against services in
@@ -458,7 +459,7 @@ for n in notes:
 fail['Lexicon drift (order, duplicates, entry format)'] = sorted(lex)
 
 # `updated` is the one frontmatter field that can go quietly false. The others are checked
-# against a vocabulary; a date is just a date, and Vault-Health's stale panel runs entirely
+# against a vocabulary; a date is just a date, and Start-Here's stale panel runs entirely
 # on it. Git knows when a note really changed, so ask git — but only when git is there, so
 # the linter still works on a copy of the vault that was never a repository. Commits that
 # touch nothing but the frontmatter block do not count as the note changing: bumping the
@@ -656,7 +657,7 @@ fail['Command without its four layers (Why now / What you will see / Then)'] = s
 # a paragraph wrapped at 100 columns renders ragged: the last word of each source line sits
 # alone against the right margin, and zooming does not fix it because the breaks are in the
 # file. One line per paragraph, per list item, per callout body line — the reader's window
-# does the wrapping. `00-Index/unwrap.py` repairs a file that drifted.
+# does the wrapping. `vault-check.py --unwrap <path>` repairs a file that drifted.
 WRAP_OK = re.compile(r'^(\s*$|#{1,6}\s|\s*[-*+]\s|\s*\d+[.)]\s|\s*\||\s*>|\s*<|'
                      r'\s*(`{3,}|~{3,})|\s*(-{3,}|\*{3,}|_{3,})\s*$)')
 
@@ -939,7 +940,7 @@ fail['Sweeping command with no filter (hands the eliminating back to you)'] = so
 
 # ---------------------------------------------------------------------------------------
 # CHECK 26 — English only. Added 1 Sep 2026, after a Turkish sentence he had said in chat
-# was quoted verbatim inside Vault-Health and sat there unread. The vault is written in
+# was quoted verbatim inside a note and sat there unread. The vault is written in
 # English without exception, and the cheapest way to enforce that mechanically is by
 # character class: anything outside plain ASCII must be a typographic mark on the list
 # below. A letter from any other alphabet fails and names itself, so a stray sentence in

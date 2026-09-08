@@ -25,10 +25,10 @@ fi
 #    commits on a timer, so this output is often the only place the breakage is named
 #    before it scrolls past. Only the failing families are shown — the `ok` lines are
 #    noise on a commit — and the count comes from the linter's own final line.
-# The linter sits at PLAYBOOK/00-Index/ when the repo root is the vault, and at
-# 00-Index/ when the repo root is PLAYBOOK itself. Resolve it rather than assume.
+# The linter sits at PLAYBOOK/ when the repo root is the vault, and at the root itself
+# when the repo root is PLAYBOOK. Resolve it rather than assume.
 checker=""
-for candidate in PLAYBOOK/00-Index/vault-check.py 00-Index/vault-check.py; do
+for candidate in PLAYBOOK/vault-check.py vault-check.py; do
   [ -f "$candidate" ] && checker="$candidate" && break
 done
 

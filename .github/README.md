@@ -7,13 +7,13 @@ checklists and tool references, written while working through lab platforms
 The vault is built around one idea: **a note earns its place by being reachable.**
 Every note links to at least one non-index note, every technique note states what
 its output *means* rather than just listing commands, and a linter
-(`00-Index/vault-check.py`) fails the build when that stops being true.
+(`vault-check.py`) fails the build when that stops being true.
 
 ## Where to start
 
 | If you are… | Open |
 |---|---|
-| New here | [`00-Index/Start-Here.md`](../00-Index/Start-Here.md) |
+| New here | [`Start-Here.md`](../Start-Here.md) |
 | Starting a box | [`01-Workflow/Pentest-Workflow.md`](../01-Workflow/Pentest-Workflow.md) |
 | Sitting on a Linux shell | [`02-Techniques/Linux/Linux-Run-Sheet.md`](../02-Techniques/Linux/Linux-Run-Sheet.md) |
 | Sitting on a Windows shell | [`02-Techniques/Windows/Windows-Run-Sheet.md`](../02-Techniques/Windows/Windows-Run-Sheet.md) |
@@ -22,7 +22,8 @@ its output *means* rather than just listing commands, and a linter
 ## Layout
 
 ```text
-00-Index/        entry point, note template, vault health, linter
+Start-Here.md    entry point, house style, weekly review
+vault-check.py   the linter
 01-Workflow/     decision layer — phases, methods, checklists
 02-Techniques/   the attacks, grouped by the surface they attack
   Web/  Services/  Linux/  Windows/  Active-Directory/  Cloud/
@@ -63,12 +64,12 @@ not aspirations. `seed` means placeholder, and only using a note on a box promot
 past `guided`.
 Filenames are `Title-Case-With-Hyphens`; service notes are `PORT-Service`.
 Full house style lives in
-[`Start-Here.md`](../00-Index/Start-Here.md#conventions).
+[`Start-Here.md`](../Start-Here.md#conventions).
 
 ## Linter
 
 ```bash
-python3 00-Index/vault-check.py
+python3 vault-check.py
 ```
 
 Thirty checks covering what Dataview cannot see — link topology (broken targets,
@@ -88,8 +89,8 @@ Exits non-zero when anything needs attention, so it can gate a commit hook.
 Two read-only modes print a list and exit 0 instead:
 
 ```bash
-python3 00-Index/vault-check.py --gaps      # what the notes admit is missing
-python3 00-Index/vault-check.py --fluency   # what you lean on and cannot yet do
+python3 vault-check.py --gaps      # what the notes admit is missing
+python3 vault-check.py --fluency   # what you lean on and cannot yet do
 ```
 
 ## Scope and disclaimer
