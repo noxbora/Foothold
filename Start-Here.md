@@ -79,7 +79,7 @@ updated: 2026-09-08
 ```text
 Start-Here.md         this note
 vault-check.py        the linter
-Workflow/             phases, methods, checklists
+Workflow/             the decision layer — the phase map, the methods, the checklists
 Techniques/           the attacks, grouped by the surface they attack
     Web/                 the application
     Services/            a service on a port
@@ -170,7 +170,7 @@ updated: 2026-09-08
 
 The run ends with a graph line — hub links give findability, lateral links give flow, and a hub share well under half is comfortable. It is a ratio, not a score: neglect the hubs and it drops while the vault gets worse. Watch the direction over months.
 
-## Weekly review
+## Check the vault
 
 ```dataview
 TABLE WITHOUT ID
@@ -189,7 +189,7 @@ WHERE type AND type != "index" AND updated <= date(today) - dur(90 days)
 SORT updated ASC
 ```
 
-Then, in the same sitting:
+The panels above track what exists; the script below reads the shape and the backlog. Run it whenever you have edited notes — that is most days, not once a week.
 
 ```bash
 python3 vault-check.py
