@@ -77,7 +77,7 @@ updated: 2026-09-08
 **Folders — one axis.** The tree answers *what is in front of me*; the spines answer *what am I trying to do*.
 
 ```text
-Start-Here.md         this note
+START-HERE.md         this note
 vault-check.py        the linter
 Workflow/             the decision layer — the phase map, the methods, the checklists
 Techniques/           the attacks, grouped by the surface they attack
@@ -95,7 +95,9 @@ Name the surface the technique attacks and file it there. Attacks no single surf
 
 **Four layers per command.** Every section carrying a command carries these, in order: **Why now** (what you already hold that makes this the next move — if you cannot write it, you do not need the command yet) · the command **and the flag that is easy to omit**, with the failure omitting it produces · **What you will see**, four outcomes, Found / Empty / Error / Noise · **Then**, a destination for each outcome, Empty included. A step whose Empty branch names nothing is a dead end.
 
-**Naming.** `Title-Case-With-Hyphens`; the vault gets scripted and lives in git, and Obsidian resolves hyphenated wikilinks happily. No all-lowercase filename anywhere — a tool note is capitalised even when the tool is not (`PSPY`, `TheHarvester`, `873-rsync`), while the tool's own spelling stays intact in prose and in every command. Service notes are `PORT-Service` with an H1 of `PORT — Service`. Otherwise the H1 may enrich the filename — expand an acronym, add a CVE, add scope after an em-dash — but never reorder or abbreviate it.
+**Capitals mark an entrance.** `START-HERE`, and `DOJO` outside the Playbook. The two run sheets are marked differently — they keep ordinary filenames, sit at the top of their folders, and the `explorer-marks.css` snippet paints them in the file explorer, because a filename is for scripts and links while a marker is for the eye.
+
+**Naming.** the vault gets scripted and lives in git, and Obsidian resolves hyphenated wikilinks happily. No all-lowercase filename anywhere — a tool note is capitalised even when the tool is not (`PSPY`, `TheHarvester`, `873-rsync`), while the tool's own spelling stays intact in prose and in every command. Service notes are `PORT-Service` with an H1 of `PORT — Service`. Otherwise the H1 may enrich the filename — expand an acronym, add a CVE, add scope after an em-dash — but never reorder or abbreviate it.
 
 **Technique vs tool.** A technique note describes the attack and may name several tools; a tool note is a flag reference, and only exists when the flag surface is wide enough to earn a page — `nmap` earns one, `host` does not. When in doubt it is a technique note.
 

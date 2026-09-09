@@ -114,7 +114,7 @@ if '--unwrap' in sys.argv:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = HERE                                       # the Playbook root: this file sits in it
-HUBS = {'Start-Here', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet'}
+HUBS = {'START-HERE', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet'}
 SKELETON_TYPES = {'technique', 'service', 'tool'}
 
 notes, text = {}, {}
@@ -265,7 +265,7 @@ DUP_MIN = 40
 
 code_owner = collections.defaultdict(set)
 for n in notes:
-    if n == 'Start-Here':                         # its skeleton block *is* the template
+    if n == 'START-HERE':                         # its skeleton block *is* the template
         continue
     for m in re.finditer(r'(?m)^(<!-- dup-ok -->\n)?```[^\n]*\n(.*?)^```', text[n], re.S):
         if m.group(1):                            # explicitly allowed
@@ -390,13 +390,13 @@ fail['Folder placement (folder must match type and platform)'] = sorted(place)
 # catches notes with zero inbound links — a note can be well linked and still sit four hops
 # from the entrance, which makes it invisible to anyone who does not already know it exists.
 HOPS = 2
-reach = {'Start-Here'}
-frontier = {'Start-Here'}
+reach = {'START-HERE'}
+frontier = {'START-HERE'}
 for _ in range(HOPS):
     frontier = {t for n in frontier for t in outbound[n] if t in notes} - reach
     reach |= frontier
 
-fail[f'More than {HOPS} hops from Start-Here (unreachable from the entrance)'] = sorted(
+fail[f'More than {HOPS} hops from START-HERE (unreachable from the entrance)'] = sorted(
     notes[n] for n in notes if n not in reach)
 
 # The one rule that cannot be repaired later: room-specific material must never enter the
@@ -415,7 +415,7 @@ for n in notes:
         if m and '<!-- room-ok -->' not in line:
             residue.append(f'{notes[n]}:{i}: "{m.group(0)}" in: {line.strip()[:60]}')
 
-fail['Room-specific residue (the doctrine in Start-Here)'] = sorted(residue)
+fail['Room-specific residue (the doctrine in START-HERE)'] = sorted(residue)
 
 # A-Z reference files are append-heavy, so they drift silently: an entry lands at the end of
 # its letter instead of in order, a blank line goes missing, a colon slips inside the bold.
