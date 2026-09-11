@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-08
+updated: 2026-09-11
 ---
 
 # Start Here
@@ -44,7 +44,7 @@ Also in `Workflow/`: [[Public-Exploit-Workflow]], a method note rather than a sp
 
 Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]]. Active Directory: [[AD-Authentication]] · [[Kerberoasting]]. Services worth naming: [[23-Telnet]].
 
-Reference: [[Security-Terms]] (domain vocabulary A–Z, with `^block-anchors` for the terms worth linking into) · [[English-Vocabulary]] (general English met while studying, kept separate on purpose) · [[Failure-Messages]].
+Reference: [[Security-Terms]] (domain vocabulary A–Z, with `^block-anchors` for the terms worth linking into) · [[English-Vocabulary]] (general English met while studying, kept separate on purpose) · [[Failure-Messages]] · [[Bash-Scripting]] (the syntax behind every command you run, and the failures it produces).
 
 Tool references — flag surfaces only, the method lives in the technique note: [[Nmap]] · [[Nikto]] · [[Burp-Suite]] · [[Curl-and-Wget]] · [[TShark]] · [[TheHarvester]].
 
