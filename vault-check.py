@@ -114,6 +114,50 @@ if '--unwrap' in sys.argv:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = HERE                                       # the Playbook root: this file sits in it
+if '--stamp' in sys.argv:
+    # Set `updated` to today on every STAGED note whose staged diff carries a real
+    # content change. Frontmatter-only edits are filtered out, exactly as the
+    # `updated` check filters them, so stamping can never restamp itself and a run
+    # with nothing to do writes nothing. Called from .githooks/pre-commit, which is
+    # the whole point: the date stops being something to remember.
+    import subprocess
+    def _g(*a):
+        try:
+            r = subprocess.run(('git', '-C', ROOT) + a, capture_output=True,
+                               text=True, timeout=30)
+            return r.stdout if r.returncode == 0 else ''
+        except Exception:
+            return ''
+    top = _g('rev-parse', '--show-toplevel').strip() or ROOT
+    today = datetime.date.today().isoformat()
+    fm = re.compile(r'^[+-](---|type|platform|status|fluency|source|updated):?')
+    stamped = []
+    for rel in _g('diff', '--cached', '--name-only', '--diff-filter=ACM').split('\n'):
+        if not rel.endswith('.md'):
+            continue
+        patch = _g('diff', '--cached', '-U0', '--', rel)
+        body = [l for l in patch.split('\n')
+                if l and l[0] in '+-' and not l.startswith(('+++', '---')) and not fm.match(l)]
+        if not body:
+            continue
+        f = pathlib.Path(top) / rel
+        if not f.exists():
+            continue
+        s = f.read_text(encoding='utf-8')
+        if not s.startswith('---\n'):
+            continue
+        r = re.sub(r'(?m)^updated: \d{4}-\d{2}-\d{2}$', 'updated: ' + today, s, count=1)
+        if r != s:
+            f.write_text(r, encoding='utf-8')
+            _g('add', '--', rel)
+            stamped.append(rel)
+    if stamped:
+        print('stamped updated: ' + today)
+        for s in stamped:
+            print('   ' + s)
+    sys.exit(0)
+
+
 HUBS = {'START-HERE', 'Pentest-Workflow', 'Linux-Run-Sheet', 'Windows-Run-Sheet'}
 SKELETON_TYPES = {'technique', 'service', 'tool'}
 

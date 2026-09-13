@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: lab
-updated: 2026-09-04
+updated: 2026-09-09
 ---
 
 # Stuck Checklist

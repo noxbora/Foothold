@@ -20,7 +20,7 @@ fi
 
 [ "$fail" -ne 0 ] && exit 1
 
-# 2. Vault linter — warns, never blocks (auto-sync must not stall).
+# 2. Resolve the linter, then stamp and lint with it.
 #    It prints the failing items rather than a bare "there are issues": Obsidian Git
 #    commits on a timer, so this output is often the only place the breakage is named
 #    before it scrolls past. Only the failing families are shown — the `ok` lines are
@@ -32,6 +32,15 @@ for candidate in PLAYBOOK/vault-check.py vault-check.py; do
   [ -f "$candidate" ] && checker="$candidate" && break
 done
 
+# 3. Stamp `updated` on every staged note that really changed. Frontmatter-only
+#    edits are filtered out, so this never fires on its own output, and the field
+#    stops being something to remember after an edit. Runs before the linter so the
+#    linter sees the corrected dates.
+if [ -n "$checker" ]; then
+  python3 "$checker" --stamp || true
+fi
+
+# 4. Vault linter — warns, never blocks.
 if [ -n "$checker" ]; then
   out=$(python3 "$checker" 2>&1)
   if [ $? -ne 0 ]; then
