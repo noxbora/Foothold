@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-09-17
 ---
 
 # Hash Cracking
@@ -256,5 +256,5 @@ And one fact that explains a confusing sight: **two identical passwords producin
 
 - No rules or mask attacks worked through in practice: `-r best64.rule` and `-a 3` are named but not demonstrated end to end.
 - Nothing on GPU vs CPU throughput, or on when hashcat's `-w` workload tuning matters.
-- No note on capturing [[Security-Terms#^netntlmv2|NetNTLMv2]] in the first place (Responder, an [[Security-Terms#^scf|SCF]] drop on a writable share) — the shape is in the table, the capture is not.
+- Relaying a [[Security-Terms#^netntlmv2|NetNTLMv2]] response instead of cracking it is unwritten, which leaves an exhausted run against one looking like a dead end when it is not. Collecting them is now [[Authentication-Coercion]].
 - No coverage of cracking as a *finding*: what a weak-password result means in a report.

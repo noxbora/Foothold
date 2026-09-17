@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: lab
-updated: 2026-09-04
+updated: 2026-09-17
 ---
 
 # Failure Messages — the ones that point at the wrong cause
@@ -41,6 +41,10 @@ How to use it: you have a string on screen. Search it here, read the one line, t
 - `all tested parameters do not appear to be injectable` from sqlmap — on a parameter you confirmed by hand, this means the default level and risk were too low, not that you were wrong. → [[SQL-Injection]]
 - `atq: command not found` — a statement about the toolbox, not about scheduled jobs. → [[Cron-Jobs]]
 - `nobody nogroup` where you expected `root root` — not a message at all, and it is the whole failure: you mounted a path where root is being squashed, or the running config differs from `/etc/exports`. → [[NFS-No-Root-Squash]]
+- `0 valid` from a whole username wordlist against a domain — a wrong naming convention or a wrong realm, not a domain without users. `krbtgt` and `administrator` exist in every domain ever created: put both in the list, and if they come back invalid too, the wordlist was never the problem. → [[AD-Username-Enumeration]]
+- A non-existent-domain answer for a domain's own service records — the question went to your usual resolver, which has never heard of an internal directory zone. Name the controller as the last argument before concluding the domain publishes nothing. → [[AD-Username-Enumeration]]
+- A `git log` search for `password` matching nothing — without `-p` the search ran over commit messages and never entered a single change. The history has not been read yet. → [[Exposed-Service-Looting]]
+- An empty search over a build server's console log fetched without credentials — what came back was a sign-in page, which is a valid document containing no credentials. At the end of a pipe, a refusal and an empty log look identical. → [[Exposed-Service-Looting]]
 
 ## "The password is wrong"
 
@@ -76,6 +80,9 @@ How to use it: you have a string on screen. Search it here, read the one line, t
 - `FUZZ keyword not found` — ffuf refused to start, because the placeholder is missing from the URL and from every header. A run that finishes instantly did not read the wordlist either. → [[Content-Discovery]], [[Virtual-Host-Discovery]]
 - `E319: Sorry, the command is not available in this version` — this vim was compiled without the feature. The escape is closed on this binary, not on the technique. → [[Linux-SUID-Abuse]], [[Linux-Capabilities]]
 - `certutil` reporting `The remote server returned an error: (404)` — a wrong path on your own web server, not a blocked transfer. → [[File-Transfer]]
+- A username enumeration run that hangs and then reports it could not create a Kerberos client — the domain controller was not named, so the tool asked your own resolver where the ticket service lives. The installation is fine. → [[AD-Username-Enumeration]]
+- A fetch or clone error from a secret scanner pointed at a directory on your own disk — the `file://` prefix is missing, so an absolute path was read as a remote address. → [[Exposed-Service-Looting]]
+- A capture listener that starts cleanly, prints its banner and catches nothing — the interface it was given exists, so it reports itself as running while listening where nothing will ever arrive. A start failure naming a port instead is the local file-sharing service holding it. → [[Authentication-Coercion]]
 
 ## The messages that never come
 

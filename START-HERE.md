@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-11
+updated: 2026-09-17
 ---
 
 # Start Here
@@ -25,6 +25,7 @@ Find the row that describes what you are **holding** — not what you are trying
 | A shell as a low-privileged **Windows** user | [[Windows-Run-Sheet]] — the same eight questions, Windows commands |
 | A page of findings and no path | step 8 of whichever sheet you are on — the escalation is a **pair** |
 | A password with no username | [[Config-File-Looting]] — where the other half lives |
+| A domain name, a controller address and no credential | [[AD-Username-Enumeration]] — the names the domain will confirm for you, before any password is typed |
 | A domain credential | [[AD-Authentication]] — which of the five shapes you hold, and what each can authenticate to |
 | A file you can write but do not own | [[PSPY]] — prove what runs it, then append and wait one interval |
 | An error message you do not trust | [[Failure-Messages]] — the messages whose plain reading points at the wrong cause |
@@ -42,7 +43,7 @@ Also in `Workflow/`: [[Public-Exploit-Workflow]], a method note rather than a sp
 
 ## The rest of the vault
 
-Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]]. Active Directory: [[AD-Authentication]] · [[Kerberoasting]]. Services worth naming: [[23-Telnet]].
+Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]] · [[Exposed-Service-Looting]]. Active Directory, before the first credential: [[AD-Username-Enumeration]] · [[Password-Spraying]] · [[Authentication-Coercion]]; after it: [[AD-Authentication]] · [[Kerberoasting]]. Services worth naming: [[23-Telnet]].
 
 Reference: [[Security-Terms]] (domain vocabulary A–Z, with `^block-anchors` for the terms worth linking into) · [[English-Vocabulary]] (general English met while studying, kept separate on purpose) · [[Failure-Messages]] · [[Bash-Scripting]] (the syntax behind every command you run, and the failures it produces).
 
@@ -209,7 +210,7 @@ python3 vault-check.py --gaps
 
 `--gaps` above generates the real list from every `## Gaps` line. This is the curated short version, in rough order of how often it blocks a box.
 
-1. **Credential capture on the wire** — Responder, [[Security-Terms#^netntlmv2|NetNTLMv2]]. [[Hash-Cracking]] can spend those hashes; nothing covers collecting them.
+1. **Relaying instead of cracking** — [[Authentication-Coercion]] now collects a [[Security-Terms#^netntlmv2|NetNTLMv2]] response and [[Hash-Cracking]] can crack it. Forwarding one to a second host while it is still fresh is unwritten, and it is what makes an uncrackable capture worth having.
 2. **Pivoting beyond SSH** — chisel, ligolo, socat relays, for a host with no `ssh` client on it.
 3. **Active Directory after the first credential** — [[Security-Terms#^bloodhound|BloodHound]], delegation, [[Security-Terms#^dcsync|DCSync]], forged tickets.
 4. **Reporting** — [[Pentest-Workflow#Phase 6 — Reporting|Phase 6]] is empty on purpose.

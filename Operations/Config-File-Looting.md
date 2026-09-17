@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: lab
-updated: 2026-09-08
+updated: 2026-09-17
 ---
 
 # Config File Looting
@@ -200,6 +200,7 @@ Two findings from different steps beat one strong finding on its own. A username
 
 ## Next
 
+- [[Exposed-Service-Looting]] — the same hunt aimed at the organisation's code hosting and build servers, with no shell needed
 - [[Source-Code-Disclosure]] — when the server-side source itself is exposed, this is the file you read
 - [[Windows-Credential-Harvesting]] — the same sweep on a Windows host
 - [[3306-MySQL]] · [[5432-PostgreSQL]] · [[27017-MongoDB]] — the connection string you just found usually points here

@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-08
+updated: 2026-09-17
 ---
 
 # Active Directory — Authenticating With What You Hold
@@ -134,10 +134,11 @@ Choosing the protocol is also choosing what a failure will tell you. NTLM answer
 - [[Kerberoasting]] — the first thing any working domain credential is worth, and it needs no privilege
 - [[Active-Directory-Lateral-Movement]] — where the credential is a local administrator, and what to do about it
 - [[Hash-Cracking]] — for the three strings in the table above that must become passwords before they authenticate
+- [[Authentication-Coercion]] — where a captured response came from, and the other road that produces a plaintext password
 
 ## Gaps
 
-- Where the first credential comes from is not covered: null sessions, password spraying, and poisoning name resolution to collect NetNTLMv2 responses are all upstream of this note.
+- Null sessions and name-resolution poisoning are still not covered; the rest of what is upstream of this note now lives in [[AD-Username-Enumeration]], [[Password-Spraying]] and [[Authentication-Coercion]].
 - Forging rather than presenting: a domain-wide forged ticket from the KRBTGT hash, and a service-scoped one from a service account hash, both bypass everything here. Unwritten.
 - NTLM relaying — taking an authentication attempt aimed at you and spending it somewhere else — needs no cracking at all and is the reason a captured response is still worth having.
 - AS-REP roasting is named in the table and nowhere explained.
