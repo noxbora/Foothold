@@ -13,7 +13,7 @@ its output *means* rather than just listing commands, and a linter
 
 | If you are… | Open |
 |---|---|
-| New here | [`START-HERE.md`](../START-HERE.md) |
+| New here | [`Start-Here.md`](../Start-Here.md) |
 | Starting a box | [`Workflow/Pentest-Workflow.md`](../Workflow/Pentest-Workflow.md) |
 | Sitting on a Linux shell | [`Techniques/Linux/Linux-Run-Sheet.md`](../Techniques/Linux/Linux-Run-Sheet.md) |
 | Sitting on a Windows shell | [`Techniques/Windows/Windows-Run-Sheet.md`](../Techniques/Windows/Windows-Run-Sheet.md) |
@@ -22,7 +22,7 @@ its output *means* rather than just listing commands, and a linter
 ## Layout
 
 ```text
-START-HERE.md    entry point, house style, weekly review
+Start-Here.md    entry point, house style, weekly review
 vault-check.py   the linter
 Workflow/     decision layer — phases, methods, checklists
 Techniques/   the attacks, grouped by the surface they attack
@@ -64,7 +64,7 @@ not aspirations. `seed` means placeholder, and only using a note on a box promot
 past `guided`.
 Filenames are `Title-Case-With-Hyphens`; service notes are `PORT-Service`.
 Full house style lives in
-[`START-HERE.md`](../START-HERE.md#conventions).
+[`Start-Here.md`](../Start-Here.md#conventions).
 
 ## Linter
 
