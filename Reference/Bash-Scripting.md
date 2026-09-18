@@ -2,7 +2,7 @@
 type: reference
 platform: any
 status: working
-fluency: unseen
+fluency: guided
 source: reading
 updated: 2026-09-11
 ---

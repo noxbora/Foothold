@@ -22,7 +22,7 @@ its output *means* rather than just listing commands, and a linter
 ## Layout
 
 ```text
-Start-Here.md    entry point, house style, weekly review
+Start-Here.md    entry point, house style, check the vault
 vault-check.py   the linter
 Workflow/     decision layer — phases, methods, checklists
 Techniques/   the attacks, grouped by the surface they attack

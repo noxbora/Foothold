@@ -2,7 +2,7 @@
 type: technique
 platform: any
 status: working
-fluency: unseen
+fluency: guided
 source: thm
 updated: 2026-09-17
 ---
