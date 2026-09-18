@@ -613,7 +613,7 @@ if '--gaps' in sys.argv:
 # the most dangerous object in the vault, because nothing about it looks wrong. Ranking by
 # inbound links picks the notes the rest of the vault already decided were load-bearing, so
 # the top of this list is not a reading list, it is the list of things most likely to stop
-# him on the next box. It is where next week's DOJO mats come from.
+# him on the next box.
 FLUENCY_ORDER = {'unseen': 0, 'guided': 1, 'cold': 2, 'teach': 3}
 
 if '--fluency' in sys.argv:
@@ -753,7 +753,7 @@ LEX_NOTES = ('Security-Terms', 'English-Vocabulary')
 
 ALLOW = set("""
 ad apache2 asp attackbox aws base64 base64encoded bind bsd bsdderived busybox cn
-conptyshell cpu cpubound ctf cups cve dav db docx dojo eof ftp ftps github gnu gnuonly gui h1
+conptyshell cpu cpubound ctf cups cve dav db docx eof ftp ftps github gnu gnuonly gui h1
 head html htb http https httpsonly icloud ie ipv4 itm4n javascript javascriptrendered js kb
 macos mb mongodb mssql mysql net nfsv3 nfsv4 nfsv4only none null one openbsd openssl
 openssllisten options os pa pdf peas php phpbb playbook pm post postbased postgresql

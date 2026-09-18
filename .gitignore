@@ -32,14 +32,6 @@ id_ed25519*
 .envrc
 .aws/
 
-# ── Personal study material: not part of the shippable playbook ──
-# A whole folder, not a list of filenames. The previous version named
-# the files individually and stopped covering them the moment they moved.
-DOJO/
-DOJO.md
-# DOJO lives beside PLAYBOOK, outside this repository. These two lines only bite
-# if a copy is ever made inside it.
-
 # Python verification caches
 __pycache__/
 *.pyc
