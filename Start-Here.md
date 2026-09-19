@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-18
+updated: 2026-09-19
 ---
 
 # Start Here
@@ -17,19 +17,19 @@ The entrance to the Playbook, and the only meta note in it. Everything else is r
 
 Find the row that describes what you are **holding** — not what you are trying to achieve — and open the note it names.
 
-| What you are holding | Open |
-|---|---|
-| An IP and nothing else | [[Pentest-Workflow]] — the six phases, and what to do when a scan comes back thin |
-| A version string you have not searched yet | [[Public-Exploit-Workflow]] — search → verify → modify → run |
-| A shell as a low-privileged **Linux** user | [[Linux-Run-Sheet]] — eight steps, one command per block |
-| A shell as a low-privileged **Windows** user | [[Windows-Run-Sheet]] — the same eight questions, Windows commands |
-| A page of findings and no path | step 8 of whichever sheet you are on — the escalation is a **pair** |
-| A password with no username | [[Config-File-Looting]] — where the other half lives |
+| What you are holding                                  | Open                                                                                                  |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| An IP and nothing else                                | [[Pentest-Workflow]] — the six phases, and what to do when a scan comes back thin                     |
+| A version string you have not searched yet            | [[Public-Exploit-Workflow]] — search → verify → modify → run                                          |
+| A shell as a low-privileged **Linux** user            | [[Linux-Run-Sheet]] — eight steps, one command per block                                              |
+| A shell as a low-privileged **Windows** user          | [[Windows-Run-Sheet]] — the same eight questions, Windows commands                                    |
+| A page of findings and no path                        | step 8 of whichever sheet you are on — the escalation is a **pair**                                   |
+| A password with no username                           | [[Config-File-Looting]] — where the other half lives                                                  |
 | A domain name, a controller address and no credential | [[AD-Username-Enumeration]] — the names the domain will confirm for you, before any password is typed |
-| A domain credential | [[AD-Authentication]] — which of the five shapes you hold, and what each can authenticate to |
-| A file you can write but do not own | [[PSPY]] — prove what runs it, then append and wait one interval |
-| An error message you do not trust | [[Failure-Messages]] — the messages whose plain reading points at the wrong cause |
-| Nothing works and it is one in the morning | [[Stuck-Checklist]] — what gets forgotten, every line ending in a note |
+| A domain credential                                   | [[AD-Authentication]] — which of the five shapes you hold, and what each can authenticate to          |
+| A file you can write but do not own                   | [[PSPY]] — prove what runs it, then append and wait one interval                                      |
+| An error message you do not trust                     | [[Failure-Messages]] — the messages whose plain reading points at the wrong cause                     |
+| Nothing works and it is one in the morning            | [[Stuck-Checklist]] — what gets forgotten, every line ending in a note                                |
 
 ## The spines
 
