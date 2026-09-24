@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: reading
-updated: 2026-09-03
+updated: 2026-09-24
 ---
 
 # Security & Technical Terms
@@ -571,7 +571,7 @@ _**Risk-driven**_: An approach or process guided primarily by the identification
 
 _**robots.txt**_: a file placed at a website's root that instructs web crawlers which paths they are allowed or disallowed to access, useful in reconnaissance since disallowed paths often reveal sensitive or hidden directories.
 
-_**RPC (Remote Procedure Call)**_: a mechanism that lets one process expose functions (procedures) so another process can invoke them as if calling them locally, passing arguments and getting results over a socket. Widely used by Windows services; a procedure that runs a command while its service runs as SYSTEM turns a design feature into a privilege-escalation path.
+_**RPC (Remote Procedure Call)**_: a mechanism that lets one process expose functions (procedures) so another process can invoke them as if calling them locally, passing arguments and getting results over a socket. Widely used by Windows services; a procedure that runs a command while its service runs as SYSTEM turns a design feature into a privilege-escalation path. ^rpc
 
 _**Runtime**_: in Java, a built-in class (`java.lang.Runtime`) that provides an interface to the host operating system, most notably its `exec()` method for running arbitrary OS commands; a frequent target in code-execution exploits, since reaching it from within a sandboxed script typically means full remote command execution on the server.
 
