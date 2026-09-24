@@ -9,7 +9,7 @@ updated: 2026-09-25
 
 # Start Here
 
-The entrance to the Playbook, and the only meta note in it. Everything else is reachable from here in at most two hops, and the linter fails the run when it is not.
+The entrance to the Playbook, and the only meta note in it. Everything else is reachable from here in at most two hops, and the linter fails the run when it is not. 
 
 **Before the first command of the evening.** An empty result has two meanings — nothing is there, or you are not allowed to see it — and on Linux they look identical. Four ways to tell them apart: ask the same question about a file you know exists, run it once without `2>/dev/null`, read `echo $?`, and count what was searched rather than what came back. An empty result is not a finding until you have shown it is not a permission problem.
 
