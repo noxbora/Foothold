@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Start Here
@@ -25,7 +25,7 @@ Find the row that describes what you are **holding** — not what you are trying
 | A shell as a low-privileged **Windows** user          | [[Windows-Run-Sheet]] — the same eight questions, Windows commands                                    |
 | A page of findings and no path                        | step 8 of whichever sheet you are on — the escalation is a **pair**                                   |
 | A password with no username                           | [[Config-File-Looting]] — where the other half lives                                                  |
-| A subnet, a tunnel into it and no map                  | [[Domain-Controller-Discovery]] — which host answers for the domain, and what the domain is called    |
+| A subnet, a tunnel into it and no map                 | [[Domain-Controller-Discovery]] — which host answers for the domain, and what the domain is called    |
 | A domain name, a controller address and no credential | [[AD-Username-Enumeration]] — the names the domain will confirm for you, before any password is typed |
 | A domain credential                                   | [[AD-Authentication]] — which of the five shapes you hold, and what each can authenticate to          |
 | A file you can write but do not own                   | [[PSPY]] — prove what runs it, then append and wait one interval                                      |
