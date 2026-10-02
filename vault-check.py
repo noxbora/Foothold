@@ -1064,6 +1064,55 @@ for n in notes:
 
 fail['Emphasis markers that will not render'] = sorted(glued)
 
+# ---------------------------------------------------------------------------------------
+# CHECK 31 — a section repeated inside one note. Added 2 Oct 2026, after two notes turned out
+# to be carrying whole sections twice: AD-Username-Enumeration held 53 lines of itself a second
+# time, and Password-Spraying had its anonymous policy read pasted in again under the heading
+# belonging to the authenticated one. No existing check could see either. Check 19 compares code
+# blocks BETWEEN notes, so a block repeated inside a single note passes it untouched, and nothing
+# else reads a note against itself. The symptom is the worst kind for the reader: every line is
+# correct, so nothing looks wrong, and you work through a step you already ran twenty lines ago.
+# Two tests, because the two failures did not look alike. First, the same heading twice inside the
+# same parent section — a heading repeated under DIFFERENT parents is legitimate and is how
+# Pentest-Workflow writes its per-phase `### If this phase produces nothing` branches, so the
+# parent is part of the key. Second, the same long line twice anywhere outside a fence, which
+# catches a duplicated body whose headings were edited afterwards and no longer match.
+DUP_LINE_MIN = 80
+
+repeated = []
+for n in notes:
+    stack, seen_head, seen_line, infence = [], set(), collections.defaultdict(list), False
+    for i, line in enumerate(text[n].split('\n'), 1):
+        if line.startswith('```'):
+            infence = not infence
+            continue
+        if infence:
+            continue
+        h = re.match(r'^(#{2,6}) (.+)$', line)
+        if h:
+            lvl, title = len(h.group(1)), h.group(2).strip()
+            while stack and stack[-1][0] >= lvl:
+                stack.pop()
+            key = (tuple(t for _, t in stack), title)
+            if key in seen_head:
+                where = 'under ' + stack[-1][1] if stack else 'at the top level'
+                repeated.append(f'{notes[n]}:{i}: "{title}" appears twice {where} — '
+                                f'one of the two is a duplicated section; merge whatever '
+                                f'the shorter copy says that the longer one does not')
+            seen_head.add(key)
+            stack.append((lvl, title))
+            continue
+        t = line.strip()
+        if len(t) >= DUP_LINE_MIN:
+            seen_line[t].append(i)
+    for t, ls in seen_line.items():
+        if len(ls) > 1:
+            repeated.append(f'{notes[n]}:{ls[1]}: this line already appears at line {ls[0]} — '
+                            f'a paragraph repeated inside one note is a duplicated section '
+                            f'whose headings were edited: "{t[:50]}..."')
+
+fail['Section or paragraph repeated inside one note'] = sorted(repeated)
+
 print(f'PLAYBOOK vault check — {len(notes)} notes, {len(fail)} checks\n' + '=' * 46)
 bad = 0
 for label, items in fail.items():

@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-25
+updated: 2026-10-02
 ---
 
 # Password Spraying
@@ -58,36 +58,7 @@ nxc smb <dc ip> -u '' -p '' --pass-pol
 
 **Then** — the arithmetic is in the next section and it does not change with how you read the policy. Both reads refused means you spray as though the threshold were three, which is the rule in the warning above and costs you nothing but rounds.
 
-## Reading the lockout policy before you spend an attempt
-
-**Why now** — the nameless read above was refused, and you have since a name list and nothing else, which is the ordinary case rather than the unlucky one. The same session with no identity attached that produced the list will often read the domain's password policy as well, and that policy holds the number deciding how many passwords you are allowed to send.
-
-```bash
-rpcclient -U "" -N <dc ip> -c getdompwinfo
-```
-
-- `-c getdompwinfo` → one request, then exit. What comes back is two lines: the minimum password length, and a properties field.
-- `password_properties: 0x00000001` → the bit named `DOMAIN_PASSWORD_COMPLEX`. Complexity means three of the four character classes must appear — uppercase, lowercase, digits, symbols — and the password may not contain more than two consecutive characters of the account holder's own name. That rule is the reason your first round is `Autumn2026!` and not `autumn`: the policy forced a shape, and the shape is guessable.
-- what this command does **not** print is the lockout threshold, and it does not say so. Nothing in the two lines it returns mentions failed attempts, the counter or the window, so reading this output and calling the policy read is how people convince themselves they are safe on the strength of a minimum length. The threshold comes from the command below.
-
-```bash
-nxc smb <dc ip> -u '' -p '' --pass-pol
-```
-
-- `-u '' -p ''` → the empty pair is the nameless session, and it is not the same as leaving both flags off. Without them the tool reads the host banner and never asks the directory anything, which returns quickly and answers nothing.
-- this one prints the whole policy: the threshold, the window that resets the counter, how long a lock lasts, the history length and the minimum age. The threshold and the reset window are the two numbers you are here for.
-- refused anonymously, try `-u 'guest' -p ''` before giving up. Guest is disabled by default on a modern domain and quietly enabled on plenty of older ones, and it authenticates as a real session while costing you nothing.
-
-**What you will see**
-
-- **Found** — the full policy block with a threshold in it. Two numbers into your notes, and you can spray this afternoon without a phone call.
-- **Empty** — the command connects and returns no policy block. The nameless session was accepted for the connection and refused for the query, which is a common middle state on a hardened controller and not a mistake in your syntax.
-- **Error** — an access-denied answer means anonymous reads are switched off entirely. That is a finding about the domain and it sends you to the next section, which is the same read with a credential behind it.
-- **Noise** — what you have read is the **default domain policy**. A domain can carry fine-grained policies that override it for named groups, and administrators are exactly who gets the strict one, so the threshold you just wrote down applies to most accounts rather than to all of them. Treat an administrative account as having a lower threshold than the number says.
-
-**Then** — the arithmetic is in the next section and it does not change with how you read the policy. Both reads refused means you spray as though the threshold were three, which is the rule in the warning above and costs you nothing but rounds.
-
-## Reading the lockout policy before you spend an attempt
+## Reading the policy once you do hold a credential
 
 **Why now** — the nameless read above was refused, and you have since obtained one working credential from somewhere else — from [[Exposed-Service-Looting]], from a capture, from an earlier spray — and before spending it on anything clever you ask it the one question that makes every later attempt safe.
 

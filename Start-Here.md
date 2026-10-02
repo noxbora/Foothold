@@ -170,7 +170,7 @@ updated: 2026-09-08
 - **Four layers on every command section**, all four outcomes labelled. A catalog of interchangeable payloads is exempt with `<!-- layers-ok -->`.
 - **One source line per paragraph**, nothing over 120 words. `python3 vault-check.py --unwrap <file>` repairs a file that drifted.
 - **Jargon needs an entry** in one of the A–Z reference notes.
-- The rest run without your help: broken links, orphans, duplicate filenames, unresolved anchors, the two-hop rule, frontmatter schema, folder placement, heading structure, the callout vocabulary, invisible characters, room residue, English-only prose, lexicon drift, repeated code blocks, and `updated` older than the last commit that changed the body.
+- The rest run without your help: broken links, orphans, duplicate filenames, unresolved anchors, the two-hop rule, frontmatter schema, folder placement, heading structure, the callout vocabulary, invisible characters, room residue, English-only prose, lexicon drift, repeated code blocks, a section repeated inside one note, and `updated` older than the last commit that changed the body.
 
 The run ends with a graph line — hub links give findability, lateral links give flow, and a hub share well under half is comfortable. It is a ratio, not a score: neglect the hubs and it drops while the vault gets worse. Watch the direction over months.
 
