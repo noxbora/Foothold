@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: reading
-updated: 2026-09-24
+updated: 2026-10-02
 ---
 
 # Security & Technical Terms
@@ -18,6 +18,8 @@ _**ACE (Access Control Entry)**_: one row in a Windows access control list: one 
 _**Acknowledge**_: To accept, admit, or show awareness of something. To confirm the receipt of data or a message in networking and communication protocols.
 
 _**ACL (Access Control List)**_: the permission list attached to every securable Windows object — file, registry key, service, Active Directory object. Every object carries two: the DACL, which decides who may do what, and the SACL, which decides what gets logged. A report that says "weak ACL" always means the DACL. The Linux equivalent, set with `setfacl`, is a per-file extension to the usual owner/group/other bits and shows up as a trailing `+` in `ls -l`. ^acl
+
+_**ADSI (Active Directory Service Interfaces)**_: the programming interface Windows ships for talking to a directory, and the reason `[adsisearcher]` works in any PowerShell on a domain-joined host with nothing installed and nothing downloaded. It binds to the current domain using the token you are already holding, which makes it the fallback when the administration tools are absent and you cannot write a script to disk. ^adsi
 
 _**AES (Advanced Encryption Standard)**_: the block cipher used almost everywhere modern encryption is required, in 128-bit and 256-bit key sizes. In a domain it matters because Kerberos can encrypt a ticket with either AES or the older [[Security-Terms#^rc4|RC4]], and which one was used decides the cracking mode and how expensive the crack is. ^aes
 
@@ -56,6 +58,8 @@ _**AutoLogon**_: the Windows feature that signs a fixed account in at boot with 
 _**AV (Antivirus)**_: the endpoint product that inspects files and, through [[Security-Terms#^amsi|AMSI]], scripts. On a lab box it matters mainly as an explanation for a command that ran perfectly yesterday and silently produces nothing today: the binary was quarantined between the two attempts. ^av
 
 _**AXFR**_: the DNS zone transfer request. A secondary name server uses it to copy an entire zone from the primary in one go. A server configured to answer it for anyone hands over every record in the domain at once — hosts, subdomains, internal addresses — which is the fastest and quietest subdomain list you will ever get. Its absence is the normal case, not a failure. ^axfr
+
+_**AzureHound**_: the [[Security-Terms#^bloodhound|BloodHound]] collector for the cloud directory rather than the on-premises one. Same idea from a different source: it gathers cloud identities, roles and application permissions and feeds them into the same graph, which is what makes a path running from a workstation into a cloud subscription visible at all. ^azurehound
 
 ## B
 
@@ -130,6 +134,8 @@ _**CSP (Content Security Policy)**_: an HTTP response header listing which sourc
 _**CSRF (Cross-Site Request Forgery)**_: getting a logged-in victim's browser to send a state-changing request that you composed — the browser attaches their session cookie automatically, so the server sees an authentic request. The standard defence is a per-form random token the attacker cannot read; a login form carrying one is also the reason a naive password-spraying script gets rejected before the password is ever checked. ^csrf
 
 _**CSS (Cascading Style Sheets)**_: the language describing how a page looks. It matters offensively in two small ways: a stylesheet is a file the server serves, so it can leak paths and framework versions, and CSS alone can be enough to exfiltrate data from a page when script is blocked. ^css
+
+_**Cypher**_: the query language of the [[Security-Terms#^neo4j|Neo4j]] graph database, and therefore the language BloodHound's search bar and prebuilt queries are written in. A query describes a shape — this kind of node, joined by that kind of edge, to that kind of node — and the database returns every instance of the shape it holds. "Shortest path to Domain Admins" is one line of it. ^cypher
 
 ## D
 
@@ -341,6 +347,8 @@ _**LinEnum**_: an older Linux enumeration script — the predecessor to LinPEAS 
 
 _**LinPEAS**_: the Linux half of [[Security-Terms#^peass|PEASS-ng]]: one shell script that runs several hundred local privilege-escalation checks and colour-codes what it finds — red on yellow means "this is very probably exploitable". It finds candidates; it does not confirm them, and a clean run is not proof that nothing is there. ^linpeas
 
+_**Living Off the Land (LOTL)**_: attacking with the software already on the target — `net`, `wmic`, `certutil`, `schtasks`, `powershell` on Windows; `curl`, `python3`, `tar` on Linux — rather than uploading your own. It buys cover, not capability: a signed binary that fires on that host daily sits in the noise, while a dropped `.exe` is unsigned, unfamiliar, and flagged by the EDR on sight. Detection moved off the file and onto the behaviour years ago — `certutil` fetching a remote file, or Word spawning `cmd.exe`, is damning whoever signed it. The curated lists are LOLBAS (Living Off the Land Binaries And Scripts) for Windows and GTFOBins (Get The F*** Out Binaries) for Linux. ^lotl
+
 _**LM hash**_: the pre-2000 Windows password hash. It uppercases the password, pads it to 14 characters, splits it into two halves of seven and hashes each half separately without a salt — so a 14-character password is two 7-character problems and cracks almost instantly. Disabled by default since Windows Vista; if you see one in a dump on a modern system, someone turned it back on. ^lm-hash
 
 _**LocalSystem**_: the highest local account on Windows (`NT AUTHORITY\SYSTEM`) — more privileged than a member of the local Administrators group. Most services run as it. It has no password, cannot be logged into interactively, and on the network it presents itself as the machine account, which is why a SYSTEM shell on a domain-joined host is also a domain identity. ^localsystem
@@ -354,6 +362,8 @@ _**LSASS (Local Security Authority Subsystem Service)**_: the Windows process th
 ## M
 
 _**MAC (Mandatory Access Control)**_: A strict access control model where access policies are governed by a central authority, and users cannot override or modify these policies.
+
+_**Machine account**_: the account a domain creates for a computer when it joins, named after the computer with a `$` on the end. It is a real account with a real password, which is how a machine authenticates on its own rather than through a person, and that password is 120 random characters rotated automatically — so a trailing `$` in any list of names means there is nothing there to crack. The account can still hold privileges, and some attacks use one rather than break it. ^machine-account
 
 _**Macro**_: a scripted sequence of commands or actions embedded in documents (such as Office files) that execute automatically, often abused by attackers to deliver malware when the document is opened.
 
@@ -394,6 +404,8 @@ _**NAS (Network Attached Storage)**_: a small appliance whose only job is to ser
 _**NAT (Network Address Translation)**_: a router rewriting addresses so many private hosts share one public address. It is why a reverse shell to your own machine needs a port forwarded, why a bind shell on a NATed target is unreachable from outside, and why FTP in active mode fails from behind it while passive mode works. ^nat
 
 _**NCURSE**_: A programming library used to create text-based user interfaces in a terminal, providing window management, colors, and input handling.
+
+_**Neo4j**_: a graph database, meaning one that stores objects and the connections between them as equally real things instead of storing rows and working the connections out afterwards. BloodHound keeps a collected domain in one, and that is what makes "the shortest path between these two accounts" a single query rather than a script. ^neo4j
 
 _**NetBIOS**_: a naming and session layer from the 1980s that Windows still carries for compatibility — the source of those 15-character uppercase computer names, and of UDP 137/138 and TCP 139 sitting next to SMB on 445. Its name-resolution broadcasts are unauthenticated, which is what a responder-style tool answers. ^netbios
 
@@ -499,7 +511,11 @@ _**POP3**_: an old mail-retrieval protocol on port 110 (995 over TLS) that downl
 
 _**Potato family (RogueWinRM, PrintSpoofer, JuicyPotato, GodPotato)**_: a set of Windows tools that all do the same thing by different routes: they persuade a privileged service to authenticate to something the attacker controls, then impersonate the resulting token to become SYSTEM. They exist because [[Security-Terms#^seimpersonate|SeImpersonatePrivilege]] is held by every service account, and the privilege is the constant while the trigger is not — each tool works on a different range of Windows versions, so when one fails the answer is the next tool, not a different technique. ^potato
 
+_**PowerSploit**_: an old and now archived collection of offensive PowerShell modules, organised by what they do — recon, privilege escalation, persistence, exfiltration. Nobody runs the framework as a whole; what survives in daily use is [[Security-Terms#^powerview|PowerView]] out of its recon folder. Having been famous by name for years, every scanner recognises it on sight. ^powersploit
+
 _**PowerUp**_: a PowerShell script from the PowerSploit project that checks a Windows host for the common privilege-escalation misconfigurations — unquoted service paths, writable service binaries, weak service ACLs, stored credentials — and can also perform the abuse it finds. Older than WinPEAS and far noisier to antivirus, but its `Invoke-AllChecks` output is short enough to read in full. ^powerup
+
+_**PowerView**_: the domain enumeration half of [[Security-Terms#^powersploit|PowerSploit]] — a single PowerShell script, imported into a session on a domain-joined host, offering one consistent set of verbs (`Get-DomainUser`, `Get-DomainGroup`, `Get-DomainComputer`) over the same directory the built-in commands read. It earns its place by carrying the queries nobody wants to write by hand, such as which accounts hold a service name. ^powerview
 
 _**Pre-authentication**_: the step where a Kerberos client encrypts the current time with its password hash to prove it knows the password before the [[Security-Terms#^kdc|KDC]] will reply. Turning it off for an account, which some legacy applications require, means the KDC will send that account's encrypted reply to anybody who asks — the whole basis of [[Security-Terms#^as-rep|AS-REP]] roasting. ^pre-authentication
 
@@ -573,6 +589,10 @@ _**robots.txt**_: a file placed at a website's root that instructs web crawlers 
 
 _**RPC (Remote Procedure Call)**_: a mechanism that lets one process expose functions (procedures) so another process can invoke them as if calling them locally, passing arguments and getting results over a socket. Widely used by Windows services; a procedure that runs a command while its service runs as SYSTEM turns a design feature into a privilege-escalation path. ^rpc
 
+_**RSAT (Remote Server Administration Tools)**_: the optional Windows feature that puts the server management tools, the ActiveDirectory PowerShell module among them, onto a machine that is not a server. It matters because `Get-ADUser` and its relatives exist on a domain controller and nowhere else by default, so a module-not-found error on a workstation is this feature being absent rather than a permission you are missing. ^rsat
+
+_**Rubeus**_: a Windows tool for everything Kerberos — requesting tickets, roasting accounts, passing and forging them. It runs on a domain-joined host and takes the place of the Python tooling you would otherwise run from Kali, which makes it the natural choice when what you hold is a shell on a domain machine rather than a credential on your own. ^rubeus
+
 _**Runtime**_: in Java, a built-in class (`java.lang.Runtime`) that provides an interface to the host operating system, most notably its `exec()` method for running arbitrary OS commands; a frequent target in code-execution exploits, since reaching it from within a sandboxed script typically means full remote command execution on the server.
 
 ## S
@@ -616,6 +636,8 @@ _**SFTP**_: file transfer carried inside an SSH session on port 22 — not FTP w
 _**SGID (Set Group ID)**_: the counterpart of [[Security-Terms#^suid|SUID]] for groups: an executable with the SGID bit runs with the group of the file rather than the group of the user running it. Shows as `s` in the group column of `ls -l`. On a directory it means something different and often more useful — new files inside inherit the directory's group instead of the creator's. ^sgid
 
 _**SHA family (SHA-1, SHA-256, SHA-512)**_: a family of hash functions, distinguished by output length: 40, 64 and 128 hex characters respectively. Recognising the length identifies the hash type, which is the argument hashcat needs. Note the difference between the bare hash and the password form: `$6$` at the start of a Unix hash means sha512crypt — SHA-512 applied thousands of times with a salt — and that is a different, far slower cracking mode than raw SHA-512. ^sha
+
+_**SharpHound**_: the official BloodHound collector, written for Windows and run on a domain-joined host. It is the data-gathering half and nothing more: it asks the domain for group memberships, logon sessions, permissions and trusts, and writes the answers out as files for the interface to ingest. The Python collector `bloodhound-python` does the same job from Linux and is not officially supported. ^sharphound
 
 _**Shellcode**_: a small piece of machine code injected into a process, typically to spawn a shell with that process's privileges. ^shellcode
 

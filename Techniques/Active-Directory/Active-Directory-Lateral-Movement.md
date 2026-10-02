@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: lab
-updated: 2026-09-02
+updated: 2026-10-02
 ---
 
 # Active Directory — Lateral Movement
@@ -12,7 +12,7 @@ updated: 2026-09-02
 Moving from one host to the next using a credential rather than an exploit: you hold a username and password (or a hash) and you want a shell on a *different* machine that account can reach. This is the domain-wide counterpart to local privilege escalation — same idea, one host over.
 
 > [!note] What this note assumes
-> That you already have a credential and know it authenticates — [[AD-Authentication]] is the note that establishes both, and [[Kerberoasting]] is what an unprivileged one is worth first. This note starts one step later: you have something that works, and the question is where else it works. [[Security-Terms#^bloodhound|BloodHound]], delegation, [[Security-Terms#^dcsync|DCSync]] and [[Security-Terms#^acl|ACL]] abuse are still unwritten.
+> That you already have a credential and know it authenticates — [[AD-Authentication]] is the note that establishes both, and [[Kerberoasting]] is what an unprivileged one is worth first. This note starts one step later: you have something that works, and the question is where else it works. [[BloodHound]] is the note that answers *where else* in one pass; delegation, [[Security-Terms#^dcsync|DCSync]] and [[Security-Terms#^acl|ACL]] abuse are still unwritten.
 
 ## Is this credential a local admin somewhere
 
@@ -43,6 +43,6 @@ python3 psexec.py username:password@hostIP
 
 ## Gaps
 
-- One technique only. [[Security-Terms#^as-rep|AS-REP]] roasting, [[Security-Terms#^pass-the-ticket|pass-the-ticket]], DCSync, delegation abuse and BloodHound-driven ACL paths are the rest of AD lateral movement and are all unwritten.
+- One technique only. [[Security-Terms#^pass-the-ticket|Pass-the-ticket]], DCSync, delegation abuse and the permission paths [[BloodHound]] draws are the rest of AD lateral movement and are all unwritten.
 - No coverage of the other execution methods in the same family — `wmiexec.py`, `smbexec.py`, `atexec.py` — which are quieter than PsExec (no service binary dropped) and succeed in some places PsExec is blocked.
 - Nothing on *finding* which hosts a credential can reach (`crackmapexec`/`nxc` sweeps); this note assumes you already have a target IP.

@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-17
+updated: 2026-10-02
 ---
 
 # Active Directory — Authenticating With What You Hold
@@ -21,7 +21,7 @@ You are holding something that is not a shell — a password, a string of hex, a
 | 32 hex characters | the NT hash | NTLM directly, Kerberos after `getTGT.py` | `-hashes :<nt hash>` |
 | `user::DOMAIN:1122…:8f4c…:0101…` | a NetNTLMv2 response | nothing | crack it into a password first |
 | `$krb5tgs$23$*svc…` | a service ticket | nothing | crack it into a password first |
-| `$krb5asrep$23$user@…` | an AS-REP | nothing | crack it into a password first |
+| `$krb5asrep$23$user@…` | an AS-REP ([[AS-REP-Roasting]]) | nothing | crack it into a password first |
 | `user.ccache` | a real Kerberos ticket | Kerberos only | `-k -no-pass` |
 
 Five different things get called "the NTLM hash" in the same afternoon and only one of them is the NT hash. The stored value — 32 hex characters, sitting in the SAM or the directory — is a credential in its own right. The value seen on the wire is a NetNTLMv2 response: a signature made *with* that hash over a random challenge the server invented, so it is different on every login and there is nothing in it to replay.
@@ -141,5 +141,4 @@ Choosing the protocol is also choosing what a failure will tell you. NTLM answer
 - Null sessions and name-resolution poisoning are still not covered; the rest of what is upstream of this note now lives in [[AD-Username-Enumeration]], [[Password-Spraying]] and [[Authentication-Coercion]].
 - Forging rather than presenting: a domain-wide forged ticket from the KRBTGT hash, and a service-scoped one from a service account hash, both bypass everything here. Unwritten.
 - NTLM relaying — taking an authentication attempt aimed at you and spending it somewhere else — needs no cracking at all and is the reason a captured response is still worth having.
-- AS-REP roasting is named in the table and nowhere explained.
 - Nothing on machine accounts as identities, or on what a SYSTEM shell on a domain-joined host is worth as a domain credential.

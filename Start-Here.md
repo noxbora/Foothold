@@ -4,12 +4,12 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-09-25
+updated: 2026-10-02
 ---
 
 # Start Here
 
-The entrance to the Playbook, and the only meta note in it. Everything else is reachable from here in at most two hops, and the linter fails the run when it is not. 
+The entrance to the Playbook, and the only meta note in it. Everything else is reachable from here in at most two hops, and the linter fails the run when it is not.
 
 **Before the first command of the evening.** An empty result has two meanings — nothing is there, or you are not allowed to see it — and on Linux they look identical. Four ways to tell them apart: ask the same question about a file you know exists, run it once without `2>/dev/null`, read `echo $?`, and count what was searched rather than what came back. An empty result is not a finding until you have shown it is not a permission problem.
 
@@ -44,7 +44,7 @@ Also in `Workflow/`: [[Public-Exploit-Workflow]], a method note rather than a sp
 
 ## The rest of the vault
 
-Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]] · [[Exposed-Service-Looting]]. Active Directory, before the first credential: [[AD-Username-Enumeration]] · [[Password-Spraying]] · [[Authentication-Coercion]]; after it: [[AD-Authentication]] · [[Kerberoasting]]. Services worth naming: [[23-Telnet]].
+Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]] · [[Exposed-Service-Looting]]. Active Directory, before the first credential: [[AD-Username-Enumeration]] · [[Password-Spraying]] · [[AS-REP-Roasting]] · [[Authentication-Coercion]]; after it: [[AD-Authentication]] · [[Kerberoasting]] · [[AD-Authenticated-Enumeration]] · [[BloodHound]]. Services worth naming: [[23-Telnet]].
 
 Reference: [[Security-Terms]] (domain vocabulary A–Z, with `^block-anchors` for the terms worth linking into) · [[English-Vocabulary]] (general English met while studying, kept separate on purpose) · [[Failure-Messages]] · [[Bash-Scripting]] (the syntax behind every command you run, and the failures it produces).
 
@@ -213,5 +213,5 @@ python3 vault-check.py --gaps
 
 1. **Relaying instead of cracking** — [[Authentication-Coercion]] now collects a [[Security-Terms#^netntlmv2|NetNTLMv2]] response and [[Hash-Cracking]] can crack it. Forwarding one to a second host while it is still fresh is unwritten, and it is what makes an uncrackable capture worth having.
 2. **Pivoting beyond SSH** — chisel, ligolo, socat relays, for a host with no `ssh` client on it.
-3. **Active Directory after the first credential** — [[Security-Terms#^bloodhound|BloodHound]], delegation, [[Security-Terms#^dcsync|DCSync]], forged tickets.
+3. **Active Directory after the first credential** — [[BloodHound]] is written now; delegation, [[Security-Terms#^dcsync|DCSync]] and forged tickets are not, and the graph draws edges for all three.
 4. **Reporting** — [[Pentest-Workflow#Phase 6 — Reporting|Phase 6]] is empty on purpose.

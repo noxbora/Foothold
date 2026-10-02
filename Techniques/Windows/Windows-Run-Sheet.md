@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: reading
-updated: 2026-09-08
+updated: 2026-10-02
 ---
 
 # Windows Run Sheet
@@ -367,6 +367,6 @@ The second is **timing**. Every command photographs one instant. A task that run
 
 ## Gaps
 
-- Domain enumeration is not here. Once the host is domain-joined, `net user /domain` is the door into a different sheet entirely — that belongs with [[Active-Directory-Lateral-Movement]] and is not yet written.
+- Domain enumeration is not here. Once the host is domain-joined, `net user /domain` is the door into a different sheet entirely, and that sheet is [[AD-Authenticated-Enumeration]].
 - Nothing on staying quiet. Every command here is loud in an event log and the note does not say which are loudest.
 - No coverage of `SeDebugPrivilege` or `SeLoadDriverPrivilege`, both named in step 1 but neither cashed in anywhere in the vault.

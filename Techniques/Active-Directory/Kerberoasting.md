@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-08
+updated: 2026-10-02
 ---
 
 # Kerberoasting
@@ -69,17 +69,17 @@ The reason this works at all is worth keeping straight, because it explains the 
 
 - `-usersfile` takes a list of account names instead of querying, for the case where you have names from somewhere else and no credential that can read the directory.
 - Writing a service name onto an account you already control makes that account roastable on purpose. It needs write access to the account object, which means it is a way of turning one directory permission into a password, not a way in.
-- The same tool run with `-no-preauth` targets accounts with pre-authentication switched off, which is AS-REP roasting rather than Kerberoasting and needs no credential at all.
+- The same tool run with `-no-preauth` targets accounts with pre-authentication switched off, which is [[AS-REP-Roasting]] rather than Kerberoasting and needs no credential at all.
 
 ## Next
 
 - [[Hash-Cracking]] — wordlists, rules, and what an exhausted run is actually evidence of
 - [[AD-Authentication]] — where a cracked service password goes next, and what it can and cannot be passed to
 - [[Active-Directory-Lateral-Movement]] — if the service account turns out to be a local administrator somewhere
+- [[AS-REP-Roasting]] — the same offline crack against accounts that need no credential to roast at all
 
 ## Gaps
 
 - No coverage of how noisy the request is, or what it looks like from the defender's side, which decides whether `-request` for the whole domain is ever acceptable.
-- AS-REP roasting is named in the last section and not written; it is the closer relative of this attack than anything else in the folder, because it needs no credential.
 - Nothing on delegation, which the `Delegation` column in the output announces and this note ignores entirely.
 - No worked example of what a service account's group membership typically opens, so the `MemberOf` judgement is currently a rule with no cases behind it.
