@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: unseen
 source: thm
-updated: 2026-10-02
+updated: 2026-10-08
 ---
 
 # AS-REP Roasting
@@ -20,9 +20,9 @@ GetNPUsers.py 'domain.local/' -dc-ip <dc ip> -usersfile users.txt -format hashca
 ```
 
 - the trailing `/` after the domain name → it is what tells [[Security-Terms#^impacket|Impacket]] the string is a domain with no username in it. Drop the slash and the whole string is read as a host to connect to instead, and the tool stops complaining that the domain is missing rather than that your syntax is wrong.
-- `-no-pass` → send no password at all, which is the entire point of the attack. Omit it and the tool prompts for one and waits, which inside a script reads as a hang.
+- `-no-pass` → send no password at all, which is the entire point of the attack. On this exact line it changes nothing: the target names no user, and Impacket only asks for a password when a username is present. It becomes load-bearing the moment a name goes into the target (`'domain.local/<name>'`, the one-account form under *Rarely*) — leave it off there and a `Password:` prompt appears and waits, which inside a script reads as a hang. Keep it in so the line survives that edit.
 - `-usersfile users.txt` → one username per line. Without a credential there is nothing to query, so this file *is* the attack surface: the run can only find accounts you have already named.
-- `-format hashcat` → state it rather than trust the default, which has moved between Impacket versions. The two forms differ by the `$23$` field naming the cipher, and hashcat cannot load the john form; it says no hashes were loaded, which reads like a wrong mode number.
+- `-format hashcat` → already the default in current Impacket; it is written out so the line says what lands in the file. The hashcat form carries `$23$`, the cipher number that picks the mode in *Cracking what came back*. hashcat reads the `john` form as well, so this flag is not what breaks a crack — a hash broken across two lines is, and the next flag is the guard against it.
 - `-outputfile hashes.txt` → easy to skip, because the hash prints to the terminal as well. It is several hundred characters long, it wraps, and copying it back out of a wrapped terminal puts a line break inside it; hashcat then reports `Token length exception` and sends you to check the mode instead of the file.
 - the eliminating is already inside the tool: it tries each name in turn and prints a hash only for the accounts whose reply came back unprotected. Expect one or two from a list of fifty, and often none.
 
@@ -93,7 +93,7 @@ The attack is quiet rather than invisible. Nothing is exploited and nothing is b
 
 ## Rarely — worth one command, not worth a step
 
-- `-request-user <name>` asks for one account's reply instead of all of them, for a long table where only one row has a group worth having.
+- `GetNPUsers.py 'domain.local/<name>' -dc-ip <dc ip> -no-pass -format hashcat` asks for one account's reply instead of all of them, for a long table where only one row has a group worth having. A name in the target and no password is the single-account form of `GetNPUsers.py`; it has no `-request-user` flag, which belongs to `GetUserSPNs.py` in [[Kerberoasting]] and fails here as an unrecognised argument.
 - On a domain-joined Windows host, [[Security-Terms#^rubeus|Rubeus]] does the discovery and the request together with `asreproast`, needing neither a name list nor Impacket. It is the better choice when what you hold is a shell rather than a credential on your own machine.
 - Setting the flag on an account you can already modify makes that account roastable on purpose. It needs write access to the account object, so it converts a directory permission into a password, the same way writing an [[Security-Terms#^spn|SPN]] does for [[Kerberoasting]]. It is a way to escalate, never a way in.
 

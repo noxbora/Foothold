@@ -9,13 +9,15 @@ This covers the rest. Run from anywhere:
 
 Exit code is 0 when clean, 1 when any check fails — so it can gate a commit hook.
 
-Three modes do something else and exit 0 instead of checking anything:
+Four modes do something else and exit 0 instead of checking anything:
 
     --gaps            every `## Gaps` line in the Playbook — the backlog of missing work
     --fluency         what the vault leans on hardest that you cannot yet do
     --unwrap <path>   REWRITE a file (or a folder, recursively) so each paragraph, list
                       item and callout line is one source line again. This is the repair
                       for the hard-wrap check: the check finds the damage, this undoes it.
+    --stamp           set `updated` to today on every STAGED note whose body changed.
+                      The pre-commit hook runs it on every commit; you never type it.
 """
 import os, re, sys, collections, datetime, pathlib
 from urllib.parse import unquote, urlsplit

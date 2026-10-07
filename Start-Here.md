@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-10-02
+updated: 2026-10-08
 ---
 
 # Start Here
@@ -97,7 +97,7 @@ Name the surface the technique attacks and file it there. Attacks no single surf
 
 **Four layers per command.** Every section carrying a command carries these, in order: **Why now** (what you already hold that makes this the next move — if you cannot write it, you do not need the command yet) · the command **and the flag that is easy to omit**, with the failure omitting it produces · **What you will see**, four outcomes, Found / Empty / Error / Noise · **Then**, a destination for each outcome, Empty included. A step whose Empty branch names nothing is a dead end.
 
-**Entrances are placed, not named.** `Start-Here` sits loose at the Playbook root; the two run sheets sit at the top of their own folders, held there by the `sortspec` bookmark group rather than by alphabetical order. The `explorer-marks.css` snippet then paints those three in deep beige and the folders by depth — near-black down to the four sections, espresso for anything nested inside them — so the skeleton stands out and the notes hanging off it do not. Filenames stay ordinary throughout, because a filename is for scripts and links while a colour is for the eye.
+**Entrances are placed, not named.** `Start-Here` sits loose at the Playbook root; the two run sheets sit at the top of their own folders, held there by the `sortspec` bookmark group rather than by alphabetical order. The `explorer-marks.css` snippet then sets every folder, at every depth, in bold near-black, while every note — those three included — keeps the theme's own colour and weight, so the skeleton stands out and the notes hanging off it do not. Filenames stay ordinary throughout, because a filename is for scripts and links while a colour is for the eye.
 
 **Naming.** the vault gets scripted and lives in git, and Obsidian resolves hyphenated wikilinks happily. No all-lowercase filename anywhere — a tool note is capitalised even when the tool is not (`PSPY`, `TheHarvester`, `873-rsync`), while the tool's own spelling stays intact in prose and in every command. Service notes are `PORT-Service` with an H1 of `PORT — Service`. Otherwise the H1 may enrich the filename — expand an acronym, add a CVE, add scope after an em-dash — but never reorder or abbreviate it.
 
@@ -111,7 +111,7 @@ Name the surface the technique attacks and file it there. Attacks no single surf
 
 ## The note skeleton
 
-Copy this into a new technique, service or tool note. Workflow and reference notes do not use it; they carry no commands.
+Copy this into a new technique, service or tool note. Workflow and reference notes do not use it. A workflow note's commands still owe the four layers; a reference note is looked up, not run step by step, and is exempt from them.
 
 <!-- dup-ok -->
 ````markdown

