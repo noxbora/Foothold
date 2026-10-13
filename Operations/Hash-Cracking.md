@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-17
+updated: 2026-10-13
 ---
 
 # Hash Cracking
@@ -33,6 +33,7 @@ Two rules first. Cracking happens **on your machine, never the target**: it is C
 | `$krb5tgs$23$…` | [[Kerberoasting]] ticket, RC4 | `13100` | `krb5tgs` |
 | `$krb5tgs$17$…` `$krb5tgs$18$…` | the same ticket, AES-128 / AES-256 | `19600` / `19700` | — |
 | `$krb5asrep$23$…` | AS-REP roast | `18200` | `krb5asrep` |
+| `$DCC2$10240#user#…` | MsCacheV2 cached domain logon (DCC2) | `2100` | `mscash2` |
 
 The `$x$` prefix is a **format identifier**, not part of the hash: `$6$salt$digest` says "SHA-512crypt, this salt, this digest". That is why prefixed hashes never need guessing — the hash announces itself. Bare hex strings are the ambiguous ones.
 
@@ -51,6 +52,9 @@ hashid '$6$rounds=5000$abc'      # or: haiti '<hash>'
 
 > [!important] `aad3b435b51404eeaad3b435b51404ee` is not a hash to crack
 > That exact string is the **empty LM half** of a dumped NT:LM pair. Seeing it means LM storage is disabled — good hygiene on the target, nothing to attack. Crack the NT half to the right of the colon.
+
+> [!important] A `$DCC2$` hash cracks but never passes
+> MsCacheV2 — Domain Cached Credentials, version 2 (DCC2) — is what a Windows host caches so a domain user can still log in when the domain controller is unreachable. Unlike an [[Security-Terms#^nt-hash|NT hash]] you **cannot** pass-the-hash with it: no protocol will accept it, so cracking is the only road, and a slow one — it is a deliberately expensive key-derivation function run over 10240 rounds, hashcat mode `2100`. It comes from a host's LSA cache ([[Windows-Credential-Harvesting]]), never from the [[DCSync]] domain pull.
 
 **Then** — a confident identification goes to step 2 to prepare the file, then step 3 (hashcat) or step 4 (john). An ambiguous hex string goes to step 4, because john will try to identify it for you. A string that is not a hash at all goes back to where you found it — you are decoding, not cracking.
 

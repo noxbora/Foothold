@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: reading
-updated: 2026-10-02
+updated: 2026-10-13
 ---
 
 # Security & Technical Terms
@@ -186,6 +186,8 @@ _**Dovecot**_: Dovecot is an open-source IMAP and POP3 server for Unix-like oper
 _**DPAPI (Data Protection API)**_: the Windows service applications call to encrypt a secret without inventing their own crypto. The key is derived from the user's password, so the ciphertext is bound to that user on that machine. Chrome cookies, saved RDP credentials, Wi-Fi keys and many password managers all sit behind it — which is why stealing the encrypted blob is useless without either the user's password or SYSTEM on the box. ^dpapi
 
 _**Drill**_: a structured practice exercise simulating a security incident or attack scenario — such as a tabletop drill or red team drill — used to test an organization's detection and response capabilities.
+
+_**DRSUAPI**_: the remote interface two domain controllers use to replicate directory data to one another — and the one [[Security-Terms#^dcsync|DCSync]] abuses to ask a controller for password hashes. It is the main `RPC` (Remote Procedure Call — invoking a function that runs on another machine as if it were local) interface of the Directory Replication Service Remote Protocol; the `DRS` part is that replication service and `API` is Application Programming Interface. A successful replication pull from `secretsdump` or mimikatz comes back over this interface; when the account lacks the right, the refusal is a DRSUAPI access-denied that lands after a clean login, which is how you tell 'not privileged enough' from 'wrong credential'. ^drsuapi
 
 _**DTD (Document Type Definition)**_: the schema section of an XML document, declaring which elements are allowed and which entities exist. This is where [[Security-Terms#^xxe|XXE]] lives: an entity declared in the DTD can point at a local file path or a URL, and a parser with external entities enabled will go and fetch it. ^dtd
 
@@ -381,11 +383,15 @@ _**Middleware**_: software that sits between components of an application (e.g. 
 
 _**MIME type**_: the label attached to a file to say what it is, such as `image/jpeg` or `text/html`. In an upload it is a value the client sets and the server frequently trusts, so it states what the sender claims rather than what the bytes actually contain. ^mime
 
+_**mimikatz**_: the standard Windows credential-extraction tool, written by Benjamin Delpy. It reads the secrets Windows keeps in memory and in the registry — logon hashes and plaintexts out of [[Security-Terms#^lsass|LSASS]], local hashes out of the [[Security-Terms#^sam|SAM]], cached domain logons, [[Security-Terms#^dpapi|DPAPI]] secrets — and, given the replication right, pulls hashes straight from a domain controller ([[Security-Terms#^dcsync|DCSync]]). It is the most heavily signatured tool in security, so antivirus flags the stock binary on sight; on a live host it is run with real-time protection off or from an obfuscated build.
+
 _**Minification**_: Removing unnecessary characters (whitespace, comments, long variable names) from code to reduce file size, without hiding logic. Tools: terser, beautifier.io (reverse).
 
 _**MITM (machine-in-the-middle)**_: sitting between two parties who believe they are talking directly. On a local segment it is usually reached by [[Security-Terms#^arp|ARP]] poisoning or by answering name-resolution broadcasts nobody else claims; over TLS it requires a certificate the client will accept, which is exactly what Burp's CA certificate is for. ^mitm
 
 _**MPM (Multi-Processing Module)**_: the part of Apache that decides how it handles concurrent requests — one process per request, threads, or an event loop. It surfaces in privilege escalation because the MPM decides which user the request handler runs as, and an `itk`-style MPM runs each virtual host as its own user rather than as `www-data`. ^mpm
+
+_**MsCacheV2 (DCC2)**_: the hash a Windows host caches when a domain user signs in, so they can still authenticate when the domain controller is unreachable — Domain Cached Credentials, version 2. It lives in the registry and is readable only as SYSTEM. Unlike an [[Security-Terms#^nt-hash|NT hash]] it cannot be passed; it is a slow salted key-derivation, so cracking offline is the only road (hashcat mode 2100, john `mscash2`). Its dumped form begins `$DCC2$`.
 
 _**MSF (Metasploit Framework)**_: the exploitation framework whose console is `msfconsole`. Its module strings look like paths — `exploit/windows/smb/ms17_010_eternalblue` — and the format is exact: a wrong separator or a missing segment produces "failed to load module" rather than a search suggestion. ^msf
 
@@ -428,6 +434,8 @@ _**NS record**_: the DNS record naming the authoritative nameservers for a zone.
 _**NSE (Nmap Scripting Engine)**_: the Lua scripts bundled with Nmap that turn a port scan into a service interrogation — banner parsing, default-credential checks, known-vulnerability probes, enumeration of SMB shares and DNS records. `--script` selects them by name or category. This is where most of Nmap's actual findings come from. ^nse
 
 _**NT hash**_: the modern Windows password hash: MD4 of the password in UTF-16, unsalted, no iteration. Unsalted means two accounts with the same password have the same hash, and no iteration means cracking is fast. It is also the value used directly in a pass-the-hash attack — you do not need to crack it to authenticate with it. ^nt-hash
+
+_**NTDS.dit**_: the Active Directory database file, present only on a domain controller, at `C:\Windows\NTDS\NTDS.dit`. It holds every domain account with its password hashes and Kerberos keys — the whole domain's credentials in one place, which is why pulling from it ([[Security-Terms#^dcsync|DCSync]], or an offline copy of the file plus the SYSTEM hive) is the highest-value credential action in a domain. The name expands to NT Directory Services Directory Information Tree.
 
 _**NTFS**_: the Windows filesystem. Two features matter offensively: it stores per-object [[Security-Terms#^acl|ACLs]], so file permissions are far more expressive than Unix's owner/group/other bits; and it supports alternate data streams, where a file can carry hidden extra content that `dir` does not show. ^ntfs
 

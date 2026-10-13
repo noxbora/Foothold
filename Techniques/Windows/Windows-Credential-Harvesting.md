@@ -4,7 +4,7 @@ platform: windows
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-03
+updated: 2026-10-13
 ---
 
 # Windows — Credential Harvesting
@@ -155,6 +155,128 @@ reg query HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions\ /f "Proxy" /s
 
 **Then** — a proxy credential is a reuse lead like every other secret here. More usefully, the same recovery path exists for **any** software that offers to remember a password — browsers, mail clients, FTP and VNC clients, RDP managers. PuTTY is one worked example; the generalisation is the finding. From here, [[Config-File-Looting]] for the file-based stores.
 
+## With local admin — mimikatz on the box
+
+Everything above needs no privilege; everything from here does. These stores hold hashes and secrets, not files you can `type`, and reaching them means **local administrator**, a mimikatz binary on the target, and — on a live box — Windows Defender either off or fed an obfuscated build, since mimikatz is the single most-signatured tool in existence. Run it from an elevated prompt. What it returns is spent, not read: a plaintext is a bonus, an [[Security-Terms#^nt-hash|NT hash]] is pass-the-hash fuel for [[AD-Authentication]].
+
+### LSASS memory — live sessions
+
+**Why now** — someone with more rights than you may be logged in *right now*. [[Security-Terms#^lsass|LSASS]] holds, per live session, the NT hash and sometimes the plaintext. First thing to try the moment you are admin.
+
+```text
+privilege::debug
+```
+
+```text
+sekurlsa::logonpasswords
+```
+
+- `privilege::debug` first → turns on `SeDebugPrivilege`, the right to read another process's memory. Skip it and `sekurlsa` cannot open LSASS, failing with `ERROR kuhl_m_sekurlsa_acquireLSA`.
+- it reads **memory**, so it shows only sessions that exist now → a domain admin who logged in yesterday and logged off leaves nothing here.
+
+**What you will see**
+
+- **Found** — one block per session: `Username`, `Domain`, an `NTLM` hash under `msv`, sometimes a clear `Password` under `wdigest` or `kerberos`.
+- **Empty** — only your own session and the local accounts, no domain users, is the normal result on a box nobody privileged is using. It closes *this* route, not the note — the cached-logon route below reaches users who logged in and left.
+- **Error** — the `acquireLSA` error means you skipped `privilege::debug`, or you are not actually elevated.
+- **Noise** — `Password : (null)` is a session with no plaintext retained, not a failure; read the hash instead.
+
+**Then** — a plaintext goes to [[Active-Directory-Lateral-Movement]] as a credential; an NT hash goes to [[AD-Authentication]] to be replayed.
+
+### SAM + SYSTEM — local account hashes
+
+**Why now** — LSASS gave you nothing and you want this host's *local* account hashes regardless of who is logged in. The [[Security-Terms#^sam|SAM]] hive holds them encrypted; the SYSTEM hive holds the boot key that decrypts them. You need both.
+
+```cmd
+reg save HKLM\SAM C:\Windows\Temp\SAM
+```
+
+```cmd
+reg save HKLM\SYSTEM C:\Windows\Temp\SYSTEM
+```
+
+```text
+lsadump::sam /sam:C:\Windows\Temp\SAM /system:C:\Windows\Temp\SYSTEM
+```
+
+- two `reg save` calls, one hive each → both are needed, because the SAM is undecryptable without the SYSTEM boot key.
+- `/sam:` and `/system:` must point at the files you just saved → mimikatz reads these copies, not the live registry, so a wrong path is a file-not-found rather than a crypto error.
+
+**What you will see**
+
+- **Found** — `The operation completed successfully.` after each `reg save`, then a `RID` / `User` / `Hash NTLM:` block per local account from `lsadump::sam`. [[Security-Terms#^rid|RID]] 500 is the local Administrator.
+- **Empty** — only `Administrator` and `Guest`, no extra users, is a real if dull answer: no local accounts beyond the defaults.
+- **Error** — `reg save` with `Access is denied.` means you are not actually elevated. A decryption error from `lsadump::sam` means mismatched hives — you copied only one, or saved them at different moments.
+- **Noise** — the `Guest` hash `31d6cfe0…` is the hash of an empty password on every Windows box ever; not a find.
+
+**Then** — a local Administrator hash is pass-the-hash fuel against *other* hosts that share it ([[Active-Directory-Lateral-Movement]]); crack it only if you want the plaintext ([[Hash-Cracking]]).
+
+### LSA cache — domain logons that already left
+
+**Why now** — a domain user logged into this box once and is gone, so LSASS is empty, but Windows cached their logon so they could sign in offline. That cache is the `$DCC2$` hash.
+
+```text
+token::elevate
+```
+
+```text
+lsadump::cache
+```
+
+- `token::elevate` → steals a SYSTEM token; the cache lives under a registry key only SYSTEM reads, so without this `lsadump::cache` is access-denied.
+
+**What you will see**
+
+- **Found** — `User : DOMAIN\name` with `MsCacheV2 : <hex>` per cached account, often a domain admin who once touched this workstation.
+- **Empty** — no cached entries means no domain user has interactively logged in here; common on a freshly imaged host.
+- **Error** — access denied is the missing `token::elevate`.
+- **Noise** — the local Administrator can appear here too; the `DOMAIN\` prefix is how you tell a cached *domain* logon from a local one.
+
+**Then** — a `$DCC2$` hash **cannot** be passed, it only cracks. It goes to [[Hash-Cracking]] as mode `mscash2`, nowhere else.
+
+### DPAPI vault — saved app passwords
+
+**Why now** — the user saved an RDP connection, a web login or a Wi-Fi key, and Windows kept it in their Vault under [[Security-Terms#^dpapi|DPAPI]].
+
+```text
+vault::list
+```
+
+```text
+vault::cred /export
+```
+
+- `vault::list` names the vaults and items; `vault::cred /export` is the one that prints recovered pairs → run `list` first to know whether `export` has anything to find.
+
+**What you will see**
+
+- **Found** — `vault::cred /export` prints `UserName` / `Credential` pairs in the clear.
+- **Empty** — vaults present with `Items (0)` is normal; most accounts save nothing.
+- **Error** — a credential shown by `list` but blank on `export` is the load-bearing case: a secret belonging to a *different* user (a service account) is encrypted with *their* DPAPI key, and you cannot decrypt it without running as them. As local admin you read your own and the machine's, not theirs.
+- **Noise** — stock single-sign-on vault entries carry nothing worth exporting.
+
+**Then** — a recovered password is a credential-reuse lead like any other; match it to a user and try it across the domain ([[Active-Directory-Lateral-Movement]]).
+
+### Remote — one host, no binary dropped
+
+**Why now** — you hold a local admin credential for a host but no shell on it, and you would rather pull its SAM and cached logons from Kali than RDP in and run mimikatz by hand.
+
+```bash
+secretsdump.py 'HOST/Administrator:password@host-ip'
+```
+
+- no `-just-dc` here → against an ordinary workstation you *want* the local SAM and the cached domain logons, which is exactly what the bare run returns. `-just-dc` is for a domain controller ([[DCSync]]).
+- runs over SMB (Server Message Block, the Windows file-sharing protocol on port 445) via the remote registry → the account must be local admin on the target; a valid-but-unprivileged credential authenticates and then cannot read the hives.
+
+**What you will see**
+
+- **Found** — `Dumping local SAM hashes` then the `user:RID:lm:nt:::` block, then `Dumping cached domain logon information` with `$DCC2$` lines.
+- **Empty** — not a state; you get the hives or an access error.
+- **Error** — a login failure is a wrong credential; `rpc_s_access_denied` *after* login is a valid credential that is not local admin on this host.
+- **Noise** — the empty-LM `aad3b435…` half again, and machine accounts ending `$`.
+
+**Then** — SAM hashes to [[AD-Authentication]] (pass-the-hash) or [[Hash-Cracking]]; `$DCC2$` lines to [[Hash-Cracking]] only.
+
 ## Rarely — worth one command, not worth a step
 
 **Why now** — the stores above are empty. These three hold a credential perhaps twice a year, and each is one command.
@@ -204,8 +326,7 @@ Two things govern the whole sweep, not any one location.
 
 ## Gaps
 
-- No hash-harvesting: [[Security-Terms#^sam|SAM]] and SYSTEM hive copies, [[Security-Terms#^lsass|LSASS]] memory, DPAPI-protected blobs, mimikatz. This note only covers credentials sitting in readable files and registry values.
-- Cracking and pass-the-hash now live in [[Hash-Cracking]]; nothing here covers *capturing* [[Security-Terms#^netntlmv2|NetNTLMv2]] over the network (Responder, [[Security-Terms#^scf|SCF]] drops).
-- Autologon's LSA-secrets variant is named above but has no procedure: reading it needs SYSTEM and either a live-memory tool or offline SECURITY+SYSTEM hive copies, neither of which this note covers.
+- The no-privilege sweep and the local-admin mimikatz tier are both here now; the domain-wide pull is [[DCSync]]. Still unwritten: capturing [[Security-Terms#^netntlmv2|NetNTLMv2]] over the network (Responder, [[Security-Terms#^scf|SCF]] drops) — capture on the wire, not harvesting from a host.
+- `lsadump::secrets` proper — the `HKLM\SECURITY\Policy\Secrets` store behind the Autologon LSA-secrets variant named earlier — sits beside `lsadump::cache` above but has no procedure of its own.
 - Browser, mail-client and VNC password stores are named above but have no procedure here.
-- Nothing on domain-level credential sources ([[Security-Terms#^gpp|GPP]] `cpassword`, [[Security-Terms#^sysvol|SYSVOL]] scripts).
+- Offline DPAPI master-key decryption — lifting a user's master key plus their password to decrypt another session's blobs, the way past the "cannot decrypt another user's vault" wall above — is unwritten.

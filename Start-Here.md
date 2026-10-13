@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-10-08
+updated: 2026-10-13
 ---
 
 # Start Here
@@ -213,5 +213,5 @@ python3 vault-check.py --gaps
 
 1. **Relaying instead of cracking** — [[Authentication-Coercion]] now collects a [[Security-Terms#^netntlmv2|NetNTLMv2]] response and [[Hash-Cracking]] can crack it. Forwarding one to a second host while it is still fresh is unwritten, and it is what makes an uncrackable capture worth having.
 2. **Pivoting beyond SSH** — chisel, ligolo, socat relays, for a host with no `ssh` client on it.
-3. **Active Directory after the first credential** — [[BloodHound]] is written now; delegation, [[Security-Terms#^dcsync|DCSync]] and forged tickets are not, and the graph draws edges for all three.
+3. **Active Directory after the first credential** — [[BloodHound]] and [[DCSync]] are written now; delegation and forged tickets are not, and the graph draws edges for both.
 4. **Reporting** — [[Pentest-Workflow#Phase 6 — Reporting|Phase 6]] is empty on purpose.
