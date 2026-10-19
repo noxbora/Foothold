@@ -4,7 +4,7 @@ platform: web
 status: working
 fluency: guided
 source: thm
-updated: 2026-09-08
+updated: 2026-10-19
 ---
 
 # Authentication Attacks
@@ -106,7 +106,7 @@ curl -i 'http://target.thm/customers/reset?email=robert%40target.thm' \
   -d 'username=robert&email=attacker@collector.thm'
 ```
 
-- the same parameter twice, once in the query and once in the body → this is the entire attack. PHP's `$_REQUEST` merges GET, POST and cookies, and the `variables_order` setting decides which wins. With the common `GPC` order, **POST overwrites GET**
+- the same parameter twice, once in the query and once in the body → this is the entire attack. PHP's `$_REQUEST` merges GET and POST in the order `request_order` sets. The `php.ini` files PHP ships set it to `GP`, so cookies stay out. If `request_order` is left unset (PHP's built-in default is an empty string), PHP falls back to `variables_order`, default `EGPCS`, and cookies get merged in too. Last wins, so **POST overwrites GET**
 - so the application identifies the account from the value it reads one way, and sends the reset link to the value it reads the other way. Both are "the email parameter" and they are not the same string
 - `-i` → show the response headers. The tell is often a redirect or a `Set-Cookie`, not the body
 - the generalisation is worth more than the example: wherever a value appears in two places, test which one wins. Query versus body, body versus cookie, a header versus a JSON field, the same key twice in one body (`email=a&email=b`), and the same key in a JSON object

@@ -4,7 +4,7 @@ platform: any
 status: working
 fluency: guided
 source: reading
-updated: 2026-10-13
+updated: 2026-10-19
 ---
 
 # Security & Technical Terms
@@ -207,7 +207,7 @@ _**Epoch**_: Refers to a reference point in time, most commonly the Unix epoch (
 
 _**Errant**_: Refers to an error or unintended behavior within a system, such as an errant script or process that causes unexpected or undesired outcomes.
 
-_**Escaping**_: Escaping (output encoding) means transforming user data so the browser treats it as plain text, not code, for example, turning `<` into `&lt`; so `<script>` becomes harmless text. A filter (input validation) checks that the input looks allowed (letters, numbers, length), but doesn’t stop data from becoming code when it’s later placed into a page. For example, raw user input `<script>alert(1)</script>` will be  escaped for HTML becomes `&lt;script&gt;alert(1)&lt;/script&gt`.
+_**Escaping**_: Escaping (output encoding) means transforming user data so the browser treats it as plain text, not code, for example, turning `<` into `&lt;` so `<script>` becomes harmless text. A filter (input validation) checks that the input looks allowed (letters, numbers, length), but doesn’t stop data from becoming code when it’s later placed into a page. For example, raw user input `<script>alert(1)</script>`, once escaped for HTML, becomes `&lt;script&gt;alert(1)&lt;/script&gt;`.
 
 _**Exfiltration**_: Exfiltration is the unauthorized transfer of data from a computer or network to an external location, typically performed by a threat actor after gaining access.
 

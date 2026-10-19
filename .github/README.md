@@ -7,7 +7,7 @@ checklists and tool references, written while working through lab platforms
 The vault is built around one idea: **a note earns its place by being reachable.**
 Every note links to at least one non-index note, every technique note states what
 its output *means* rather than just listing commands, and a linter
-(`vault-check.py`) fails the build when that stops being true.
+(`vault-check.py`) fails the run when that stops being true.
 
 ## Where to start
 
@@ -38,10 +38,10 @@ surface and is spent in more than one phase is an operation, not a technique of 
 The linter enforces it: every folder declares the `type` and `platform` a note inside it must
 carry, so a misfiled note fails the run instead of looking plausible.
 
-This repository is the playbook and nothing else. The Obsidian vault it lives in
-also holds private study material, which stays out of git entirely rather than
-relying on an ignore rule — cloning this repo carries the whole playbook and no
-part of anything personal.
+This repository is the playbook and nothing else. The git root is the `PLAYBOOK`
+folder itself, so nothing outside it — Obsidian's own settings included — can enter
+the history, and cloning this repo carries the whole playbook and no part of
+anything personal.
 
 Notes are best read in [Obsidian](https://obsidian.md) — `[[wikilinks]]` and the
 graph view are the point. They render fine on GitHub, minus the links.
@@ -72,7 +72,7 @@ Full house style lives in
 python3 vault-check.py
 ```
 
-Thirty checks covering what Dataview cannot see — link topology (broken targets,
+Its checks cover what Dataview cannot see — link topology (broken targets,
 orphans, hub-only notes, unresolved anchors, anything more than two hops from the
 entry point), frontmatter conformance (six fields, in order, values inside their
 vocabulary, a real non-future date), folder placement (each folder's declared `type`
@@ -84,7 +84,10 @@ teaching shape (every section that runs a command carries `**Why now**`, a
 no hard-wrapped prose, which Obsidian renders as a ragged line break; and no acronym
 or product name used in prose without an entry in the A-Z reference)
 and history (an `updated` field older than the last commit that changed the body).
-Exits non-zero when anything needs attention, so it can gate a commit hook.
+Exits non-zero when anything needs attention. The pre-commit hook runs it on every
+commit and prints what failed, but it warns rather than blocks. Before linting, the
+hook runs `--stamp`, which sets `updated` to today on every staged note whose body
+changed.
 
 Two read-only modes print a list and exit 0 instead:
 

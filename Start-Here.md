@@ -4,7 +4,7 @@ platform: any
 status: solid
 fluency: guided
 source: lab
-updated: 2026-10-13
+updated: 2026-10-19
 ---
 
 # Start Here
@@ -40,15 +40,15 @@ Find the row that describes what you are **holding** — not what you are trying
 
 **[[Stuck-Checklist]]** — flat and deliberately scrappy. Read top to bottom when a box has gone quiet.
 
-Also in `Workflow/`: [[Public-Exploit-Workflow]], a method note rather than a spine — you arrive at it from the notes that need it, not by navigating.
+Also in `Workflow/`: [[Public-Exploit-Workflow]], a method note rather than a spine — you mostly arrive at it from the notes that need it rather than by navigating.
 
 ## The rest of the vault
 
-Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]] · [[Exposed-Service-Looting]]. Active Directory, before the first credential: [[AD-Username-Enumeration]] · [[Password-Spraying]] · [[AS-REP-Roasting]] · [[Authentication-Coercion]]; after it: [[AD-Authentication]] · [[Kerberoasting]] · [[AD-Authenticated-Enumeration]] · [[BloodHound]]. Services worth naming: [[23-Telnet]].
+Privilege escalation: [[Linux-Privilege-Escalation]] · [[Windows-Privilege-Escalation]]. Operations: [[Shells]] (listeners, TTY upgrade, [[Security-Terms#^tls|TLS]]) · [[File-Transfer]] · [[Pivoting-and-Tunneling]] · [[Hash-Cracking]] · [[Config-File-Looting]] · [[Exposed-Service-Looting]]. Active Directory, before the first credential: [[AD-Username-Enumeration]] · [[Password-Spraying]] · [[AS-REP-Roasting]] · [[Authentication-Coercion]]; after it: [[AD-Authentication]] · [[Kerberoasting]] · [[AD-Authenticated-Enumeration]] · [[BloodHound]]. Services: one note per port, listed in [[Pentest-Workflow#Per-service enumeration|Phase 1]].
 
 Reference: [[Security-Terms]] (domain vocabulary A–Z, with `^block-anchors` for the terms worth linking into) · [[English-Vocabulary]] (general English met while studying, kept separate on purpose) · [[Failure-Messages]] · [[Bash-Scripting]] (the syntax behind every command you run, and the failures it produces).
 
-Tool references — flag surfaces only, the method lives in the technique note: [[Nmap]] · [[Nikto]] · [[Burp-Suite]] · [[Curl-and-Wget]] · [[TShark]] · [[TheHarvester]].
+Tool references — flag surfaces only, the method lives in the technique note: [[Nmap]] · [[RustScan]] · [[Nikto]] · [[Burp-Suite]] · [[Curl-and-Wget]] · [[TShark]] · [[TheHarvester]].
 
 ## Conventions
 
@@ -74,7 +74,9 @@ updated: 2026-09-08
 ---
 ```
 
-`status` grades the note — `seed` a placeholder, `working` usable but thin, `solid` trust it. `fluency` grades you, and only a box promotes a note to `cold`: `unseen` you could produce none of it back, `guided` you can work through it with the note open, `cold` you have used it on a box without opening the note, `teach` you can say why it works and diagnose it when it does not. The dangerous object is a `solid` note at `fluency: unseen` — nothing about it looks wrong. `source` answers what cannot be recovered later: is this command lab-specific or general?
+`status` grades the note — `seed` a thin placeholder, `working` usable with its holes listed under `## Gaps`, `solid` trust it. `fluency` grades you, and only a box promotes a note to `cold`: `unseen` you could produce none of it back, `guided` you can work through it with the note open, `cold` you have used it on a box without opening the note, `teach` you can say why it works and diagnose it when it does not. The dangerous object is a `solid` note at `fluency: unseen` — nothing about it looks wrong.
+
+`source` records where the material came from, because that cannot be recovered later: `thm` and `htb` the platform it was learned on, `lab` your own synthesis or your own lab rather than one room, `field` a real engagement, `reading` documentation, books and write-ups.
 
 **Folders — one axis.** The tree answers *what is in front of me*; the spines answer *what am I trying to do*.
 
@@ -99,7 +101,7 @@ Name the surface the technique attacks and file it there. Attacks no single surf
 
 **Entrances are placed, not named.** `Start-Here` sits loose at the Playbook root; the two run sheets sit at the top of their own folders, held there by the `sortspec` bookmark group rather than by alphabetical order. The `explorer-marks.css` snippet then sets every folder, at every depth, in bold near-black, while every note — those three included — keeps the theme's own colour and weight, so the skeleton stands out and the notes hanging off it do not. Filenames stay ordinary throughout, because a filename is for scripts and links while a colour is for the eye.
 
-**Naming.** the vault gets scripted and lives in git, and Obsidian resolves hyphenated wikilinks happily. No all-lowercase filename anywhere — a tool note is capitalised even when the tool is not (`PSPY`, `TheHarvester`, `873-rsync`), while the tool's own spelling stays intact in prose and in every command. Service notes are `PORT-Service` with an H1 of `PORT — Service`. Otherwise the H1 may enrich the filename — expand an acronym, add a CVE, add scope after an em-dash — but never reorder or abbreviate it.
+**Naming.** Filenames are `Title-Case-With-Hyphens`, because the vault gets scripted and lives in git, and Obsidian resolves hyphenated wikilinks happily. No all-lowercase filename anywhere — a tool note is capitalised even when the tool is not (`PSPY`, `TheHarvester`, `873-rsync`), while the tool's own spelling stays intact in prose and in every command. Service notes are `PORT-Service` with an H1 of `PORT — Service`. Otherwise the H1 may enrich the filename — expand an acronym, add a CVE, add scope after an em-dash — but never reorder or abbreviate it.
 
 **Technique vs tool.** A technique note describes the attack and may name several tools; a tool note is a flag reference, and only exists when the flag surface is wide enough to earn a page — `nmap` earns one, `host` does not. When in doubt it is a technique note.
 
@@ -108,6 +110,8 @@ Name the surface the technique attacks and file it there. Attacks no single surf
 **Callouts, three and no more.** `> [!important]` a correction or limit that costs time if missed · `> [!warning]` destructive or irreversible · `> [!note]` context.
 
 **Unfinished has exactly two markers.** A thin whole note → `status: seed`. A specific hole in a good note → a line under `## Gaps`. Nothing else, so one command finds all of it. A complete note correctly has no `## Gaps` section at all — leave a section out rather than pad it.
+
+**Core first, rare below the fold.** A note with a wide command surface ends its steps with `## Rarely — worth one command, not worth a step`: commands that pay rarely and do not deserve a place in the order. One **Why now**, one **What you will see** with all four outcomes and one **Then** cover all of them together. Nothing is deleted to shorten a note — the rarely-needed half moves down here. A thin note gets no such section, because padding it would break the rule above.
 
 ## The note skeleton
 
@@ -163,14 +167,14 @@ updated: 2026-09-08
 
 ## What the linter enforces
 
-`python3 vault-check.py` from the Playbook root; exit code 0 when clean, so it gates the commit hook. Worth knowing before you write:
+`python3 vault-check.py` from the Playbook root; exit code 0 when clean. The pre-commit hook runs it on every commit and prints the failing families, but it warns rather than blocks — the commit always goes through. Before linting, the hook runs `--stamp`, which sets `updated` to today on every staged note whose body changed, so the date is never yours to remember. Worth knowing before you write:
 
 - **Filter, do not dump.** Whatever you would put under **Noise**, put in the command instead. Name the discriminator and why it discriminates, say what the filter can hide, and give the expected count. A deliberate unfiltered baseline is marked `<!-- raw-ok -->`.
 - **One runnable command per fence** — the copy button takes the whole block. A command spanning several lines is still one command; a stacked flag reference in a `text` fence still fails.
 - **Four layers on every command section**, all four outcomes labelled. A catalog of interchangeable payloads is exempt with `<!-- layers-ok -->`.
 - **One source line per paragraph**, nothing over 120 words. `python3 vault-check.py --unwrap <file>` repairs a file that drifted.
 - **Jargon needs an entry** in one of the A–Z reference notes.
-- The rest run without your help: broken links, orphans, duplicate filenames, unresolved anchors, the two-hop rule, frontmatter schema, folder placement, heading structure, the callout vocabulary, invisible characters, room residue, English-only prose, lexicon drift, repeated code blocks, a section repeated inside one note, and `updated` older than the last commit that changed the body.
+- The rest run without your help: broken links, orphans, duplicate filenames, unresolved anchors, the two-hop rule, frontmatter schema, folder placement, heading structure, the callout vocabulary, invisible characters, room residue, English-only prose, lexicon drift, repeated code blocks, a section repeated inside one note, a missing `## Next`, a note linking only to hubs, a load-bearing note that is too thin, trailing whitespace, relative Markdown links that do not resolve, emphasis that will not render, and `updated` older than the last commit that changed the body.
 
 The run ends with a graph line — hub links give findability, lateral links give flow, and a hub share well under half is comfortable. It is a ratio, not a score: neglect the hubs and it drops while the vault gets worse. Watch the direction over months.
 
