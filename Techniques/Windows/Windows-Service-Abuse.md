@@ -1,12 +1,3 @@
----
-type: technique
-platform: windows
-status: working
-fluency: guided
-source: thm
-updated: 2026-10-08
----
-
 # Windows — Service Misconfiguration Abuse
 
 Three ways to make a Windows service run *your* file with *its* account's privileges. All three share one shape — **something the service depends on is writable by you** — and one tool chain: `sc.exe` to read the config (the built-in Windows service-control command), `icacls` to test file and folder permissions (also built in), `accesschk` to test the service object's own permissions (a free Microsoft Sysinternals tool that is **not** on the box — you download it on your attack box and copy it over, [[File-Transfer]]), and an `exe-service` payload to land the shell. Ranked easiest-first below; that is also roughly how often each appears.
@@ -14,8 +5,6 @@ Three ways to make a Windows service run *your* file with *its* account's privil
 Services are run by the **[[Security-Terms#^scm|SCM]]** (Service Control Manager). When a service starts, the SCM launches the executable named in the config, under the account named in the config.
 
 ## Read the service config first
-
-**Why now** — [[Security-Terms#^winpeas|WinPEAS]] or your own eye flagged a non-Microsoft service, and before testing any permission you need the two fields that decide which of the three vectors applies: what the SCM runs, and who it runs it as. You are hoping for `LocalSystem` as the account and a binary sitting somewhere you can write.
 
 ```cmd
 sc qc apphostsvc
@@ -26,21 +15,10 @@ sc qc apphostsvc
 - `SERVICE_START_NAME` → the account it runs *as*. `LocalSystem` is the jackpot; an unprivileged `svc*` account means a win here is only a lateral hop.
 - `sc.exe` in PowerShell — see the warning below; plain `sc` there is a different command.
 
-**What you will see**
-
-- **Found** — a `BINARY_PATH_NAME` under a non-default folder (not `C:\Windows`) and/or a `SERVICE_START_NAME` of `LocalSystem`. Either is a reason to run the permission tests below.
-- **Empty** — a service whose binary is under `C:\Windows\System32`, properly quoted, running as a locked-down account: real, and it closes that service. Most stock services look exactly like this — move to the next non-Microsoft service.
-- **Error** — `[SC] OpenService FAILED 1060` means no service by that name; `5` is access denied reading it. `1060` after a copy-paste usually means a trailing space or wrong case in the service name.
-- **Noise** — the dozens of services under `C:\Windows\System32\svchost.exe` are the OS. Only services whose binary lives **outside** `C:\Windows` are worth the permission tests.
-
-**Then** — a writable-looking binary path goes to vector 1; an unquoted path with spaces to vector 2; a locked binary to the **[[Security-Terms#^dacl|DACL]]** test in vector 3 — a DACL (Discretionary Access Control List) is the list of who-may-do-what attached to an object, and a service has one of its own, entirely separate from the permissions on its executable file. A fully locked service closes and you move on — back to [[Windows-Privilege-Escalation]] if every service is stock.
-
 > [!important] `sc` in PowerShell is not the service tool
 > In PowerShell, `sc` is an alias for `Set-Content`. To control services you must type `sc.exe` in full. In `cmd.exe` plain `sc` is fine. Symptom of getting this wrong: `sc stop` silently creates a file called `stop` instead of stopping anything.
 
 ## The payload must be `exe-service`
-
-**Why now** — you have found a writable dependency and are about to plant a payload where the SCM will run it. A service executable is not a normal program, so the payload format has to match or the shell dies on start — this is the step that decides whether the vector actually pays out.
 
 On start, the SCM expects the executable to call back and report "I'm running" within ~30 seconds (the SCM handshake). A plain reverse-shell `.exe` never makes that call: you *may* catch a shell, but the SCM decides the service hung, kills the process, and your shell dies with it.
 
@@ -63,18 +41,7 @@ icacls C:\path\to\rev.exe /grant Everyone:RX
 
 - `/grant Everyone:RX` → the service account is not you, so without a grant it may not be able to read or execute the file you just dropped, and the service fails to start with nothing in your listener. `RX` is read and execute, which is all it needs; `F` is full control and hands over write as well, which nothing here uses.
 
-**What you will see**
-
-- **Found** — `Payload size` and `Saved as: rev.exe` from msfvenom; `Successfully processed 1 files.` from `icacls`. The payload is ready to plant.
-- **Empty** — no blank state: msfvenom prints a saved-path line or it errors. A command here that returns nothing at all did not run — re-issue it rather than assuming an empty payload.
-- **Error** — `msfvenom` complaining about the format means a typo in `exe-service`. `icacls` `Access is denied.` on your own dropped file means you copied it somewhere you cannot re-ACL — drop it in a folder you own.
-- **Noise** — the grant on the dropped file is scoped to this one payload; it weakens nothing else on the host. msfvenom's encoder/size chatter is progress, not a fault.
-
-**Then** — with the payload built, go to whichever vector your `sc qc` reading pointed at. The same `exe-service` payload serves vectors 1, 2 and scheduled tasks; [[Security-Terms#^msi|MSI]] and DLL payloads are their own formats for their own vectors.
-
 ## Vector 1 — writable service binary
-
-**Why now** — `sc qc` showed a binary outside `C:\Windows`, and you want to know whether its [[Security-Terms#^acl|ACL]] lets you overwrite it directly. If it does, the service runs your payload as its account on the next start — the simplest of the three.
 
 ```cmd
 sc qc <service>
@@ -85,13 +52,6 @@ icacls "C:\Path\To\service.exe"
 ```
 
 - `icacls` on the binary → the built-in command that prints a file's access control list. Read it for a **principal** — the user or group an entry names — that **you are** (`whoami /groups` first, which lists every group you belong to) holding `F`, `M`, or `W`. `Everyone:(M)` or `BUILTIN\Users:(M)` on a service binary is the finding.
-
-**What you will see**
-
-- **Found** — an `icacls` line pairing a principal you belong to with `(F)`, `(M)` or `(W)`. Full reading of the letters: [[Windows-Privilege-Escalation#Reading `icacls` output|the icacls section]].
-- **Empty** — only `SYSTEM`, `Administrators` and a read-only `Users` entry: the binary is locked, so this vector is closed for this service. Try vector 2 (its folder) or vector 3 (its DACL) before leaving the service.
-- **Error** — `Access is denied.` reading the ACL is itself a limit, not a clearance — you cannot even see the permissions, so treat the binary as locked for now.
-- **Noise** — `NT AUTHORITY\SYSTEM:(F)` and `BUILTIN\Administrators:(F)` are on every service binary on disk and mean nothing; do not mistake them for a grant to you.
 
 Overwrite it — rename, do not delete, so the real binary survives:
 
@@ -119,11 +79,7 @@ sc stop <service> & sc start <service>
 - `/grant Everyone:RX` → lets every account read and execute the file you just planted, because the service account is not you and by default cannot read a file you created. Read and execute is the whole requirement; full control would be handing out more than the vector needs.
 - `&` → cmd.exe's "run this, then run that" separator, so the stop and the start happen in one line. The restart is what makes the SCM launch your file; without it nothing happens until the host reboots.
 
-**Then** — a landed shell has *whatever `SERVICE_START_NAME` was* — check `whoami` immediately. `LocalSystem` ends the box; an unprivileged `svc*` account is a lateral hop that sets up the next escalation. A locked binary sends you to vector 2 or 3 on the same service.
-
 ## Vector 2 — unquoted service path
-
-**Why now** — you want every service on the host that has this defect, not one at a time. `sc qc` answers for a single service; this sweep answers for all of them, and it is the command to run the moment you have a shell and know you are looking at services.
 
 ```powershell
 Get-CimInstance Win32_Service | Where-Object { $_.PathName -notlike '"*' -and $_.PathName -notlike '*\Windows\*' } | Select-Object Name,StartMode,PathName
@@ -165,13 +121,6 @@ icacls C:\MyPrograms
 - Look for your principal with `(AD)` **append data / add subdirectory** or `(WD)` **write data / add file** — either lets you create the planted `.exe`. `(F)`/`(M)` on the folder work too.
 - Testing the file instead of the folder is the mistake here: the file ACL denies you, you stop, and never check that the *folder* lets you drop a new file beside it.
 
-**What you will see**
-
-- **Found** — `(AD)`, `(WD)`, `(M)` or `(F)` for your principal on an earlier folder in the path (`C:\MyPrograms`). That is the green light to plant `Disk.exe`.
-- **Empty** — the writable spot is under `C:\Program Files`, which unprivileged users cannot write, so **most unquoted paths are not exploitable**. Only a non-default, loosened folder opens it up. A locked folder closes this vector.
-- **Error** — `Access is denied.` on `icacls C:\MyPrograms` means you cannot read the folder ACL; treat it as not writable until proven otherwise.
-- **Noise** — a write grant on a folder **later** than the first-existing binary is useless; only a segment the SCM reaches *before* the real exe counts.
-
 Plant at the earlier name and restart:
 
 ```cmd
@@ -186,11 +135,7 @@ icacls C:\MyPrograms\Disk.exe /grant Everyone:RX
 sc stop <service> & sc start <service>
 ```
 
-**Then** — same as vector 1: `whoami` decides whether this is SYSTEM or a lateral hop. A folder you cannot write sends you to vector 3, the service's own DACL.
-
 ## Vector 3 — writable service configuration (DACL)
-
-**Why now** — the binary is locked and the path is quoted, but the **service's own** access control list may let you *reconfigure* it. If so you touch no file at all: point the service at your payload and set its account to `LocalSystem` directly. This is the only one of the three where you *choose* the account, so it reaches SYSTEM even when the service was running as something smaller.
 
 ```cmd
 accesschk64.exe -qlc <service>
@@ -200,13 +145,6 @@ accesschk64.exe -qlc <service>
 - `-c` → treat the argument as a service name.
 - `-l` → dump the DACL (who may do what to the service).
 - `-q` → drop the banner. Add `-v` to spell out each right.
-
-**What you will see**
-
-- **Found** — **`SERVICE_CHANGE_CONFIG`** (or `SERVICE_ALL_ACCESS`, which contains it) granted to `BUILTIN\Users`, `Everyone`, `Authenticated Users`, or your user. That is the permission to rewrite the config; you also need `SERVICE_STOP` + `SERVICE_START` (both inside `SERVICE_ALL_ACCESS`) to trigger it.
-- **Empty** — only `SYSTEM` and `Administrators` holding `SERVICE_CHANGE_CONFIG` is a clean negative: this vector is closed, so do **not** run `sc config` — it will only return access denied. Move to the next service.
-- **Error** — `accesschk64.exe` must be transferred to the target first ([[File-Transfer]]); a version mismatch (`accesschk.exe` 32-bit on a 64-bit host) can misread. `No matching services` means a wrong service name.
-- **Noise** — `SERVICE_QUERY_CONFIG`, `SERVICE_QUERY_STATUS` and `SERVICE_INTERROGATE` for `Users` are read-only rights — everyone has them and they change nothing.
 
 Reconfigure and restart:
 
@@ -223,47 +161,3 @@ sc stop <service> & sc start <service>
 
 > [!important] The space after each `=` is mandatory
 > `sc config` syntax is `option= value` — the space goes **after** the equals sign, not before. `binPath="..."` (no space) is silently misparsed; `binPath= "..."` is correct. This is the single most common reason this vector "doesn't work".
-
-**Then** — `obj= LocalSystem` needs no password and is the highest-privileged account on the host, so a landed shell here is SYSTEM directly — `whoami` confirms. A clean negative from `accesschk` sends you back to vectors 1 and 2 on other services, or to [[Windows-Privilege-Escalation]] for the non-service paths.
-
-## Rarely — worth one command, not worth a step
-
-**Why now** — the three vectors above came back empty: the binary is not writable, the path is quoted, and the configuration is locked. One property of a service is left, and almost nobody checks it.
-
-```cmd
-sc qfailure <service>
-```
-
-- A service can be configured to run a command when it crashes, and that command runs with the service's own account. If the recovery command points at something you may write, you have vector 1 again by a different door.
-- The same output tells you the reset period and the action for each successive failure, which is what decides whether crashing the service once is enough.
-
-**What you will see**
-
-- **Found** — a `COMMAND_LINE` line with a path in it. Test that path with `icacls` exactly as in vector 1.
-- **Empty** — `FAILURE_ACTIONS` with no command line is the normal answer; most services only restart themselves.
-- **Error** — `Access is denied` here means you may not read this service's configuration, which is itself the answer to vector 3 for that service.
-- **Noise** — a restart action pointing at nothing is stock on most Windows services and grants nothing.
-
-**Then** — a writable recovery command goes back to vector 1 above, unchanged. Nothing found means the service is genuinely closed and the next candidate from step 3 of [[Windows-Run-Sheet]] is a better use of the time.
-
-## Reading the output
-
-Two signals across all three vectors trip people up.
-
-**`sc start` returning error 1053 is not the failure it looks like.** `1053` = "the service did not respond to the start request in time" — which is exactly what happens when the binary is your payload instead of a real service that answers the SCM. Check your listener, not the error. This is *the* reason to use `exe-service`: with a plain `.exe` the process is also killed; with `exe-service` the shell survives the timeout.
-
-**The shell has the service account's privileges, whatever they are.** Vectors 1 and 2 give you *whatever `SERVICE_START_NAME` was* — often an unprivileged `svc*` account, not SYSTEM, so this may be a lateral hop that sets up the next escalation, not the finish. Vectors 1 and 2 reach SYSTEM only when the service was already running as it. Vector 3 lets you *choose* `LocalSystem`, which is why it is the one that does not depend on what you found. Check with `whoami` the moment the shell lands, and if it is not SYSTEM, run the whole enumeration again as the new account.
-
-## Next
-
-- [[Windows-Privilege-Escalation]] — the other vectors, and the full `icacls` reading table
-- [[Windows-Automated-Enumeration]] — WinPEAS flags these three under "Services"
-- [[Shells]] — stabilising the reverse shell once it lands
-- [[File-Transfer]] — getting the payload onto the host
-
-## Gaps
-
-- Restarting the service assumes you may stop/start it. When you cannot, the payload waits for the next reboot — no note yet on forcing or waiting out a reboot, or on services set to `AUTO_START` vs `DEMAND_START`.
-- Scheduled tasks are the same "runs as another user, writable target" pattern with different tooling (`schtasks`); they still live inline in [[Windows-Privilege-Escalation]] and could become a sibling note.
-- DLL hijacking (a service loading a DLL by name from a writable directory) is the same shape and still unwritten — stubbed in [[Windows-Privilege-Escalation]].
-- Registry-based service tampering (`HKLM\SYSTEM\CurrentControlSet\Services\` writable keys) is a fourth path to the same reconfigure; only mentioned, not covered.

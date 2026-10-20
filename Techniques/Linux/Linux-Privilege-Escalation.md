@@ -1,12 +1,3 @@
----
-type: technique
-platform: linux
-status: working
-fluency: guided
-source: lab
-updated: 2026-09-04
----
-
 # Linux — Privilege Escalation
 
 The ordered sweep that produces the findings, and step 8 that decides which of them matter together, is [[Linux-Run-Sheet]]. This note is the Linux side of that — what there is to look at, the single observation that makes each one worth your time, and the order that reaches a real lead for the least effort. Read it when you have a shell and no plan.
@@ -67,23 +58,3 @@ Each line names the precondition, not the technique — that is the thing you ch
 **Kernel exploits** — `uname -r`, match against known CVEs. Last resort on a live engagement: they crash hosts and the crash is the finding nobody wanted. Prefer any configuration path that reaches the same privilege. Individual exploits are deliberately not written up here — a kernel exploit is one CVE against one host, and what transfers between boxes is the vetting method in [[Public-Exploit-Workflow]], not the exploit.
 
 **Container escapes** — only relevant once you know you are in one: `/.dockerenv`, `cat /proc/1/cgroup`, a mounted docker socket.
-
-## Reading the output
-
-Two things this list cannot tell you, and both decide how the session goes.
-
-The first is that **a sweep returning nothing is two different results wearing one face.** Nothing found and nothing permitted to be seen look identical from the shell: a filesystem sweep run as an unprivileged user silently skips every directory it cannot enter, and it reports that skip the same way it reports a clean host — by printing nothing. Before you accept an empty sweep as a clean one, run it once without discarding its errors, or ask it for something you already know is there. An empty result you have not tested is a guess, not a finding.
-
-The second is that **the vectors above combine, and the combination is where most boxes actually fall.** A writable script on its own is nothing; a writable script plus a root job you caught in the process table is a root shell. A username out of a config plus a mode bit on a binary that reads files as another user is a credential. Individually each half looks like a dead end, which is why pairing is its own step of the sweep rather than a line in this list — see [[Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]].
-
-## Next
-
-- [[Linux-Local-Enumeration]] — start here: `sudo -l`, SUID sweep, listeners
-- [[Linux-SUID-Abuse]] · [[Linux-Capabilities]] · [[Linux-PATH-Abuse]] · [[Cron-Jobs]] · [[Wildcard-Injection]] · [[NFS-No-Root-Squash]] — the written-up vectors
-- [[Linux-Automated-Enumeration]] · [[PSPY]] — the sweep tools, snapshot and live
-- [[Linux-Run-Sheet]] — the ordered sweep that decides which of these applies
-
-## Gaps
-
-- No note covers reading the results of any of the above — see [[Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]] for the chaining logic.
-- No note on sweeping a **monitored** host. [[Linux-Automated-Enumeration]] names the noise problem and stops there; nothing here covers what a defender sees when those scripts run.

@@ -1,12 +1,3 @@
----
-type: reference
-platform: any
-status: working
-fluency: guided
-source: lab
-updated: 2026-09-17
----
-
 # Failure Messages — the ones that point at the wrong cause
 
 Every note in this vault carries its own outcomes block, and that is where a message gets its full treatment. This note is the index for one narrow class of them: messages whose plain reading sends you to the wrong place.

@@ -1,19 +1,8 @@
----
-type: tool
-platform: any
-status: solid
-fluency: guided
-source: lab
-updated: 2026-08-31
----
-
 # Nmap
 
 A flag reference, linked from [[Pentest-Workflow#Phase 1 — Recon & Enumeration|Phase 1 — Recon & Enumeration]] rather than stored inside it. The catalog below is deep, but you run one thing on every box — the section immediately below — and reach for the rest only when a default scan is being lied to by a firewall.
 
 ## The scan you run first
-
-**Why now** — you have an IP and nothing else. Every later decision in the engagement — which service to attack, which exploit to search, which note to open next — hangs on the port-and-version map this scan produces. Run it first, and run it *wide*, because the single most expensive early mistake is scanning the default 1000 ports and never seeing the service the box was built around.
 
 ```bash
 sudo nmap -p- --min-rate 1000 -T4 TARGET_IP -oN nmap-allports.txt
@@ -29,15 +18,6 @@ sudo nmap -p 22,80,8080 -sC -sV -oA nmap/deep TARGET_IP
 - `-sC` → the default safe script set, cheap extra enumeration (titles, anon-FTP, SMB shares) on the ports you already know are open.
 - `-oN` / `-oA` → save the output. You will re-read a scan a dozen times; `-oA` writes all three formats at once so you never re-run a five-minute sweep to see one line.
 - `sudo` → a SYN scan (`-sS`, the default when root) needs privilege. Without it nmap silently drops to a `-sT` connect scan, which is slower and noisier — it still works, but knowing which you ran matters when reading filtered results.
-
-**What you will see**
-
-- **Found** — `PORT STATE SERVICE VERSION` rows with `open` and a version string: `80/tcp open http Apache httpd 2.4.41 ((Ubuntu))`. That table is the map every following move reads from — write down each open port and its version.
-- **Empty** — `All 65535 scanned ports are in ignored states`, or every port `filtered`, is **not** a clean host. It means a firewall is dropping your probes, or the host ignored the ping and nmap never scanned it. Re-run with `-Pn` (below) before believing there is nothing there; "empty" here almost always means "blocked", which is the opposite next move.
-- **Error** — `You requested a scan type which requires root privileges` means a `-sS`/`-sU`/`-O` without `sudo`. `Note: Host seems down. If it is really up ... try -Pn` (or `0 hosts up`) means the host is not answering ping — add `-Pn` to skip host discovery and scan it anyway; many Windows and firewalled hosts do this. `Failed to resolve "..."` means the target needs a `/etc/hosts` entry, common when only a vhost name works.
-- **Noise** — `filtered` is **not** `closed`: filtered means a firewall ate the probe (you learn nothing), closed means the host actively refused (the port is really shut). A service reported as `tcpwrapped` completed the TCP handshake and then closed before speaking — usually a filtered or proxied port, not a real banner to bank on. And a scan through a proxy or against a tarpit can show dozens of "open" ports that are an illusion.
-
-**Then** — an HTTP/HTTPS port goes to [[Web-Server-Checks]] and [[Nikto]]. Any version string goes to [[Public-Exploit-Workflow]]. An all-`filtered` result goes to `-Pn` and the host-discovery section below — the host is there, the firewall is lying. A service nmap could not fingerprint goes to [[23-Telnet]] for a manual banner grab. And do not forget UDP: TCP-only is half a scan, and the reminder lives in [[Stuck-Checklist]].
 
 ## ICMP-based host discovery
 
@@ -173,20 +153,3 @@ These scans set TCP flags in unexpected combinations to provoke different respon
 **XML Format** `nmap -oX output.xml <target>` Saves output in XML — useful for feeding into other tools (e.g. importing into reporting frameworks or other parsers).
 
 - **All Formats at Once** `nmap -oA output_basename <target>` Saves the same scan results simultaneously in normal, XML, and grepable formats (creates `output_basename.nmap`, `.xml`, `.gnmap`).
-
-## Reading the output
-
-A host reported **down** may be firewalled, not offline — combine probe types (`-PE -PS80 -PA80 -PU`) before believing it. A `-sU` port with no reply is `open|filtered`, not closed. Null/FIN/Xmas scans confirm **closed** ports only; they never positively confirm open, so read them by elimination. The `-sV` version string is the single most useful output — it is what you feed to a public-exploit search ([[Public-Exploit-Workflow]]).
-
-## Next
-
-- [[RustScan]] — the fast front end for the all-ports sweep above, when waiting out `-p-` is the thing stopping you
-- [[23-Telnet]] — manual banner grabbing when `-sV` is uncertain or a port is odd
-- [[Web-Server-Checks]] — the follow-up once a port is identified as HTTP/HTTPS
-- [[Stuck-Checklist]] — the UDP and privilege reminders that catch most scan mistakes
-
-## Gaps
-
-- No worked UDP scan (`-sU`): named as a reminder but not shown, and it is where half of missed services hide.
-- Nothing on NSE beyond naming `-sC`/`--script` — no category list (`vuln`, `safe`, `discovery`) or how to read a script's own output.
-- No guidance on scan timing against a monitored target: `-T4` is fast and loud, and the note does not say when to drop to `-T2`.

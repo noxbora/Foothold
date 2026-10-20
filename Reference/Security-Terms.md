@@ -1,12 +1,3 @@
----
-type: reference
-platform: any
-status: working
-fluency: guided
-source: reading
-updated: 2026-10-19
----
-
 # Security & Technical Terms
 
 ## A

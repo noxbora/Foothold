@@ -1,12 +1,3 @@
----
-type: reference
-platform: any
-status: working
-fluency: guided
-source: reading
-updated: 2026-09-11
----
-
 # Bash Scripting — writing down what you already type
 
 The syntax that turns a command you have typed twice into a file you can run, and lets you read somebody else's script without guessing. Look things up here; the shape of an attack lives elsewhere.

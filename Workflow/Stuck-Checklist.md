@@ -1,12 +1,3 @@
----
-type: workflow
-platform: any
-status: working
-fluency: guided
-source: lab
-updated: 2026-09-18
----
-
 # Stuck Checklist
 
 The things forgotten most often. Read top to bottom when a box has gone quiet — the point is to be reminded of something, not to be taught it, so **every line ends in a note to open**. An entry that names a thing to try without naming where to go is not usable at one in the morning; follow the link when the reminder alone is not enough.
@@ -74,9 +65,3 @@ The section to read first, because these failures do not look like failures — 
 - [[Nikto]] for a single web application; a full vulnerability scanner for a whole host
 - Caught a shell that behaves badly? It is a missing PTY, not a missing payload → [[Shells#Shell Stabilisation — TTY Upgrade|Shell Stabilisation]]
 - The exploit ran and nothing happened. Before hunting a second exploit, re-read the values you were supposed to edit → [[Public-Exploit-Workflow]]
-
-## Next
-
-- [[Linux-Run-Sheet]] · [[Windows-Run-Sheet]] — when the reminder list runs out and you need the ordered sweep
-- [[Linux-Local-Enumeration]] · [[Windows-Privilege-Escalation]] — the two sweeps most of these lines are shortcuts into
-- [[Start-Here]] — when you cannot tell which of the above you even need
