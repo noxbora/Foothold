@@ -20,7 +20,7 @@ Five different things get called "the NTLM hash" in the same afternoon and only 
 
 Which protocol a service will even attempt is not entirely your choice. Kerberos needs a *name*: the client asks the domain controller for a ticket issued to `cifs/server1.domain.local`, and no such name exists for `192.168.1.51`. So an IP address in the command means NTLM, always; a hostname means you may pick.
 
-**What you will see** — this section produces no output; it is the read you do before the first command. **Found** is a string that matches one row exactly. **Empty** is a string that matches none of them, which usually means it is a hash from something that is not Windows at all — take it to [[Hash-Cracking]] and identify it there. **Error** is a 32-character string that fails as an NT hash, and the usual cause is that it is an MD5 from a web application. **Noise** is the `aad3b435b51404eeaad3b435b51404ee` you will see printed beside almost every NT hash: it is the LM hash of an empty string, not a secret, and not the value you pass.
+Reading the hash: a string that matches one row exactly is your NT hash. A 32-character string that fails as an NT hash is usually an MD5 from a web application. A hash that matches nothing in Windows is probably not Windows at all — identify it via [[Hash-Cracking]]. The `aad3b435b51404eeaad3b435b51404ee` printed beside almost every NT hash is just the LM hash of an empty string: not a secret, not the value you pass.
 
 ## Authenticating with a password
 

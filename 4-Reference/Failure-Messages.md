@@ -85,7 +85,3 @@ Nothing is printed in these cases, and that is exactly what makes them expensive
 - `$null -notlike "*x*"` is true, so every pathless system process passes a `Win32_Process` filter unless the condition also requires `$_.ExecutablePath`. → [[Windows-Run-Sheet]]
 - A `2>/dev/null` on the first run of anything — the denial you needed went to standard error and you deleted it in the same breath. The redirect is right for the second run, never the first. → [[Linux-Run-Sheet]]
 - A `.ccache` still exported in `KRB5CCNAME` authenticates as whoever it belongs to, quietly and successfully, which is why a tool can act as the wrong user with no error at all. A forgotten export produces the opposite symptom, a password prompt after `-no-pass`. → [[AD-Authentication]]
-
-## Gaps
-
-- Entries are added by hand. A message documented in a note's own outcomes block after today will not appear here until someone adds it, and no linter check enforces the pairing.
