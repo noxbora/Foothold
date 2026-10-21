@@ -120,7 +120,7 @@ ls -l nfs
 ```
 
 - `-static` → links libc into the binary. The target's glibc is almost never the same as your attacking machine's, and a dynamically linked payload dies there with a linker error. This flag is not optional.
-- check your own architecture first with `uname -m`. An [[Security-Terms#^x86-64|ARM]] host needs `x86_64-linux-gnu-gcc`, not `gcc`.
+- check your own architecture first with `uname -m`. An ARM host needs `x86_64-linux-gnu-gcc`, not `gcc`.
 - `-w` → silences warnings from the implicit declarations. Cosmetic.
 - `chmod +s` → sets SUID **and** [[Security-Terms#^sgid|SGID]].
 

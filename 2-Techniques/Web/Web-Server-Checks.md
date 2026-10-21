@@ -75,7 +75,7 @@ curl -s -o /dev/null -w '%{http_code} %{size_download}  elmah.axd\n'    http://t
 ```
 
 - `web.config` → connection strings, API keys, SMTP credentials, machine keys. A `200` here is high severity on its own
-- `trace.axd` → ASP.NET's request log: headers, form values, cookies, session state for the **50 most recent requests**. That window closes fast on a busy server, so re-request it a few minutes apart rather than once
+- `trace.axd` → ASP.NET's request log: headers, form values, cookies, session state for the most recent requests (the trace `requestLimit`, **10 by default**). That window closes fast on a busy server, so re-request it a few minutes apart rather than once
 - `elmah.axd` → the error-logging module, the same class of exposure and frequently forgotten
 - status **and size** together → IIS often answers a custom 404 page with a 200, and size is what separates a real config file from an error page
 - also try `/web.config.bak`, `/web.config.old`, `/App_Data/`, `/bin/` — the filtering rule usually matches the exact extension and not its variants

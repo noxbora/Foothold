@@ -400,7 +400,7 @@ _**NAS (Network Attached Storage)**_: a small appliance whose only job is to ser
 
 _**NAT (Network Address Translation)**_: a router rewriting addresses so many private hosts share one public address. It is why a reverse shell to your own machine needs a port forwarded, why a bind shell on a NATed target is unreachable from outside, and why FTP in active mode fails from behind it while passive mode works. ^nat
 
-_**NCURSE**_: A programming library used to create text-based user interfaces in a terminal, providing window management, colors, and input handling.
+_**ncurses**_: A programming library used to create text-based user interfaces in a terminal, providing window management, colors, and input handling.
 
 _**Neo4j**_: a graph database, meaning one that stores objects and the connections between them as equally real things instead of storing rows and working the connections out afterwards. BloodHound keeps a collected domain in one, and that is what makes "the shortest path between these two accounts" a single query rather than a script. ^neo4j
 

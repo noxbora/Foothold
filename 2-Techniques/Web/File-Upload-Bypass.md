@@ -22,7 +22,7 @@ curl -s -F "file=@shell.php;filename=shell.php.jpg;type=image/jpeg" http://TARGE
 curl -s -F "file=@shell.phtml;type=image/png" http://TARGET/upload.php
 ```
 
-- The extension check is usually a blocklist, and a blocklist is a list of things somebody thought of. `.phtml`, `.php5`, `.phar` and `.inc` all execute on a stock Apache with `php` enabled and are missed constantly.
+- The extension check is usually a blocklist, and a blocklist is a list of things somebody thought of. `.phtml`, `.php5`, `.phar` and `.inc` are the classic misses — which ones actually execute depends on the server's PHP handler (modern Debian maps `.php`/`.phtml`/`.phar` by default; `.php5` and `.inc` run only where the config adds them), so try each: the handler often covers more than the blocklist does.
 - `type=` sets the [[Security-Terms#^mime|MIME]] type in the request, which is a value you control and the server frequently believes. It costs nothing to set it correctly and it defeats an entire class of check on its own.
 - A magic-byte check reads the first bytes of the file. Prepending `GIF89a` to a text payload satisfies it, because that check has no opinion about what follows.
 - Storing and executing are separate permissions. A file written into a directory the web server serves but does not execute is still only data.

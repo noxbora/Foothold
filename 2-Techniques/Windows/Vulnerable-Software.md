@@ -13,7 +13,7 @@ Get-CimInstance Win32_Product | Where-Object { $_.Vendor -notlike "Microsoft*" }
 - Reads the **installer database** — every product registered through Windows Installer ([[Security-Terms#^msi|MSI]]).
 - The `Vendor` filter is the whole point: Microsoft's own redistributables and runtime packages make up most of the list and none of them are what you are hunting. What is left is the software somebody chose to install, which is the software nobody patched.
 - No leading `*` here, deliberately: `Vendor` reads `Microsoft Corporation`, so the string starts with the word and `-notlike "Microsoft*"` is correct. Adding a leading star would also drop vendors whose name merely contains it.
-- Slow; it can take a minute to walk the catalogue. That is normal, not a hang — do not kill it and conclude the command is broken.
+- Slow, and not only slow: querying `Win32_Product` makes Windows Installer run a consistency check on **every** MSI product as it enumerates, writing an Installer event per product — so it is noisy as well as slow. On a monitored host prefer the registry `Uninstall` keys below, which only read. The wait itself is normal, not a hang.
 
 - The `cmd` fallback for the same question is the `wmic` line in [[Windows-Run-Sheet#Rarely — worth one command, not worth a step|the run sheet]]; `wmic` is deprecated and absent on newer builds, where it fails with `'wmic' is not recognized` rather than an empty list.
 
