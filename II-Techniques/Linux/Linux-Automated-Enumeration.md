@@ -19,7 +19,6 @@ The target's environment decides, not preference. `linpeas.sh` needs nothing but
 
 These are the **raw asset** URLs, not the repository pages — fetch each straight onto Kali with `wget`. A repository *page* (`github.com/.../tree/...` or `.../blob/...`) saves as HTML and is exactly the broken download this note warns about below.
 
-<!-- layers-ok -->
 ```bash
 wget https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh
 ```

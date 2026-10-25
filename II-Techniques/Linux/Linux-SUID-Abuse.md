@@ -6,12 +6,10 @@ Linux permissions normally answer "what may **this user** do to this file". SUID
 
 ## Find them, and know which bit you found
 
-<!-- raw-ok -->
 ```bash
 find / -type f -perm -4000 -ls 2>/dev/null   # SUID
 ```
 
-<!-- raw-ok -->
 ```bash
 find / -type f -perm -2000 -ls 2>/dev/null   # SGID
 ```

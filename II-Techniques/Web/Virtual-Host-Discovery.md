@@ -36,7 +36,6 @@ gobuster vhost -u http://target.htb --domain target.htb --append-domain \
 
 ## The same sweep with ffuf, when sizes collide
 
-<!-- dup-ok -->
 ```bash
 ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
   -u http://target.htb -H 'Host: FUZZ.target.htb' -fw 1274 -mc all

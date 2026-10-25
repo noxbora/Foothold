@@ -6,7 +6,7 @@ Written and organised in Obsidian with Claude. Everything here comes from delibe
 
 ## Layout
 
-- **1-Workflow/** — where to start on a box, and what to try when stuck
-- **2-Techniques/** — attacks grouped by surface: Web, Linux, Windows, Active Directory, Services, Cloud
-- **3-Operations/** — shells, file transfer, pivoting, looting, and tool references
-- **4-Reference/** — security terms and the error messages that mislead
+- **I-Workflow/** — where to start on a box, and what to try when stuck
+- **II-Techniques/** — attacks grouped by surface: Web, Linux, Windows, Active Directory, Services, Cloud
+- **III-Operations/** — shells, file transfer, pivoting, looting, and tool references
+- **IV-Reference/** — security terms and the error messages that mislead
