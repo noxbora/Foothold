@@ -1,4 +1,3 @@
-# GitHub excludes Markdown from the language bar by default, which made a vault of
-# 74 notes report itself as "Python 96%" on the strength of one linter script.
+# GitHub excludes Markdown from the language bar by default; these lines make the notes count.
 *.md linguist-detectable=true
 *.md linguist-documentation=false

@@ -32,6 +32,3 @@ id_ed25519*
 .envrc
 .aws/
 
-# Python verification caches
-__pycache__/
-*.pyc
