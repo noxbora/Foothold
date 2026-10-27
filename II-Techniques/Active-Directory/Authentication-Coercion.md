@@ -91,7 +91,7 @@ Two checks save a wasted wait:
 
 ## Cracking what you caught
 
-What lands is a NetNTLMv2 response — the target encrypting a random challenge with its password, not the password itself and not a hash you can replay with pass-the-hash. It opens only against a wordlist.
+What lands is a [[Security-Terms#^netntlmv2|NetNTLMv2]] response — not the password itself and not a hash you can replay, so it opens only against a wordlist.
 
 ```bash
 head -1 /usr/share/responder/logs/SMB-NTLMv2-SSP-<target ip>.txt > hash.txt
