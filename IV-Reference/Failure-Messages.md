@@ -79,9 +79,9 @@ How to use it: you have a string on screen. Search it here, read the one line, t
 
 Nothing is printed in these cases, and that is exactly what makes them expensive. They belong in this note because the silence is itself the misleading message.
 
-- A filter that matches nothing excludes nothing. `-notlike "*\Windows\*"` needs the leading star because `PathName` starts with `C:`, while `-notlike "\Microsoft\*"` must not have one because `TaskPath` really does start with a backslash. Get it wrong and the full list returns looking like a host covered in findings. → [[Windows-Run-Sheet]]
+- A filter that matches nothing excludes nothing. `-notlike "*\Windows\*"` needs the leading star because `PathName` starts with `C:`, while `-notlike "\Microsoft\*"` must not have one because `TaskPath` really does start with a backslash. Get it wrong and the full list returns looking like a host covered in findings. → [[▸ Windows-Run-Sheet]]
 - `-notlike '"*'` spelled with double quotes matches nothing, so the unquoted-service-path sweep hands back every service on the host. Read the count before reading the rows. → [[Windows-Service-Abuse]]
-- `schtasks /query /fo list | findstr` looks filtered and is not: `/fo list` prints a paragraph per task, so removing the name line leaves the body behind. `/fo csv` is one line per task and filters correctly. → [[Windows-Run-Sheet]]
-- `$null -notlike "*x*"` is true, so every pathless system process passes a `Win32_Process` filter unless the condition also requires `$_.ExecutablePath`. → [[Windows-Run-Sheet]]
-- A `2>/dev/null` on the first run of anything — the denial you needed went to standard error and you deleted it in the same breath. The redirect is right for the second run, never the first. → [[Linux-Run-Sheet]]
+- `schtasks /query /fo list | findstr` looks filtered and is not: `/fo list` prints a paragraph per task, so removing the name line leaves the body behind. `/fo csv` is one line per task and filters correctly. → [[▸ Windows-Run-Sheet]]
+- `$null -notlike "*x*"` is true, so every pathless system process passes a `Win32_Process` filter unless the condition also requires `$_.ExecutablePath`. → [[▸ Windows-Run-Sheet]]
+- A `2>/dev/null` on the first run of anything — the denial you needed went to standard error and you deleted it in the same breath. The redirect is right for the second run, never the first. → [[▸ Linux-Run-Sheet]]
 - A `.ccache` still exported in `KRB5CCNAME` authenticates as whoever it belongs to, quietly and successfully, which is why a tool can act as the wrong user with no error at all. A forgotten export produces the opposite symptom, a password prompt after `-no-pass`. → [[AD-Authentication]]

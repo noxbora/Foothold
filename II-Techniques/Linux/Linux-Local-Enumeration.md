@@ -2,7 +2,7 @@
 
 The five by-hand checks that map one-to-one onto the five Linux escalation notes. Each one asks a question a specific technique can answer, and each ends with the note that cashes the answer in. This is the quiet pass: five commands, no script, nothing that looks like a scan.
 
-The ordered walk of a whole host — users, cron, credentials, the reasoning between steps — is [[Linux-Run-Sheet]]. This note is narrower on purpose: it is what you run when you have already decided which categories are still open, or when the host is monitored and a full sweep is not affordable.
+The ordered walk of a whole host — users, cron, credentials, the reasoning between steps — is [[▸ Linux-Run-Sheet]]. This note is narrower on purpose: it is what you run when you have already decided which categories are still open, or when the host is monitored and a full sweep is not affordable.
 
 > [!important]
 > Every check below can come back empty, and empty is a different answer in each one. On this platform "there is nothing here" and "you are not permitted to see it" print identically, so the **Empty** line under each command is the part to read before you move on.
@@ -62,6 +62,6 @@ ss -tlnp | grep -E '127\.0\.0\.1|\[::1\]'
 
 Five checks, five categories, and three large ones left out. Naming them is the point — an enumeration note that pretends to be complete is how a host gets called clean.
 
-- **Other users, and their files.** Who else lives here, whose home you can enter, whose keys are readable. That is steps 2 and 6 of [[Linux-Run-Sheet]].
+- **Other users, and their files.** Who else lives here, whose home you can enter, whose keys are readable. That is steps 2 and 6 of [[▸ Linux-Run-Sheet]].
 - **Anything on a schedule.** Nothing above looks at cron, at timers, or at what runs while you are not watching. [[Cron-Jobs]] for the readable half, [[PSPY]] for the half you cannot read.
 - **Credentials in files.** The single most common path on a chained host, and not a permission question at all. [[Config-File-Looting]] for what each format hides.

@@ -1,0 +1,195 @@
+# Pentest Workflow
+
+**Quick flow:** Recon → Initial Access → Privilege Escalation → Lateral Movement → Post-Exploitation → Reporting
+
+The map. Every phase below states four things: what you are **holding** when you enter it, the **artifact** it produces, the **exit condition** that tells you to leave, and — the part that decides whether an evening ends in a shell or in a browser tab — where you go **if this phase produces nothing**.
+
+> [!important]
+> A phase with no failure branch is where the hours disappear. Nothing on this page is allowed to end in "there was nothing here": an empty phase is a routing decision, not a verdict. When you have been standing still for twenty minutes, find the phase you are in and read its **If this phase produces nothing** block before you type another command.
+
+## Phase 1 — Recon & Enumeration
+
+**You hold:** an address and nothing else — an IP, a hostname, a range. **This phase produces:** a written list of open ports with service names and versions, and the surface behind them — hostnames, virtual hosts, directories, exposed source. **Exit when:** you have a specific, testable attack hypothesis. One sentence, naming a service or a page and what you believe is wrong with it.
+
+### Off-target (no packets to the client)
+- [[TheHarvester]] — emails, employee names, hostnames
+- [[Subdomain-Discovery]] — passive sources first (crt.sh, sublist3r)
+
+### On-target — host and port discovery
+- [[Nmap]] — host discovery, port scanning, flag manipulation, evasion, [[Security-Terms#^nse|NSE]], output formats
+- [[RustScan]] — every port quickly, handed to Nmap for versions
+- [[23-Telnet]] — telnet on 23, and the telnet client as a manual banner grabber
+
+### On-target — surface expansion
+- [[Subdomain-Discovery]] — active brute forcing (dnsrecon, dnsenum)
+- [[Virtual-Host-Discovery]] — Host-header based
+- [[Content-Discovery]] — directories and files
+- [[Source-Code-Disclosure]] — exposed `.git`, backups, `.bak`, `~` files
+- [[Custom-Wordlist-Attack-Chain]] — when generic wordlists come up empty, build one from the target's own vocabulary (collect → clean → use). Feeds both content discovery and the credential attacks in Phase 2.
+
+### Per-service enumeration
+- [[53-DNS]] · [[445-SMB]] · [[873-rsync]] · [[22-SSH]] · [[21-FTP]]
+- [[1433-MSSQL]] · [[3306-MySQL]] · [[5432-PostgreSQL]] · [[27017-MongoDB]]
+- [[3389-RDP]] · [[161-SNMP]] · [[389-LDAP]] · [[2049-NFS]] · [[5985-WinRM]]
+
+### Active Directory — before any credential
+- [[Domain-Controller-Discovery]] — which host answers for the domain, and what the domain is called
+- [[AD-Username-Enumeration]] — the names the domain will confirm for you, before any password is typed
+
+### Vulnerability analysis — a step in this phase, not a phase of its own
+This is where enumeration output becomes a hypothesis. It produces a decision, not an asset, which is why it does not get its own phase.
+
+- [[Nikto]] — known vulns, misconfigurations, outdated versions
+- [[Web-Server-Checks#General Misconfiguration Matrix|Web Server Checks]] — what to expect per server type
+- [[Web-Server-Checks#IIS|IIS]] — server-specific checks
+- Ask: which finding gives code execution or a credential? Rank by that, not by severity score.
+
+### If this phase produces nothing
+Three open ports, no version string that means anything, no hypothesis. That is almost never a hard target — it is a scan that has not finished asking.
+
+- **The scan was narrower than you remember.** The default is 1000 ports; UDP is not scanned unless you asked; a scan type that needs raw packets silently downgrades without `sudo` and returns different results → [[Nmap]]
+- **The ports are real and the web surface looks empty.** The application is usually behind a name you have not added, or behind a word a generic list does not contain → [[Virtual-Host-Discovery]] · [[Custom-Wordlist-Attack-Chain]]
+- **Everything is scanned and everything is current.** Then the way in is a credential rather than a bug: default pairs, and any password you already hold, against every service you did find → [[Authentication-Attacks]]
+- **Still nothing.** Write down the ranges, ports and wordlists already covered before starting over, so the second pass is a *different* pass rather than the same one, slower.
+
+### Stuck?
+- [[Stuck-Checklist]]
+
+---
+
+## Phase 2 — Exploitation & Initial Access
+
+**You hold:** a hypothesis from Phase 1 — a named service and version, a parameter that misbehaves, or a login you believe is weak. **This phase produces:** code execution on the target, or a valid credential that authenticates to something. **Exit when:** you have an interactive shell or authenticated access, and the shell survives a command that needs a terminal.
+
+### Web attack classes
+- [[SQL-Injection]] · [[XSS]] · [[XXE]] · [[SSRF]]
+- [[File-Upload-Bypass]] — reachable storage first, execution second
+- [[File-Inclusion]] — [[Security-Terms#^lfi|LFI]] and [[Security-Terms#^rfi|RFI]]
+- [[Command-Injection]]
+- [[Authentication-Attacks]] — username enumeration, credential stuffing, logic flaws, cookie trust
+
+### Tooling
+- [[Burp-Suite]] — session handling macros for per-request [[Security-Terms#^csrf|CSRF]] tokens
+- [[Curl-and-Wget]] — manual request crafting
+
+### Turning a vuln into a shell
+- [[Public-Exploit-Workflow]] — a named service version → searchsploit → a shell
+- [[Shells#Web Shells|Web Shells]] — usually the first foothold
+- [[Shells#Reverse Shell Payloads|Reverse Shell Payloads]] — reverse, bind, [[Security-Terms#^fifo|FIFO]], language-specific payloads
+- [[Shells#Listener|Listener]] — set this up **before** firing the payload
+- [[Shells#Shell Stabilisation — TTY Upgrade|Shell Stabilisation]] — stabilise to a full TTY immediately after landing
+
+### Credentialed access to a service
+Access with valid credentials is initial access, not enumeration:
+- [[3389-RDP]] · [[445-SMB]] · [[22-SSH]] · [[1433-MSSQL]] · [[5985-WinRM]]
+
+### Active Directory — the first credential
+- [[Password-Spraying]] · [[AS-REP-Roasting]] · [[Authentication-Coercion]]
+
+### If this phase produces nothing
+Separate the two failures before touching anything, because they route to opposite places.
+
+- **The exploit ran and the target did not change.** Almost always an unedited value: the author's `LHOST`, a listener that was never up, a version off by one digit. That is the modify step failing, not the exploit being fake → [[Public-Exploit-Workflow]]
+- **There was no candidate to run.** A missing exploit is usually a missing surface, not a patched host. Go back to [[#Phase 1 — Recon & Enumeration|Phase 1]] with a narrower question — one more port, one more vhost, one more wordlist → [[Content-Discovery]] · [[Source-Code-Disclosure]]
+- **Every injection class comes back clean.** Then the foothold is a login rather than a bug. Spray what you already hold at what you already found → [[Authentication-Attacks]]
+- **A second Phase 1 pass changed nothing.** Stop attacking the application and start attacking the accounts behind it: names from [[TheHarvester]], words from [[Custom-Wordlist-Attack-Chain]].
+
+---
+
+## Phase 3 — Privilege Escalation
+
+**You hold:** a shell as some user on one host, and control of nothing beyond that user. **This phase produces:** a higher-privileged account on the *same* host — root, SYSTEM, Administrator, or the next user along on the way there. **Exit when:** root / SYSTEM / Administrator on the machine you already had a shell on.
+
+Vertical only. Moving to a *different* host is [[#Phase 4 — Lateral Movement & Pivoting|Phase 4 — Lateral Movement & Pivoting]].
+
+### Method before commands
+- [[Linux-Run-Sheet]] · [[Windows-Run-Sheet]] — one note per platform, eight steps in order, ending in the step that turns a list of findings into a chain. Read the sheet for the platform you landed on before anything below; the lists below are the lookup layer it sends you to.
+
+### Linux
+- [[Linux-Privilege-Escalation]] — index of Linux vectors
+- [[Linux-Local-Enumeration]] — sudo rights, SUID, listening ports
+- [[Linux-Sudo-Abuse]]
+- [[Cron-Jobs]] · [[Wildcard-Injection]]
+- [[Linux-SUID-Abuse]] · [[Linux-Capabilities]] · [[Linux-PATH-Abuse]] · [[NFS-No-Root-Squash]]
+
+### Windows
+- [[Windows-Privilege-Escalation]] — index of Windows vectors
+- [[Windows-Automated-Enumeration]] — [[Security-Terms#^winpeas|WinPEAS]]
+- [[Windows-Service-Abuse]] · [[Windows-Privilege-Abuse]] · [[Vulnerable-Software]]
+- [[Web-Server-Checks#IIS|IIS]] — see the application-pool identity check
+
+### Kernel exploits
+Last resort. They crash hosts, and the crash is the finding nobody wanted. Prefer any configuration or credential path that reaches the same privilege. The candidate comes out of [[Linux-Automated-Enumeration]] and is vetted in [[Public-Exploit-Workflow]]; individual exploits are not written up here, because a kernel exploit is one CVE against one host and it is the vetting method that transfers.
+
+### Credentials found along the way
+- [[Config-File-Looting]] · [[Windows-Credential-Harvesting]]
+- [[PowerShell-History]]
+- [[Hash-Cracking]] — when what you found is a hash rather than a password
+
+### If this phase produces nothing
+You ran the whole sheet and every step came back empty. Empty is where the hours go, so read this before re-running anything.
+
+- **An empty result is a finding, and on Linux it is ambiguous.** "Nothing is scheduled" and "you are not permitted to read the schedule" print identically, and they demand opposite next moves. The branch that resolves it is watching processes live and searching for files you can write but do not own → [[PSPY]] · [[Linux-Run-Sheet#5b — When you cannot see the schedule|Run sheet, step 5b]]
+- **You have findings but no path.** Nothing on the sheet is an escalation on its own; the escalation is always a pair of findings touching the same file. Pair them before concluding → [[Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]] · [[Windows-Run-Sheet#8 — Stop and connect|Windows step 8]]
+- **You are a different user than when you started.** Every hop resets the answer: what one account cannot read, the next one often can. Run the whole sheet again as the new user → [[Linux-Run-Sheet]]
+- **It is genuinely empty on both passes.** Then the escalation is not on this host, and root here was never the objective — reach was → [[#Phase 4 — Lateral Movement & Pivoting|Phase 4]]
+
+---
+
+## Phase 4 — Lateral Movement & Pivoting
+
+**You hold:** privilege on one host, and whatever that host knew — credentials, keys, an [[Security-Terms#^arp|ARP]] cache, a route into a segment your scanner never saw. **This phase produces:** reach. Access to hosts and networks you could not touch before. **Exit when:** you can reach the actual objective.
+
+This phase exists because reach is a distinct asset from privilege. Root on one box in a segmented network is not progress toward the goal.
+
+### Getting network reach
+- [[Pivoting-and-Tunneling]] — SSH local, remote and dynamic forwarding
+- [[Linux-Local-Enumeration]] — `ss -tln` finds the internal listeners worth forwarding
+- [[5432-PostgreSQL]] — worked example of a service reached only through a tunnel
+
+### Moving with credentials
+- [[Active-Directory-Lateral-Movement]] — Impacket [[Security-Terms#^psexec|PsExec]]
+- [[445-SMB]] · [[1433-MSSQL]] · [[22-SSH]] · [[3389-RDP]] · [[5985-WinRM]]
+
+### Active Directory — after the first credential
+- [[AD-Authentication]] — which of the five shapes you hold, and what each can authenticate to
+- [[AD-Authenticated-Enumeration]] · [[BloodHound]] · [[Kerberoasting]] · [[DCSync]]
+
+### Credential reuse
+- [[Config-File-Looting]] · [[PowerShell-History]]
+
+### If this phase produces nothing
+- **No second host answers.** You are still looking from outside. The internal view is a different map: loopback listeners, the ARP cache, `/etc/hosts`, `known_hosts`, `.ssh/config` and the mount table all name hosts your external scan could not see → [[Linux-Local-Enumeration]] · [[Pivoting-and-Tunneling]]
+- **Hosts answer and no credential works.** Take the credential apart before discarding it: a database password is a shell password more often than it should be, and a hash is a password you have not cracked yet → [[Config-File-Looting]] · [[Hash-Cracking]]
+- **There is genuinely one host.** Then reach was never the missing asset and the objective is already underneath you → [[#Phase 5 — Post-Exploitation|Phase 5]]
+
+## Phase 5 — Post-Exploitation
+
+**You hold:** privilege where the objective lives, and permission to be there. **This phase produces:** the data the engagement was about, plus the evidence that proves how you reached it. **Exit when:** you have what the engagement was for, captured properly.
+
+### Looting
+- [[Config-File-Looting]] — credentials, connection strings, API keys
+- [[Exposed-Service-Looting]] — repository history and build logs
+- [[AWS-Cognito-Identity-Pool-to-DynamoDB]] — full-table data disclosure, worked example
+- Database dumping: [[3306-MySQL]] · [[5432-PostgreSQL]] · [[1433-MSSQL]] · [[27017-MongoDB]]
+- [[TShark]] — pulling credentials, cookies and session tokens out of a captured pcap
+
+### Evidence handling
+- Capture the command, the raw output, and the timestamp for every finding.
+- Screenshot the proof, not the celebration — one clear frame showing the impact.
+
+### If this phase produces nothing
+- **You have the access and the data is not here.** The objective sits behind a host or an account you have not reached yet. Go back to [[#Phase 4 — Lateral Movement & Pivoting|Phase 4]] carrying the credentials this host just handed you — that is what the looting step is for even when the loot is not the objective.
+- **You have the data and no evidence.** Functionally the same as having nothing. Re-run the step and capture the command, the raw output and the timestamp this time; Phase 6 cannot reconstruct what Phase 5 did not record.
+
+## Phase 6 — Reporting
+
+**You hold:** every finding, its evidence, and the order you produced them in. **This phase produces:** the deliverable. This is the only phase whose output leaves your machine. **Exit when:** someone who was not on the engagement can reproduce every finding from the document.
+
+### If this phase produces nothing
+If you cannot write a finding down, you cannot reproduce it, and an unreproducible finding is not a finding — it is a memory. Go back to the phase that produced it and run it again, capturing output as you go. That is the whole failure branch of this phase, and it is the reason evidence is collected in [[#Phase 5 — Post-Exploitation|Phase 5]] rather than reconstructed here.
+
+### Already written, reusable
+Two notes already contain report-grade material — reuse the reasoning, not just the commands:
+- [[AWS-Cognito-Identity-Pool-to-DynamoDB]] — has a findings list and remediation section
+- [[Web-Server-Checks#IIS|IIS]] — has calibration notes on what not to over-flag (`customErrors` defaults, TRACE on modern browsers)

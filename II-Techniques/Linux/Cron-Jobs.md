@@ -188,4 +188,4 @@ ls -ld /home/ubuntu
 
 ## Timing
 
-A cron path costs you the interval. A job that fires every minute is a fast win; one that fires daily is usually worth deprioritising against any direct credential — see [[Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]]. On real engagements the daily, weekly and monthly jobs are the common case, and the every-minute job is the lab tell.
+A cron path costs you the interval. A job that fires every minute is a fast win; one that fires daily is usually worth deprioritising against any direct credential — see [[▸ Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]]. On real engagements the daily, weekly and monthly jobs are the common case, and the every-minute job is the lab tell.

@@ -53,7 +53,7 @@ ls -la ~ /home/* /root 2>/dev/null
 ```
 
 - read the **file**, do not run `history` → the `history` builtin prints the current shell's in-memory list, and a reverse shell has none. It answers with silence on a host whose `.bash_history` is full. This exact confusion ends the hunt one command too early. The reverse also bites: a live session has not written its own commands to the file yet, so the file and the builtin never quite agree.
-- `cat /proc/<PID>/environ` → the environment as the kernel holds it, for the process you name. A service started with a password in its environment shows it here even when `env` in your interactive shell does not. `<PID>` (process identifier) comes from the process list in [[Linux-Run-Sheet]]; `/proc/self` is the process doing the reading, so it hands you your own environment back and tells you nothing.
+- `cat /proc/<PID>/environ` → the environment as the kernel holds it, for the process you name. A service started with a password in its environment shows it here even when `env` in your interactive shell does not. `<PID>` (process identifier) comes from the process list in [[▸ Linux-Run-Sheet]]; `/proc/self` is the process doing the reading, so it hands you your own environment back and tells you nothing.
 - `ls -la /home/*` → per-user dotfiles you may still be able to read across accounts: `.netrc`, `.git-credentials`, `.aws/credentials`, `.docker/config.json`, `.my.cnf`.
 
 ## 4 — Keys, and the mount table

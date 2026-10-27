@@ -1,6 +1,6 @@
 # Windows — Privilege Escalation
 
-The ordered sweep is [[Windows-Run-Sheet]] — run that beside the shell. This note is the Windows-side index: the question each vector answers, and the note that carries it out. Read it when the sheet has handed you a hit and you need the technique behind it.
+The ordered sweep is [[▸ Windows-Run-Sheet]] — run that beside the shell. This note is the Windows-side index: the question each vector answers, and the note that carries it out. Read it when the sheet has handed you a hit and you need the technique behind it.
 
 Escalation here means using access as user A to reach user B by abusing a weakness — a service or scheduled-task misconfiguration, a privilege your account should not hold, vulnerable software, or a missing patch. B is usually an administrator, but stepping through another unprivileged account first is a normal shape.
 
@@ -54,7 +54,7 @@ These are written up in full; each link is where that vector is carried out.
 
 ## Scheduled tasks
 
-The filtered listing that produces a candidate task lives in [[Windows-Run-Sheet#5 — What runs automatically|the run sheet, step 5]] — run it there. This note starts from the task name it handed you.
+The filtered listing that produces a candidate task lives in [[▸ Windows-Run-Sheet#5 — What runs automatically|the run sheet, step 5]] — run it there. This note starts from the task name it handed you.
 
 ```cmd
 schtasks /query /tn <task> /fo list /v
@@ -101,7 +101,7 @@ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer
 > In `cmd`, keep the space before the `>`: a digit touching the redirect is parsed as a [[Security-Terms#^handle|file handle]], so `... 4444> file` writes to handle 4 and leaves the file **empty**, while `... 4444 > file` is correct. `(Get-Item <file>).Length` is the fastest check — 0 bytes means the redirect went nowhere.
 
 > [!note] Scheduled tasks and [[Security-Terms#^alwaysinstallelevated|AlwaysInstallElevated]] are quick wins, not the main road —
-> common in lab machines, rare in a real engagement. Check them when the eight steps of [[Windows-Run-Sheet]] have run dry, not before.
+> common in lab machines, rare in a real engagement. Check them when the eight steps of [[▸ Windows-Run-Sheet]] have run dry, not before.
 
 ## Vectors still stubbed
 

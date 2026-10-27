@@ -1,6 +1,6 @@
 # AD Authenticated Enumeration — the domain seen from a member host
 
-Once you are on a domain-joined machine as a domain account, the directory answers questions simply because you are authenticated; almost nothing here needs a privilege. [[Windows-Run-Sheet]] asks what this box can do for you. This note asks what the domain looks like from inside it, using what is already installed before anything is downloaded.
+Once you are on a domain-joined machine as a domain account, the directory answers questions simply because you are authenticated; almost nothing here needs a privilege. [[▸ Windows-Run-Sheet]] asks what this box can do for you. This note asks what the domain looks like from inside it, using what is already installed before anything is downloaded.
 
 ## Am I in a domain, and which controller authenticated me
 

@@ -1,6 +1,6 @@
 # Windows Run Sheet
 
-What to run on a Windows host you just landed on, in order, one command per block. Keep this open beside the shell and run nothing else until step 8. The Linux twin is [[Linux-Run-Sheet]].
+What to run on a Windows host you just landed on, in order, one command per block. Keep this open beside the shell and run nothing else until step 8. The Linux twin is [[▸ Linux-Run-Sheet]]; the domain-wide counterpart is [[▸ AD-Run-Sheet]].
 
 Run the whole sheet again after every lateral move: a Windows account's view of the registry, the service list and the filesystem is decided by its token, so what one account cannot see, the next one often can.
 

@@ -2,17 +2,17 @@
 
 The things forgotten most often. Read top to bottom when a box has gone quiet — the point is to be reminded of something, not to be taught it, so **every line ends in a note to open**. An entry that names a thing to try without naming where to go is not usable at one in the morning; follow the link when the reminder alone is not enough.
 
-If nothing here fires, the problem is method rather than memory: [[Linux-Run-Sheet]] or [[Windows-Run-Sheet]] for a host you already hold, [[Pentest-Workflow#Phase 1 — Recon & Enumeration|Phase 1]] for one you do not.
+If nothing here fires, the problem is method rather than memory: [[▸ Linux-Run-Sheet]] or [[▸ Windows-Run-Sheet]] for a host you already hold, [[Pentest-Workflow#Phase 1 — Recon & Enumeration|Phase 1]] for one you do not.
 
 ## When the output lies
 
 The section to read first, because these failures do not look like failures — they look like answers, and you walk away from the box believing them.
 
-- **Nothing came back.** That has two meanings and they are opposite: nothing is there, or you are **not permitted to see it**. On Linux they print identically. `crontab -l` lists your jobs only; root's lives in `/var/spool/cron/crontabs/` (Debian/Ubuntu; RHEL/CentOS use `/var/spool/cron/`), mode `600`. Empty means switch method, not "no job exists" → [[PSPY]] to watch jobs fire live, then [[Linux-Run-Sheet#5b — When you cannot see the schedule|run sheet 5b]] for the writable file the job touches
+- **Nothing came back.** That has two meanings and they are opposite: nothing is there, or you are **not permitted to see it**. On Linux they print identically. `crontab -l` lists your jobs only; root's lives in `/var/spool/cron/crontabs/` (Debian/Ubuntu; RHEL/CentOS use `/var/spool/cron/`), mode `600`. Empty means switch method, not "no job exists" → [[PSPY]] to watch jobs fire live, then [[▸ Linux-Run-Sheet#5b — When you cannot see the schedule|run sheet 5b]] for the writable file the job touches
 - `find / -writable -type f -not -user $(whoami) 2>/dev/null` is the sharpest version of that search: files you can **write** and do not **own**, regardless of what runs them → [[PSPY]]
-- **`2>/dev/null` hid the answer.** It also hides the `Permission denied` that would have told you which of the two empties you got. Drop it once, on a narrow path, before believing a blank result → [[Linux-Run-Sheet]]
-- **The credential grep found documentation.** Pages of `password = changeme`, `<your-password>` and `foobar` are a manual, not a secret. `/etc/login.defs`, `/etc/ssh/sshd_config` and everything under `/etc/fwupd/` ship that way on a clean host. Demand an assigned value, drop comment lines, and search application directories before `/etc` → [[Config-File-Looting]] · [[Linux-Run-Sheet#6 — Credentials lying around|run sheet 6]]
-- **You found a password and no username.** That is half a credential; the other half is `/etc/passwd`, the file's owner, and the service it configures → [[Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]]
+- **`2>/dev/null` hid the answer.** It also hides the `Permission denied` that would have told you which of the two empties you got. Drop it once, on a narrow path, before believing a blank result → [[▸ Linux-Run-Sheet]]
+- **The credential grep found documentation.** Pages of `password = changeme`, `<your-password>` and `foobar` are a manual, not a secret. `/etc/login.defs`, `/etc/ssh/sshd_config` and everything under `/etc/fwupd/` ship that way on a clean host. Demand an assigned value, drop comment lines, and search application directories before `/etc` → [[Config-File-Looting]] · [[▸ Linux-Run-Sheet#6 — Credentials lying around|run sheet 6]]
+- **You found a password and no username.** That is half a credential; the other half is `/etc/passwd`, the file's owner, and the service it configures → [[▸ Linux-Run-Sheet#8 — Stop and connect|run sheet step 8]]
 - **The SUID sweep came back clean.** Check the argument: `-perm -4000` with the leading dash, which means "these bits are set". `-perm 4000` matches only files whose permissions are *exactly* that, finds nothing, and reads as a hardened host → [[Linux-SUID-Abuse]]
 - **`ss` shows a blank process column.** A permission limit, not an empty result — the port is real and something is listening on it → [[Linux-Local-Enumeration]]
 - **A downloaded tool throws a syntax error full of HTML.** You saved a GitHub *page*, not the raw file. `file` it before every run → [[File-Transfer]]
@@ -52,7 +52,7 @@ The section to read first, because these failures do not look like failures — 
 - `uname -a` for the kernel version — but treat kernel exploits as a last resort → [[Linux-Privilege-Escalation]]
 - Is the thing you uploaded actually executable? `chmod +x` → [[File-Transfer]]
 - Is anything running that no file reveals? → [[PSPY]]
-- You became a second user and did not start over. Each account sees a different filesystem; run the whole sweep again as them → [[Linux-Run-Sheet]]
+- You became a second user and did not start over. Each account sees a different filesystem; run the whole sweep again as them → [[▸ Linux-Run-Sheet]]
 
 ## On a Windows shell
 

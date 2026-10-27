@@ -1,6 +1,6 @@
 # Linux — Privilege Escalation
 
-The ordered sweep that produces the findings, and step 8 that decides which of them matter together, is [[Linux-Run-Sheet]]. This note is the Linux side of that — what there is to look at, the single observation that makes each one worth your time, and the order that reaches a real lead for the least effort. Read it when you have a shell and no plan.
+The ordered sweep that produces the findings, and step 8 that decides which of them matter together, is [[▸ Linux-Run-Sheet]]. This note is the Linux side of that — what there is to look at, the single observation that makes each one worth your time, and the order that reaches a real lead for the least effort. Read it when you have a shell and no plan.
 
 ## The order to look
 
