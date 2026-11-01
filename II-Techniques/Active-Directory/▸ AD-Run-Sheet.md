@@ -170,7 +170,8 @@ nxc smb <dc ip> -u '<user>' -p '<password>'
 
 - `[+]` → valid on the domain — **unless the line ends in `(Guest)`**. Then the DC did not log you in as that user at all; it handed you the built-in Guest session instead, which happens when the name does not exist or the account cannot log on (disabled). A `(Guest)` line is a miss, and `--shares` from it returns `STATUS_ACCESS_DENIED`.
 - An NT hash (NT = New Technology; 32 hex characters) goes in as `-H <hash>` instead of `-p`. Anything starting `$krb5`, or shaped `user::DOMAIN:…`, cannot be passed — crack it first ([[Hash-Cracking]]).
-- `KRB_AP_ERR_SKEW` from any Kerberos tool → your clock is more than five minutes off the DC's: `sudo ntpdate -u <dc ip>`.
+- `KRB_AP_ERR_SKEW` from any Kerberos tool → your clock is more than five minutes off the DC's: `sudo ntpdate -u <dc ip>`. `ntpdate: command not found` → not installed by default: `sudo apt install ntpsec-ntpdate`.
+- `No such file ... .ccache` from any Impacket tool → `KRB5CCNAME` still points at a ticket from an earlier target: `unset KRB5CCNAME` and retry.
 
 ```bash
 nxc winrm <dc ip> -u '<user>' -p '<password>'
@@ -182,7 +183,13 @@ nxc winrm <dc ip> -u '<user>' -p '<password>'
 evil-winrm -i <dc ip> -u '<user>' -p '<password>'
 ```
 
-- shell → [[▸ Windows-Run-Sheet]] for this host; keep working the domain here. No `(Pwn3d!)` → valid but no shell yet → step 5.
+- shell → [[▸ Windows-Run-Sheet]] for this host; keep working the domain here. No `(Pwn3d!)` → WinRM is closed; try RDP next.
+
+```bash
+nxc rdp <dc ip> -u '<user>' -p '<password>'
+```
+
+- `(Pwn3d!)` → this user can open a graphical desktop over RDP (Remote Desktop Protocol): the way in when WinRM is closed, and the only way to drive a GUI-only app on the host — a password manager, an installer. Connect and work it with [[3389-RDP]]. No `(Pwn3d!)` on either → step 5.
 
 ---
 
@@ -201,6 +208,7 @@ bloodhound-python -u '<user>' -p '<password>' -d corp.local -ns <dc ip> -c All -
 - `-ns <dc ip>` → resolve names through the DC. Without it the collector asks your own DNS (Domain Name System), which has never heard of `corp.local`, and stops with `Could not find a domain controller`.
 - the collector must match the BloodHound you load into: legacy BloodHound ← `bloodhound-python`, BloodHound CE (Community Edition) ← `bloodhound-ce-python`. The two write different data formats (`version` 5 and 6), and each BloodHound expects its own.
 - **Look for** any edge leaving your user or its groups: mark the user as owned, run the shortest path to Domain Admins. Details: [[BloodHound]].
+- a write edge onto a **computer** (`AllowedToAct`, `GenericWrite`, `GenericAll`, `WriteDacl`, `Owns`), the DC most of all → [[RBCD]]. A `constrained`/`unconstrained` delegation flag on another account → [[Constrained-Delegation]].
 
 ---
 
@@ -218,6 +226,7 @@ hashcat -m 13100 tgs.txt /usr/share/wordlists/rockyou.txt
 ```
 
 - the mode follows the number after `$krb5tgs$`: `23` → `13100`, `18` → `19700`. Cracked → step 4 with the new credential.
+- rockyou exhausted with nothing cracked is the common case, not a mistake — try `-r` rules once ([[Hash-Cracking]]), then let it go. A `constrained` delegation flag on the roasted account is a tempting but frequent dead end; the real delegation win is usually an ACL edge elsewhere ([[RBCD]], [[Constrained-Delegation]]).
 
 ---
 

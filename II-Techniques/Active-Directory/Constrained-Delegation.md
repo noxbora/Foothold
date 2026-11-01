@@ -2,11 +2,12 @@
 
 When an account is trusted to request service tickets *on behalf of other users* to a named service, taking control of that account lets you impersonate anyone — the Administrator included — to that one service. The attack is not an exploit: you reach the account, then ask the [[Security-Terms#^kerberos|domain controller]] for a ticket as someone you are not, and it hands it over because the account is configured to be allowed that.
 
-Three configurations wear the word *delegation* and must be kept apart, because the move is different for each:
+Four configurations wear the word *delegation* and must be kept apart, because the move is different for each:
 
 - **Constrained, with protocol transition** (the flag `TrustedToAuthForDelegation`) → the account can mint a ticket for *any* user with nothing from that user at all. This is the dangerous, easy one: you impersonate the Administrator outright.
 - **Constrained, without protocol transition** → you can only forward a ticket a user already sent you. You cannot conjure the Administrator from nothing, so it needs that user to authenticate to you first — harder, and often paired with a coercion step.
 - **Unconstrained** → a different technique entirely: the account captures a full ticket from anyone who authenticates to it. Not covered here.
+- **Resource-based (RBCD)** → the mirror image of the first: the permission sits on the *target*, in a writable attribute, so the foothold is a write right over the target rather than control of the delegating account. A separate, very common path — [[RBCD]].
 
 ## Find what an account is allowed to delegate to
 

@@ -310,7 +310,7 @@ _**KASLR (Kernel Address Space Layout Randomisation)**_: the kernel loading itse
 
 _**KDC (Key Distribution Center)**_: the Kerberos service that issues tickets, running on every domain controller. It has two halves: the authentication service, which checks who you are and gives you a [[Security-Terms#^tgt|ticket-granting ticket]], and the [[Security-Terms#^tgs|ticket-granting service]], which trades that for tickets to individual services. Every Kerberos error beginning `KDC_ERR_` comes from here. ^kdc
 
-_**KeePass**_: an offline password manager storing everything in a single `.kdbx` file protected by a master password and optionally a key file. Finding a `.kdbx` on a box is a genuine prize: the file can be taken away and attacked offline with `keepass2john` and `hashcat`, and if it opens it usually holds credentials for other machines. ^keepass
+_**KeePass**_: an offline password manager storing everything in a single `.kdbx` file protected by a master password and optionally a key file. Finding a `.kdbx` is a genuine prize — it usually holds credentials for other machines. A KDBX 3 file comes off the box and cracks offline with `keepass2john` and `hashcat`; a **KDBX 4** file does not — `keepass2john` prints `File version '40000' is currently not supported` and cannot extract a hash. Open a KDBX 4 in the installed client on the host instead, and note that a database keyed to the Windows account only opens on that box. ^keepass
 
 _**Kerberoasting**_: asking the domain for a service ticket to an account that has a [[Security-Terms#^spn|service principal name]], then cracking it offline. The ticket is encrypted with the service account's password, and any authenticated user may request one for any service, so the attack needs no privilege and produces no failed logins. ^kerberoasting
 
@@ -551,6 +551,8 @@ _**PTY (Pseudo-Terminal)**_: It is a software-based terminal that emulates a rea
 _**\r\n (CRLF)**_: a two-character sequence — carriage return (`\r`) followed by line feed (`\n`) — used to mark the end of a line in many network protocols (e.g. HTTP, SMTP, FTP), even though modern operating systems like Linux use just `\n` for line endings internally.
 
 _**RBAC (Role-Based Access Control)**_: An access control model where permissions are assigned based on roles within the organization, rather than to specific individuals.
+
+_**RBCD (Resource-Based Constrained Delegation)**_: a delegation set on the *target* rather than on the account doing the impersonating. The target's `msDS-AllowedToActOnBehalfOfOtherIdentity` attribute lists who may impersonate users to it, and that attribute is an ordinary writable property — anyone holding a write [[Security-Terms#^ace|ACE]] over the target (`GenericWrite`, `WriteDacl`, `WriteOwner`, `AllowedToAct`) can set it. So the foothold is a single write permission, not a cracked account: add a computer you control, write it in, then forge a [[Security-Terms#^service-ticket|service ticket]] as any user via the S4U (Service for User) exchange. On a domain controller it reaches the Administrator and the whole domain. See [[RBCD]]. ^rbcd
 
 _**RC4**_: an old stream cipher, fast and broken, still accepted by Kerberos for backwards compatibility. A ticket encrypted with it is the cheapest kind to attack offline, so a domain that still permits RC4 is measurably easier to roast than one that does not — which is why disabling it is a standard hardening step. ^rc4
 

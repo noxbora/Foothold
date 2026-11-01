@@ -2,6 +2,36 @@
 
 Every command in [[AD-Authenticated-Enumeration]] answers one question about one object. [[Security-Terms#^bloodhound|BloodHound]] asks all of those questions in one pass, stores the objects and the permissions between them, and then answers the only question that ends an engagement: from what I am holding, what is the shortest route to what I want.
 
+## Installing BloodHound CE on Kali
+
+```bash
+sudo apt install bloodhound
+```
+
+- pulls the CE interface, `neo4j` (the graph database) and the collectors in one go. It does not start on its own.
+
+```bash
+sudo bloodhound-setup
+```
+
+- builds the backing databases. On a Kali upgraded since the last install this fails with `collation version mismatch` on `template1` — glibc moved and PostgreSQL refuses to build new databases from a template made against the old version. Fix both halves and re-run `bloodhound-setup`:
+
+```bash
+sudo -u postgres psql -c "ALTER DATABASE template1 REFRESH COLLATION VERSION;"
+```
+
+```bash
+sudo -u postgres psql -c "ALTER DATABASE postgres REFRESH COLLATION VERSION;"
+```
+
+- setup then opens a `neo4j` login at `localhost:7474`. Defaults are `neo4j` / `neo4j`, and it forces a new password; put that password into `/etc/bhapi/bhapi.json` as the `secret` in the `neo4j` block, or the interface cannot reach the database.
+
+```bash
+sudo bloodhound
+```
+
+- starts the interface; keep this terminal open. The UI is at `127.0.0.1:8080`, login `admin`, initial password printed in this terminal (`Initial Password Set To:`), reset forced on first login. Upload the collector's `.zip` through **Quick Upload**.
+
 ## Collecting the domain from Kali
 
 ```bash

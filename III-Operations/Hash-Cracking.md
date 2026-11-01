@@ -67,7 +67,7 @@ hashcat -m 1800 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
 - `-m` → hash mode from step 1's table. The one flag you cannot get wrong.
 - `-a 0` → attack mode 0, straight dictionary. The default, and it covers most lab work.
 - `-a 3 hash.txt '?u?l?l?l?l?d?d'` → brute force by **mask**: one upper, four lower, two digits. `?l` lower `?u` upper `?d` digit `?s` symbol `?a` all. Use when a password's *shape* is known but it is not in any list.
-- `-r /usr/share/hashcat/rules/best64.rule` → mutate every wordlist word (`password` → `Password1`, `p@ssw0rd`, `PASSWORD!`). The single highest-value upgrade when a plain dictionary run exhausts, and the step most people skip on the way to brute force.
+- `-r /usr/share/hashcat/rules/best64.rule` → mutate every wordlist word (`password` → `Password1`, `p@ssw0rd`, `PASSWORD!`). The single highest-value upgrade when a plain dictionary run exhausts, and the step most people skip on the way to brute force. Point it at **hashcat's own** rules dir — John's `/usr/share/john/rules/best64.rule` uses a different syntax, so hashcat silently skips most of its lines (`Cannot convert rule`, `Skipping`) and runs a fraction of the set. No hashcat rules dir on the box? `wget` the one file from hashcat's GitHub `rules/` folder.
 - `--username` → **required** if the file has a `user:hash` column; without it hashcat treats the username as part of the hash and rejects the line.
 - `--show` → reprint what is already cracked, straight from the potfile.
 - `--force` → ignore the "no [[Security-Terms#^opencl|OpenCL]] device" warning in a VM; common on a Kali guest.
@@ -115,6 +115,9 @@ john --wordlist=/usr/share/wordlists/rockyou.txt kh.txt
 
 - redirect to a file → `*2john` prints the extracted hash to stdout; without the `>` it scrolls past and you have nothing to crack.
 - `locate *2john` → shows which extractors your install actually ships (`rar2john`, `pdf2john`, `bitlocker2john`, dozens more). The one you want is usually already there.
+
+> [!important] KeePass KDBX 4 breaks this step
+> `keepass2john` cannot parse the modern [[Security-Terms#^keepass|KeePass]] format — it stops with `File version '40000' is currently not supported` and the off-host crack never starts. KDBX 4 uses Argon2, which is deliberately slow to brute-force anyway. When the host has the KeePass client, open the `.kdbx` there instead of carrying it off; a database also keyed to the Windows account only opens on that box.
 
 ## Wordlists
 
