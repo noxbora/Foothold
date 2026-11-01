@@ -27,5 +27,5 @@ curl -s "http://TARGET/preview?url=http://169.254.169.254/latest/meta-data/" -o 
 ```
 
 - `127.0.0.1` is the point of the technique. Services bound to loopback were never in your `nmap` output, and admin panels, debug endpoints and databases live there precisely because their owner believed they were unreachable.
-- `169.254.169.254` is the [[Security-Terms#^imds|IMDS]] address on every major cloud. A plain fetch works only against version 1. Version 2 needs a `PUT` first to get a token, so a `403` here is a version answer, not a dead end.
+- `169.254.169.254` is the [[Security-Terms#^imds|IMDS]] address on AWS and Azure; Google Cloud answers there too, under the name `metadata.google.internal`. A plain fetch works only against AWS IMDSv1. IMDSv2 needs a `PUT` first to get a token, so a `401` here is a version answer, not a dead end; Azure and Google refuse any request without their metadata header. The full credential chain is in [[Public-Buckets-and-IMDS]].
 - Sweeping ports through the parameter works, but read the **length** of the response rather than the body: a closed port usually returns the app's own error page at a constant size, and an open one returns something else.

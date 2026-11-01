@@ -75,6 +75,10 @@ aws iam list-role-policies --role-name <role>
 ```
 
 ```bash
+aws iam list-attached-role-policies --role-name <role>
+```
+
+```bash
 aws s3 ls
 ```
 
@@ -87,7 +91,7 @@ aws secretsmanager list-secrets
 ```
 
 - `list-tables` → does the role see tables beyond the one hardcoded in the JS? Broader visibility than the app uses is the first sign of over-scoping.
-- the `iam` calls → usually denied for an unauth role, but always worth one call: a role that can read its own policy tells you exactly where the boundary is.
+- the `iam` calls → usually denied for an unauth role, but always worth one call: a role that can read its own policy tells you exactly where the boundary is. `list-role-policies` shows only inline policies and `list-attached-role-policies` only managed ones; run both, or a loaded role can look empty.
 - the `s3`/`lambda`/`secretsmanager` line → quick breadth checks for other services the same over-scoped policy may cover.
 
 ## Dump the table
