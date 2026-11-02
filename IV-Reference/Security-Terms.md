@@ -298,6 +298,8 @@ _**Itinerary**_: A detailed plan or record of a journey, listing destinations, d
 
 ## J
 
+_**Jailbreak**_: getting a model to produce what its safety training is meant to refuse, usually by wrapping the request in a persona, an encoding such as Base64, or a slow escalation over several turns. It works because refusal is a learned statistical tendency, not an enforced rule. It differs from [[Security-Terms#^prompt-injection|prompt injection]] in its target: a jailbreak attacks the model's own guardrails, injection hijacks the instructions of the application built on it. ^jailbreak
+
 _**JBoss**_: a Java application server (now WildFly). It appears in recon because its management consoles and deployment endpoints have a long exploit history, and because a Java stack trace leaking from a page is often the first sign one is behind it. ^jboss
 
 _**JuicyPotato**_: one of the "potato" tools — see [[Security-Terms#^potato|the potato family]]. It was the standard for years and stopped working on Windows 10 1809 and Server 2019, which is exactly why PrintSpoofer and GodPotato exist. ^juicypotato
@@ -530,6 +532,8 @@ _**PrivescCheck**_: a PowerShell script that enumerates Windows privilege-escala
 
 _**Process Injection**_: A technique where an attacker inserts malicious code into the address space of a legitimate running process, allowing the code to execute under the guise of a trusted process to evade detection, escalate privileges, or maintain persistence.
 
+_**Prompt Injection**_: getting a language model to follow instructions hidden in text it was only meant to read. It works because the model sees its system prompt, the user's message and any retrieved content as one stream, with nothing marking which parts are commands. Direct injection is typed by the attacker; indirect injection is planted in a page, email or document that the model later reads on someone else's behalf, which is why it cannot be fixed by filtering what users type. ^prompt-injection
+
 _**Proprietary**_: Owned and controlled by a person or company; not open or freely shared. Often refers to closed-source software, protocols, or formats that are distributed under restrictive licenses.
 
 _**Provenance**_: Refers to the documented origin, history, and chain of custody of data, files, or evidence, used in forensics and supply chain security to verify authenticity, track where something came from, and detect tampering or unauthorized changes.
@@ -693,6 +697,8 @@ _**Subdomain takeover**_: a vulnerability where an attacker claims control of a 
 _**Sublist3r**_: a subdomain enumeration tool that queries public sources — search engines, certificate transparency, DNS aggregators — rather than brute-forcing names. That makes it fast and completely silent from the target's point of view, and also incomplete: it finds what has been published, not what exists. ^sublist3r
 
 _**SUID (Set User ID)**_: A Unix permission bit that makes an executable run with the file owner's effective user ID rather than the invoking user's ID. Misconfigured SUID programs can become privilege-escalation paths. ^suid
+
+_**System Prompt**_: the hidden instructions an LLM application loads before the first user message — the persona, the data sources and tools it may use, what it must refuse. Developers treat it as server-side logic, so it often carries internal hostnames, endpoints and credential hints; but the model reads it as ordinary text in the same stream as the user's message, which is why it can be talked out of the model and why it is never a safe place for a secret. ^system-prompt
 
 _**SYSVOL**_: a folder on every domain controller, shared to the whole domain and readable by every domain user, holding Group Policy files and logon scripts. That combination — writable by administrators, readable by everyone — is why credentials left in a script or a [[Security-Terms#^gpp|GPP]] file there are exposed to the entire domain. ^sysvol
 
