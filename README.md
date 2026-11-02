@@ -1,4 +1,4 @@
-# Pentest-TryHackMe-Claude
+# Foothold
 
 Offensive-security notes gathered while working through TryHackMe: service checklists, technique run-sheets, and tool references, kept short and practical.
 
