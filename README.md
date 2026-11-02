@@ -1,8 +1,8 @@
 # Foothold
 
-Offensive-security notes gathered while working through TryHackMe: service checklists, technique run-sheets, and tool references, kept short and practical.
+Offensive-security notes built up while working through hands-on labs: service checklists, technique run-sheets and tool references, kept short and practical.
 
-Written and organised in Obsidian with Claude. Everything here comes from deliberately vulnerable lab environments and public material — nothing from any real target.
+Everything here comes from deliberately vulnerable lab environments and public material — nothing from any real target.
 
 ## Layout
 
