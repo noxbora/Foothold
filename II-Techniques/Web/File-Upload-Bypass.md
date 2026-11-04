@@ -26,3 +26,5 @@ curl -s -F "file=@shell.phtml;type=image/png" http://TARGET/upload.php
 - `type=` sets the [[Security-Terms#^mime|MIME]] type in the request, which is a value you control and the server frequently believes. It costs nothing to set it correctly and it defeats an entire class of check on its own.
 - A magic-byte check reads the first bytes of the file. Prepending `GIF89a` to a text payload satisfies it, because that check has no opinion about what follows.
 - Storing and executing are separate permissions. A file written into a directory the web server serves but does not execute is still only data.
+- Browsing to the upload and seeing your own source means the file was stored and **served as data**: its extension is not mapped to PHP. A `.txt` never runs, whatever is inside it — change the extension, not the payload.
+- The payload must be PHP source inside `<?php ... ?>`. A shell one-liner such as `php -r '...'` is a command, and uploaded it prints as text. → [[Shells#PHP]]

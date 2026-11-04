@@ -74,6 +74,7 @@ How to use it: you have a string on screen. Search it here, read the one line, t
 - A username enumeration run that hangs and then reports it could not create a Kerberos client — the domain controller was not named, so the tool asked your own resolver where the ticket service lives. The installation is fine. → [[AD-Username-Enumeration]]
 - A fetch or clone error from a secret scanner pointed at a directory on your own disk — the `file://` prefix is missing, so an absolute path was read as a remote address. → [[Exposed-Service-Looting]]
 - A capture listener that starts cleanly, prints its banner and catches nothing — the interface it was given exists, so it reports itself as running while listening where nothing will ever arrive. A start failure naming a port instead is the local file-sharing service holding it. → [[Authentication-Coercion]]
+- `sudo: cd: command not found` — `cd` is built into the shell, not a program on disk, so `sudo` has nothing to run. You never needed to be inside the directory: hand the path to the command instead, `sudo ls /root`. → [[Linux-Sudo-Abuse]]
 
 ## The messages that never come
 

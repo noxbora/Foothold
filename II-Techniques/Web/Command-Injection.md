@@ -49,6 +49,7 @@ $(printf '\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64')
 ```
 
 - `i''d`, `i\d` → the shell strips empty quotes and backslash-escapes before executing, so these are all the word `id` to the shell and none of them to a blocklist matching `id`
+- a blocked **command** rather than a blocked character → the blocklist knows one name; the job has many. Instead of `cat`: `less`, `more`, `head`, `tail`, `tac`, `nl`, or `grep . <file>` (skips blank lines). Instead of `ls`: `echo *` (skips dotfiles)
 - `/???/??t` → glob expansion; the shell resolves the wildcards to real paths. Defeats filters matching literal command names
 - `$IFS` → the internal field separator, a space by default. The escape hatch when spaces are filtered. `${IFS}` and `$IFS$9` are variants for when the bare form gets consumed by the next character
 - hex via `printf` → the same trick the original note recorded: `\x2f\x65\x74\x63...` is `/etc/passwd` with nothing a path-based filter recognises

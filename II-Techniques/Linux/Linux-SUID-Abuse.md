@@ -140,6 +140,21 @@ hacker:$6$sec$HF9bV...rjVt1:0:0:root:/root:/bin/bash
 > [!warning]
 > Route B is a change to a critical system file. It creates a persistent UID 0 account, it is trivially visible in `/etc/passwd`, and a botched line can lock accounts out of the host. Record the exact line, remove it when you are done, and check that the rules of engagement permit it. Route A is the quieter option when time allows both.
 
+## Worked case — a SUID interpreter (`python`)
+
+An interpreter runs whatever code you hand it, so with the bit set it is root running whatever you write. No escape trick needed — only a shell that keeps the privilege.
+
+```bash
+/usr/bin/python2.7 -c 'import os; os.execl("/bin/sh", "sh", "-p")'
+```
+
+- the path → call the exact file the sweep printed. A bare `python` may resolve to a different interpreter without the bit, and you get a shell as yourself with no error to tell you why.
+- `os.execl` → replaces the Python process with `sh` instead of starting a child, so euid=root carries straight over.
+- `-p` → tells `sh` not to drop euid back to ruid ([[#The rule that decides everything|the rule above]]). Leave it out and `id` shows your own user.
+- success → `id` prints `euid=0(root)` beside your own `uid=`. The split is expected; euid is what the kernel checks.
+
+If this `sh` rejects `-p`: `import os; os.setuid(0); os.system("/bin/sh")`. `setuid(0)` is allowed because euid is already 0, and it sets the real UID too, so there is no split left for the shell to correct.
+
 ## What does not work here
 
 > [!important]

