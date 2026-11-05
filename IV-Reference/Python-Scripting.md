@@ -26,7 +26,7 @@ Because the right-hand side is worked out first, `count = count + 1` is not the 
 
 ## Types, and converting between them
 
-The core types are `str` (text), `int` (whole number), `float` (number with a decimal point), `bool` (`True`/`False`), `list` and `dict`. `type(x)` tells you which one you are holding.
+The core types are `str` (text), `int` (whole number), `float` (number with a decimal point), `bool` (`True`/`False`), `list` and `dict`. `type(x)` tells you which one you are holding, printed as `<class 'str'>`, `<class 'int'>` and so on.
 
 `input()` always hands back a `str`, whatever the user typed. `"10" + 1` therefore fails with `TypeError: can only concatenate str (not "int") to str` — wrap it in `int()` first.
 
@@ -36,6 +36,8 @@ port = int(input("Port: "))
 
 `int()` refuses a decimal string: `int("3.14")` raises `ValueError: invalid literal for int() with base 10`. Go through `float()` instead. Fed an actual float, `int()` chops towards zero, so `int(-3.7)` is `-3` — not the same thing as `//` below. Surrounding spaces are tolerated: `int(" 42 ")` is `42`.
 
+`str()` goes the other way and turns a value into text: `str(42)` is `"42"`, which is what lets a number be glued onto a string with `+`.
+
 `bool()` is `False` only for empties and zero — `0`, `""`, `[]`, `{}`. Everything else is `True`, which is why `bool("False")` is `True`: a string that says False is still a non-empty string.
 
 ## f-strings
@@ -43,6 +45,8 @@ port = int(input("Port: "))
 ```python
 print(f"User {username} is on port {port}")
 ```
+
+The older way hands `print()` several items separated by commas — `print("User", username, "is on port", port)` — and `print()` puts one space between each pair by itself. It works, but the spacing is not yours to control; in an f-string every character is.
 
 Leave off the `f` and there is no error — the braces are simply printed as they are, `{username}` and all.
 
@@ -60,13 +64,40 @@ Floats are stored in binary, which cannot hold `0.1` exactly, the same way decim
 
 `**` raises to a power: `2 ** 8` is `256`, and a 128-bit key has `2 ** 128` possible values. Do not reach for `^` — in Python that is bitwise XOR, so `2 ^ 8` quietly gives `10` with no error at all.
 
-`and` needs both sides true, `or` needs at least one, `not` flips a boolean.
+## Conditions
+
+```python
+if port == 22:
+    print("SSH")
+elif port == 80:
+    print("HTTP")
+else:
+    print("Unknown port")
+```
+
+`if` runs its block only when the condition is `True`. `elif` (else if) is checked only when everything above it was false, and you can stack as many as you need. `else` takes whatever is left and has no condition of its own. Python stops at the first branch that matches, so order matters: put the narrow test above the broad one, or the broad one swallows it.
+
+The comparison operators, each answering `True` or `False`: `==` equal, `!=` not equal, `<` less than, `>` greater than, `<=` less than or equal, `>=` greater than or equal.
+
+Both sides must be the same type for the answer to mean anything. `"22" == 22` is simply `False`, with no error — so a port read with `input()` and never converted falls through every branch to `else`, and the script looks as if it works. `"22" < 22` at least fails loudly, with `TypeError: '<' not supported between instances of 'str' and 'int'`.
+
+The logical operators join conditions: `and` is true only if both sides are, `or` if at least one is, and `not` flips a boolean.
+
+```python
+if length >= 8 and has_digit:
+```
+
+`if hungry == True:` works, but `if hungry:` says the same thing, and `if not hungry:` is the opposite test.
+
+`any()` answers whether at least one item passes a test: `any(c.isdigit() for c in password)` is `True` as soon as one character is a digit.
 
 ## Strings
 
+Single, double and triple quotes all make the same `str`; only triple quotes (`"""..."""`) can span several lines. Pick the outer pair that does not appear inside: `"it's"` works, while `'it's'` ends at the apostrophe and fails with `SyntaxError: unterminated string literal`.
+
 `len(s)` counts characters. Indexes start at 0, and negative ones count from the end, so `s[-1]` is the last character. Reaching past the end raises `IndexError: string index out of range`.
 
-A slice `s[start:end]` includes `start` and stops before `end`; leave either side out to run to that end. Unlike an index, a slice never complains about overshooting — `"Python"[0:100]` is just `"Python"`.
+A slice `s[start:end]` includes `start` and stops before `end`; leave either side out to run to that end, so `"Python"[2:]` is `"thon"` and `"Python"[:4]` is `"Pyth"`. Unlike an index, a slice never complains about overshooting — `"Python"[0:100]` is just `"Python"`.
 
 Strings cannot be changed in place: `s[0] = "J"` raises `TypeError: 'str' object does not support item assignment`. Every method hands back a *new* string instead, so `name.lower()` on a line of its own does nothing to `name`. Keep the result.
 
@@ -110,7 +141,7 @@ An ordered collection in square brackets, mixing types freely. Lists use the sam
 - `.append(x)` — adds to the end.
 - `.remove(x)` — removes the first occurrence only; if `x` is absent, `ValueError: list.remove(x): x not in list`.
 - `.pop(i)` — removes the item at index `i` and returns it: the call itself turns into the removed value, so `first = ports.pop(0)` keeps what was pulled out. With no argument it takes the last item; past the end it raises `IndexError: pop index out of range`.
-- `.sort()` / `.reverse()` — rearrange the list in place and return `None`. Write `ports = ports.sort()` and `ports` is now `None`; the next method call on it fails with `AttributeError: 'NoneType' object has no attribute ...`.
+- `.sort()` / `.reverse()` — `.sort()` puts the items in ascending order, smallest first; `.reverse()` only flips the current order, it does not sort. Both rearrange the list in place and return `None`. Write `ports = ports.sort()` and `ports` is now `None`; the next method call on it fails with `AttributeError: 'NoneType' object has no attribute ...`.
 - `len(lst)` — the number of items.
 
 ## Dictionaries
@@ -131,7 +162,7 @@ Assigning to a key adds it or overwrites it; `del services[22]` removes it.
 
 The type of the key matters. `22` and `"22"` are different keys, and a port read with `input()` is the string, so `services[port]` fails with `KeyError: '22'` until it is converted. The quotes in that message are the giveaway.
 
-`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. Looping over a dict directly gives you the keys only.
+`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. Each pair is a tuple, a fixed sequence in round brackets such as `(22, 'SSH')`, which is why the loop below can unpack it into two names. Looping over a dict directly gives you the keys only.
 
 ## Loops
 
@@ -149,9 +180,42 @@ for port, name in services.items():
     print(f"{port} = {name}")
 ```
 
-`while` repeats for as long as its condition holds. Something inside the body has to change what the condition reads, or the loop never ends — Ctrl+C gets you out.
+A string is a sequence too, so `for` walks it one character at a time — the basis of every password check.
 
-`break` leaves the loop entirely; `continue` abandons the current pass and moves on to the next.
+```python
+for char in password:
+    if char.isdigit():
+        print(f"Found digit: {char}")
+```
+
+```python
+attempts = 0
+while attempts < 3:
+    password = input("Password: ")
+    attempts += 1
+```
+
+`while` repeats for as long as its condition holds, re-checking it before every pass. Something inside the body has to change what the condition reads — here `attempts += 1` — or the loop never ends; Ctrl+C gets you out.
+
+`break` leaves the loop on the spot: the rest of the body is skipped and the remaining items are never visited.
+
+```python
+for port in [22, 80, 443, 8080]:
+    if port == 443:
+        break
+    print(f"Checked port {port}")
+```
+
+That prints 22 and 80 only; 8080 is never reached.
+
+`continue` abandons only the current pass and jumps to the next item — the standard way to skip blank lines.
+
+```python
+for line in lines:
+    if line == "":
+        continue
+    print(f"Processing: {line}")
+```
 
 Rule of thumb: `for` when you know what you are walking, `while` when you are waiting for something to change.
 
@@ -161,6 +225,8 @@ Rule of thumb: `for` when you know what you are walking, `while` when you are wa
 - `SyntaxError: expected ':'` — the line opening a block lost its colon.
 - `IndentationError: expected an indented block` — the body of a block is not indented.
 - `TypeError: can only concatenate str (not "int") to str` — a value from `input()` used as a number.
+- Every input lands in `else`, no error — an unconverted `input()` string compared with `==` against a number.
+- `TypeError: '<' not supported between instances of 'str' and 'int'` — the same mistake with `<` or `>`.
 - `ValueError: invalid literal for int() with base 10` — `int()` was handed a decimal or non-numeric string.
 - `KeyError: '22'` — the key was looked up as a string, but stored as a number (or the reverse).
 - `AttributeError: 'NoneType' object has no attribute ...` — you kept the return value of `.sort()`, `.reverse()` or `.append()`, which is `None`.
