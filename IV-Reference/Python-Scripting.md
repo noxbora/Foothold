@@ -26,7 +26,9 @@ Because the right-hand side is worked out first, `count = count + 1` is not the 
 
 ## Types, and converting between them
 
-The core types are `str` (text), `int` (whole number), `float` (number with a decimal point), `bool` (`True`/`False`), `list` and `dict`. `type(x)` tells you which one you are holding, printed as `<class 'str'>`, `<class 'int'>` and so on.
+The core types are `str` (text: `"hello"`), `int` (whole number: `42`), `float` (number with a decimal point: `3.14`), `bool` (`True`/`False`), `list` (`[1, 2, 3]`) and `dict` (`{22: "SSH"}`). `type(x)` tells you which one you are holding, printed as `<class 'str'>`, `<class 'int'>` and so on.
+
+The four converters: `int("42")` is `42`, `float("3.14")` is `3.14`, `str(42)` is `"42"`, and `bool(0)` is `False`.
 
 `input()` always hands back a `str`, whatever the user typed. `"10" + 1` therefore fails with `TypeError: can only concatenate str (not "int") to str` — wrap it in `int()` first.
 
@@ -77,7 +79,16 @@ else:
 
 `if` runs its block only when the condition is `True`. `elif` (else if) is checked only when everything above it was false, and you can stack as many as you need. `else` takes whatever is left and has no condition of its own. Python stops at the first branch that matches, so order matters: put the narrow test above the broad one, or the broad one swallows it.
 
-The comparison operators, each answering `True` or `False`: `==` equal, `!=` not equal, `<` less than, `>` greater than, `<=` less than or equal, `>=` greater than or equal.
+The comparison operators, each answering `True` or `False`. With `x = 5`:
+
+- `x == 5` equal — `True`
+- `x != 5` not equal — `False`
+- `x < 5` less than — `False`
+- `x > 5` greater than — `False`
+- `x <= 5` less than or equal — `True`
+- `x >= 5` greater than or equal — `True`
+
+The `=` in `<=` and `>=` is what lets the edge value itself pass.
 
 Both sides must be the same type for the answer to mean anything. `"22" == 22` is simply `False`, with no error — so a port read with `input()` and never converted falls through every branch to `else`, and the script looks as if it works. `"22" < 22` at least fails loudly, with `TypeError: '<' not supported between instances of 'str' and 'int'`.
 
@@ -107,12 +118,13 @@ name = name.lower()
 
 The methods worth knowing, with the part people get wrong:
 
-- `.lower()` / `.upper()` — the names come from the printer's type cases: capitals were kept in the upper one.
-- `.strip()` — trims whitespace from both ends only, never from the middle.
-- `.replace(a, b)` — replaces every occurrence, not the first.
-- `.split()` — with no argument, splits on any run of whitespace and drops the empties; `.split(" ")` splits on each single space, so `"a  b"` becomes `['a', '', 'b']`.
-- `.startswith(x)` / `.endswith(x)` / `.count(x)` — exactly what they say.
-- `.isdigit()`, `.isalpha()`, `.isalnum()`, `.isupper()`, `.islower()` — return `True`/`False`. `.isdigit()` is `False` for `"-5"` and `"3.14"`, because a sign or a decimal point is not a digit, so it cannot validate a negative or decimal number.
+- `.lower()` / `.upper()` — `"HELLO".lower()` is `"hello"`, `"hello".upper()` is `"HELLO"`. The names come from the printer's type cases: capitals were kept in the upper one.
+- `.strip()` — `"  hi  ".strip()` is `"hi"`. It trims both ends only, never the middle: `" a b ".strip()` is `"a b"`.
+- `.replace(a, b)` — `"cat".replace("c", "b")` is `"bat"`. It replaces every occurrence, not the first: `"banana".replace("a", "o")` is `"bonono"`.
+- `.split(sep)` — cuts at each `sep` and hands back a list: `"a,b,c".split(",")` is `['a', 'b', 'c']`. With no argument it splits on any run of whitespace and drops the empties; `.split(" ")` splits on each single space, so `"a  b"` becomes `['a', '', 'b']`.
+- `.startswith(x)` / `.endswith(x)` — `"http://site".startswith("http")` and `"file.txt".endswith(".txt")` are both `True`.
+- `.count(x)` — how many times `x` appears: `"banana".count("a")` is `3`.
+- `.isdigit()`, `.isalpha()`, `.isalnum()`, `.isupper()`, `.islower()` — return `True`/`False`. For `"A"`: `.isupper()` `True`, `.islower()` `False`, `.isdigit()` `False`, `.isalpha()` (a letter?) `True`, `.isalnum()` (a letter or a digit?) `True`. `.isdigit()` is `False` for `"-5"` and `"3.14"`, because a sign or a decimal point is not a digit, so it cannot validate a negative or decimal number.
 
 ## `in`, and the case trap
 
@@ -136,10 +148,16 @@ for f in fruits:
 
 ## Lists
 
-An ordered collection in square brackets, mixing types freely. Lists use the same indexing and slicing as strings, but unlike strings they can be changed in place: `ports[0] = 2222`.
+An ordered collection in square brackets, mixing types freely.
 
-- `.append(x)` — adds to the end.
-- `.remove(x)` — removes the first occurrence only; if `x` is absent, `ValueError: list.remove(x): x not in list`.
+```python
+ports = [22, 80, 443, 8080]
+```
+
+Lists use the same indexing and slicing as strings — `ports[0]` is `22`, `ports[-1]` is `8080`, `ports[1:3]` is `[80, 443]` — but unlike strings they can be changed in place: `ports[0] = 2222` turns the list into `[2222, 80, 443, 8080]`.
+
+- `.append(x)` — adds to the end: `ports.append(3306)` puts 3306 after 8080.
+- `.remove(x)` — removes by value, not by position: `ports.remove(80)` takes out the 80. Only the first occurrence goes; if `x` is absent, `ValueError: list.remove(x): x not in list`.
 - `.pop(i)` — removes the item at index `i` and returns it: the call itself turns into the removed value, so `first = ports.pop(0)` keeps what was pulled out. With no argument it takes the last item; past the end it raises `IndexError: pop index out of range`.
 - `.sort()` / `.reverse()` — `.sort()` puts the items in ascending order, smallest first; `.reverse()` only flips the current order, it does not sort. Both rearrange the list in place and return `None`. Write `ports = ports.sort()` and `ports` is now `None`; the next method call on it fails with `AttributeError: 'NoneType' object has no attribute ...`.
 - `len(lst)` — the number of items.
@@ -158,11 +176,32 @@ services = {22: "SSH", 80: "HTTP"}
 services.get(9999, "Unknown")
 ```
 
-Assigning to a key adds it or overwrites it; `del services[22]` removes it.
+Assigning to a key adds it if it was not there and overwrites it if it was.
+
+```python
+services[8080] = "HTTP-Alt"
+```
+
+```python
+services[22] = "OpenSSH"
+```
+
+`del` removes a key and its value together, and raises `KeyError` if the key is not there.
+
+```python
+del services[22]
+```
+
+To check a key before using it, ask with `in`:
+
+```python
+if 22 in services:
+    print(f"Port 22 runs {services[22]}")
+```
 
 The type of the key matters. `22` and `"22"` are different keys, and a port read with `input()` is the string, so `services[port]` fails with `KeyError: '22'` until it is converted. The quotes in that message are the giveaway.
 
-`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. Each pair is a tuple, a fixed sequence in round brackets such as `(22, 'SSH')`, which is why the loop below can unpack it into two names. Looping over a dict directly gives you the keys only.
+`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. For `{22: "SSH", 80: "HTTP"}` they print as `dict_keys([22, 80])`, `dict_values(['SSH', 'HTTP'])` and `dict_items([(22, 'SSH'), (80, 'HTTP')])`. Each pair is a tuple, a fixed sequence in round brackets such as `(22, 'SSH')`, which is why the loop below can unpack it into two names. Looping over a dict directly gives you the keys only.
 
 ## Loops
 
@@ -173,7 +212,34 @@ for ip in targets:
 
 `for` walks anything with items in it — a list, a string character by character, a dict's keys — binding each one to the loop name in turn.
 
-`range()` supplies numbers to walk. `range(5)` is `0` to `4`, `range(1, 6)` is `1` to `5`, `range(0, 20, 5)` steps by five. The stop value is never included.
+`range()` produces a run of numbers for a loop to walk, when there is no list to walk and you just need to count. The rule behind all three forms: counting runs *up to* the stop value, never onto it.
+
+```python
+for i in range(5):
+    print(i)
+```
+
+One argument is the stop, and counting starts at 0, so this prints `0 1 2 3 4` — five numbers, but no 5.
+
+```python
+for i in range(1, 6):
+    print(i)
+```
+
+Two arguments are start and stop. The start is included and the stop is not, so this prints `1 2 3 4 5`: to reach 5, you write 6.
+
+```python
+for i in range(0, 20, 5):
+    print(i)
+```
+
+The third argument is the step, how much to add each time. This prints `0 5 10 15`; 20 is the stop, so it never appears.
+
+A start that is already past the stop gives nothing at all, with no error: `range(5, 1)` is empty and the loop body never runs. Counting down needs a negative step — `range(5, 0, -1)` gives `5 4 3 2 1`.
+
+`print(range(5))` shows `range(0, 5)`, not the numbers, because a range hands out its numbers one at a time instead of storing them. Wrap it in `list()` to see them all: `list(range(5))` is `[0, 1, 2, 3, 4]`.
+
+`i` is the conventional name for a counter like this; when a loop walks real items, name the loop variable after the item instead (`for port in ports`).
 
 ```python
 for port, name in services.items():
