@@ -37,8 +37,7 @@ gobuster vhost -u http://target.htb --domain target.htb --append-domain \
 ## The same sweep with ffuf, when sizes collide
 
 ```bash
-ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
-  -u http://target.htb -H 'Host: FUZZ.target.htb' -fw 1274 -mc all
+ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -u http://target.htb -H 'Host: FUZZ.target.htb' -fw 1274 -mc all
 ```
 
 - `-H 'Host: FUZZ.target.htb'` → `FUZZ` goes in the **header**, not the URL. This is the distinction between this note and [[Content-Discovery]]: same tool, same wordlist format, one keyword moved. Put `FUZZ` in the URL by mistake and you will spend the run fuzzing paths and wondering why the results look like a directory listing
