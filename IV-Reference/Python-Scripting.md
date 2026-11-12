@@ -50,6 +50,8 @@ The older way hands `print()` several items separated by commas — `print("User
 
 Leave off the `f` and there is no error — the braces are simply printed as they are, `{username}` and all.
 
+Reusing the outer quote inside the braces — `f"{services.get(port, "Unknown")}"` — works from Python 3.12 on; anything older stops with a `SyntaxError`. Switch to the other quote inside, or work the value out on the line above.
+
 A format spec goes after a colon inside the braces. `{total:.2f}` means fixed-point with exactly two digits after the point, whatever the number arrived with: it pads (`7` becomes `7.00`) and rounds (`2.567` becomes `2.57`).
 
 Floats are stored in binary, which cannot hold `0.1` exactly, the same way decimal cannot hold one third. The tiny errors surface when they add up: `0.1 + 0.2` prints `0.30000000000000004`, and `0.1 + 0.2 == 0.3` is `False`. `:.2f` hides the noise, but the same cause occasionally drags a half downwards — `2.675` formats as `2.67`, because what is actually stored sits just below it.
@@ -112,11 +114,11 @@ name = name.lower()
 The methods worth knowing, with the part people get wrong:
 
 - `.lower()` / `.upper()` — the names come from the printer's type cases: capitals were kept in the upper one.
-- `.strip()` — trims whitespace from both ends only, never from the middle.
-- `.replace(a, b)` — replaces every occurrence, not the first.
-- `.split()` — with no argument, splits on any run of whitespace and drops the empties; `.split(" ")` splits on each single space, so `"a  b"` becomes `['a', '', 'b']`.
+- `.strip()` — trims whitespace from both ends only, never from the middle. The newline `\n` that ends a line read from a file counts as whitespace, so it goes too.
+- `.replace(a, b)` — replaces every occurrence, not the first, in one left-to-right pass that never rescans its own result: `"....//".replace("../", "")` leaves `"../"` behind.
+- `.split()` — with no argument, splits on any run of whitespace and drops the empties; `.split(" ")` splits on each single space, so `"a  b"` becomes `['a', '', 'b']`. The pieces are always strings, even when they look like numbers — `"22,80".split(",")` is `['22', '80']` — so convert each one inside the loop; `int()` on the whole list is a `TypeError`. A separator at the very start, or two in a row, leaves an empty string in the list: `"/a/b".split("/")` is `['', 'a', 'b']`.
 - `.startswith(x)` / `.endswith(x)` / `.count(x)` — exactly what they say.
-- `.isdigit()`, `.isalpha()`, `.isalnum()`, `.isupper()`, `.islower()` — return `True`/`False`. `.isdigit()` is `False` for `"-5"` and `"3.14"`, because a sign or a decimal point is not a digit, so it cannot validate a negative or decimal number.
+- `.isdigit()`, `.isalpha()`, `.isalnum()`, `.isupper()`, `.islower()` — return `True`/`False`. `.isdigit()` is `False` for `"-5"` and `"3.14"`, because a sign or a decimal point is not a digit, so it cannot validate a negative or decimal number. An empty string is `False` too. It is the check to run *before* `int()` on anything a user typed: test the string, then convert on a line of its own with `port = int(port)`.
 
 ## `in`, and the case trap
 
@@ -142,10 +144,10 @@ for f in fruits:
 
 An ordered collection in square brackets, mixing types freely. Lists use the same indexing and slicing as strings, but unlike strings they can be changed in place: `ports[0] = 2222`.
 
-- `.append(x)` — adds to the end.
+- `.append(x)` — adds to the end. The value goes inside the parentheses, `ports.append(443)`; start from an empty list `[]`, not `""` (an empty string) or `{}` (an empty dict), neither of which has `.append()`.
 - `.remove(x)` — removes the first occurrence only; if `x` is absent, `ValueError: list.remove(x): x not in list`.
 - `.pop(i)` — removes the item at index `i` and returns it: the call itself turns into the removed value, so `first = ports.pop(0)` keeps what was pulled out. With no argument it takes the last item; past the end it raises `IndexError: pop index out of range`.
-- `.sort()` / `.reverse()` — `.sort()` puts the items in ascending order, smallest first; `.reverse()` only flips the current order, it does not sort. Both rearrange the list in place and return `None`. Write `ports = ports.sort()` and `ports` is now `None`; the next method call on it fails with `AttributeError: 'NoneType' object has no attribute ...`. Use `sorted(x)` at that time.
+- `.sort()` / `.reverse()` — `.sort()` puts the items in ascending order, smallest first; `.reverse()` only flips the current order, it does not sort. Both rearrange the list in place and return `None`. Write `ports = ports.sort()` and `ports` is now `None`; the next method call on it fails with `AttributeError: 'NoneType' object has no attribute ...`. For a sorted copy that leaves the original alone, use `sorted(ports)` — a function, not a method, so `ports.sorted()` fails with `AttributeError: 'list' object has no attribute 'sorted'`.
 - `len(lst)` — the number of items.
 
 ## Dictionaries
@@ -156,7 +158,7 @@ Key–value pairs in curly braces: look the key up, get the value back.
 services = {22: "SSH", 80: "HTTP"}
 ```
 
-`services[22]` returns the value. A missing key raises `KeyError`. `.get()` gives you a fallback instead of a crash, and returns `None` when you leave the fallback out.
+`services[22]` returns the value, and the key can just as well come from a variable: `services[port]`. The brackets take a key, never a position, so `services[0]` looks for a key `0`. A missing key raises `KeyError`. `.get()` gives you a fallback instead of a crash, and returns `None` when you leave the fallback out.
 
 ```python
 services.get(9999, "Unknown")
@@ -166,7 +168,7 @@ Assigning to a key adds it or overwrites it; `del services[22]` removes it.
 
 The type of the key matters. `22` and `"22"` are different keys, and a port read with `input()` is the string, so `services[port]` fails with `KeyError: '22'` until it is converted. The quotes in that message are the giveaway.
 
-`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. Each pair is a tuple, a fixed sequence in round brackets such as `(22, 'SSH')`, which is why the loop below can unpack it into two names. Looping over a dict directly gives you the keys only.
+`.keys()`, `.values()` and `.items()` return the keys, the values and the pairs. Each pair is a tuple, a fixed sequence in round brackets such as `(22, 'SSH')`, which is why the loop below can unpack it into two names. Looping over a dict directly gives you the keys only. `len(services)` counts the pairs. To ask whether a key exists, write `port in services`; `port in services.items()` is always `False`, because a bare key never equals a pair.
 
 ## Loops
 
@@ -226,7 +228,7 @@ while attempts < 3:
     attempts += 1
 ```
 
-`while` repeats for as long as its condition holds, re-checking it before every pass. Something inside the body has to change what the condition reads — here `attempts += 1` — or the loop never ends; Ctrl+C gets you out.
+`while` repeats for as long as its condition holds, re-checking it before every pass. Something inside the body has to change what the condition reads — here `attempts += 1` — or the loop never ends; Ctrl+C gets you out. The check happens only there, at the top: a value that crosses the line halfway through the body still finishes that pass, so print-then-decrement and decrement-then-print give different output.
 
 `break` leaves the loop on the spot: the rest of the body is skipped and the remaining items are never visited.
 
@@ -239,7 +241,7 @@ for port in [22, 80, 443, 8080]:
 
 That prints 22 and 80 only; 8080 is never reached.
 
-`continue` abandons only the current pass and jumps to the next item — the standard way to skip blank lines.
+`continue` abandons only the current pass and jumps to the next item — the standard way to skip blank lines. Nothing below it in the body runs for that pass, so a counter of skipped items has to sit above it.
 
 ```python
 for line in lines:
@@ -262,5 +264,7 @@ Rule of thumb: `for` when you know what you are walking, `while` when you are wa
 - `KeyError: '22'` — the key was looked up as a string, but stored as a number (or the reverse).
 - `AttributeError: 'NoneType' object has no attribute ...` — you kept the return value of `.sort()`, `.reverse()` or `.append()`, which is `None`.
 - `TypeError: 'str' object does not support item assignment` — tried to change a string in place.
+- `SyntaxError: cannot assign to function call` — a call sits where a plain name belongs: on the left of `=` (`notes.append() = x`) or straight after `for` (`for line.strip() in lines`).
+- `TypeError: 'int' object is not iterable` — a `for` was handed a single number. Walk `range(n)` to repeat `n` times; to walk values collected one by one, `.append()` each to a list instead of overwriting one name.
 
 Related: [[Bash-Scripting]] covers the shell side, and [[Public-Exploit-Workflow]] is where you will read and patch other people's Python.
