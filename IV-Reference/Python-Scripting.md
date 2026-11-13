@@ -1,6 +1,6 @@
 # Python Scripting — the moving parts
 
-Values, the names they sit behind, the collections that hold many of them and the loops that walk those collections. That is enough to read a proof-of-concept you did not write and change the one line that needs changing. Look things up here; the attack itself lives elsewhere.
+Values, the names they sit behind, the collections that hold many of them and the loops that walk those collections; then the functions, error handling, files and libraries that turn a handful of lines into a tool. That is enough to read a proof-of-concept you did not write and change the one line that needs changing. Look things up here; the attack itself lives elsewhere.
 
 ## Running it
 
@@ -118,6 +118,7 @@ The methods worth knowing, with the part people get wrong:
 - `.replace(a, b)` — replaces every occurrence, not the first, in one left-to-right pass that never rescans its own result: `"....//".replace("../", "")` leaves `"../"` behind.
 - `.split()` — with no argument, splits on any run of whitespace and drops the empties; `.split(" ")` splits on each single space, so `"a  b"` becomes `['a', '', 'b']`. The pieces are always strings, even when they look like numbers — `"22,80".split(",")` is `['22', '80']` — so convert each one inside the loop; `int()` on the whole list is a `TypeError`. A separator at the very start, or two in a row, leaves an empty string in the list: `"/a/b".split("/")` is `['', 'a', 'b']`.
 - `.startswith(x)` / `.endswith(x)` / `.count(x)` — exactly what they say.
+- `*` with a number repeats a string: `"*" * 5` is `"*****"`, so `"*" * len(password)` logs how long a password was without logging the password.
 - `.isdigit()`, `.isalpha()`, `.isalnum()`, `.isupper()`, `.islower()` — return `True`/`False`. `.isdigit()` is `False` for `"-5"` and `"3.14"`, because a sign or a decimal point is not a digit, so it cannot validate a negative or decimal number. An empty string is `False` too. It is the check to run *before* `int()` on anything a user typed: test the string, then convert on a line of its own with `port = int(port)`.
 
 ## `in`, and the case trap
@@ -251,6 +252,178 @@ for line in lines:
 ```
 
 Rule of thumb: `for` when you know what you are walking, `while` when you are waiting for something to change.
+
+## Functions
+
+```python
+def greet(name):
+    print(f"Hello, {name}")
+```
+
+`def` defines a function: a named block written once and run as often as you like. Nothing in the body runs when it is defined; it runs only when called, by name with parentheses — `greet("Alice")`. Leave the parentheses off and nothing happens, with no error: the bare name is just the function itself, which is why `print(greet)` shows `<function greet at 0x...>`. The `def` has to sit above the line that calls it, or that line fails with `NameError`.
+
+The *parameter* is the name in the definition (`name`); the *argument* is the value handed over in the call (`"Alice"`). A call must supply one argument per parameter, in the same order, or it fails with `TypeError: greet() missing 1 required positional argument: 'name'`.
+
+```python
+def check_length(password, min_length=8):
+    return len(password) >= min_length
+```
+
+`return` hands a value back and leaves the function on the spot; nothing below it runs on that call. The call itself turns into the returned value, so keep it: `ok = check_length(pw)`. A function that runs off its end without a `return`, or hits a bare `return`, hands back `None`. Printing is not returning: `print()` puts the value on screen and the caller still gets `None`.
+
+A default value (`min_length=8`) makes that argument optional; pass one and it overrides the default. Defaults come after every parameter without one — `def f(a=1, b):` is refused with `SyntaxError: parameter without a default follows parameter with a default` (`non-default argument follows default argument` before Python 3.12). Never make a list or dict the default: it is built once, when the function is defined, so every call shares and keeps piling into the same one. Default to `None` and build the list inside.
+
+`return score, feedback` sends back several values at once, packed into a tuple, and the caller unpacks them by position: `score, feedback = check_password(pw, common)`. The count on the left must match, or it fails with `ValueError: too many values to unpack` / `not enough values to unpack`.
+
+A triple-quoted string on the first line of the body is a docstring: it documents the function, `help(check_password)` prints it, and it runs nothing.
+
+A name created inside a function is local: it exists only for the length of that call and is invisible outside it, so `print(result)` after the call fails with `NameError: name 'result' is not defined`. Get a value out with `return`, never by reaching in. The other direction half-works: a function can read a name defined outside it, but assigning to that name inside creates a separate local one and leaves the outer one untouched.
+
+Wrapping the whole program in `def main():` and calling `main()` on the last line keeps its names local too, and gives the script one obvious place to start reading.
+
+## Error handling
+
+An error nobody catches is an exception. Python prints a traceback — the chain of calls that led there, ending with the failing line and the exception's type and message — and the script stops dead. In a loop over a thousand hosts, one bad value takes the other 999 down with it.
+
+```python
+try:
+    port = int(text)
+except ValueError:
+    print("Not a number")
+```
+
+The `try` block runs first. If nothing goes wrong, the `except` block is skipped entirely. If a line raises, the rest of the `try` block is abandoned at that line and Python jumps to the first `except` whose type matches; afterwards the script carries on below the whole structure. An exception that matches no `except` crashes the script exactly as before. Keep only the risky lines inside `try`: everything in there is guarded, including the mistakes you would want to see.
+
+The type to catch is the first word of the traceback's last line:
+
+- `ValueError` — the right type, an unusable value: `int("abc")`.
+- `FileNotFoundError` — `open()` for reading on a path that does not exist.
+- `ZeroDivisionError` — `10 / 0`, and `//` or `%` by zero.
+- `KeyError` — a dict key that is not there.
+- `IndexError` — a list or string index past the end.
+
+Several `except` blocks can hang off one `try`, each handling its own error; only the first match runs, so the specific ones go first.
+
+`except Exception as e:` catches almost everything, and `e` holds the message to print. It swallows bugs along with the errors you expected, so it belongs last, under the specific ones, if at all. It deliberately lets Ctrl+C (`KeyboardInterrupt`) through; a bare `except:` with no type catches that too, and a `while True` loop wrapped in one can no longer be stopped with Ctrl+C.
+
+```python
+while True:
+    try:
+        port = int(input("Port: "))
+        break
+    except ValueError:
+        print("Whole number, please.")
+```
+
+The retry loop: `break` sits inside `try`, after the risky line, so it is reached only when the conversion worked. A failure jumps over it to `except`, and the loop asks again.
+
+## Files
+
+```python
+with open("wordlist.txt", "r") as f:
+    for line in f:
+        word = line.strip()
+```
+
+`open()` takes a path and a mode. `with` is a context manager: it closes the file the moment the indented block ends, even when an error escapes the block. The older pattern — `f = open(...)`, work, `f.close()` — leaves the file open whenever something fails before `close()`. Once the block has ended the file is shut, and `f.read()` there fails with `ValueError: I/O operation on closed file.`
+
+A relative path is resolved from the directory you are standing in when you run the script, not from where the script lives: run `python3 tools/check.py` from your home directory and it looks for `~/wordlist.txt`, failing with `FileNotFoundError`. Run it from the script's folder, or give the full path.
+
+- `"r"` — read; also the default when the mode is left out. The file must exist.
+- `"w"` — write. Creates the file, or **empties an existing one the instant it is opened**, before a single line is written.
+- `"a"` — append. Creates the file, or adds to the end of what is already there.
+
+Reading:
+
+- `.read()` — the whole file as one string. A second `.read()` returns `""`: the position is already at the end.
+- `.readline()` — the next line only.
+- `.readlines()` — a list of every line.
+- `for line in f` — one line at a time, never the whole file in memory at once: the way to walk a wordlist of millions.
+
+Every line read keeps its trailing newline, `.readlines()` included — `['admin\n', 'root\n']` — and `"admin" == "admin\n"` is `False`, so the word never matches anything. `.strip()` each line before using it.
+
+On Kali, text mode decodes the bytes as UTF-8. Real-world wordlists, rockyou.txt among them, contain bytes that are not valid UTF-8, and the read dies halfway with `UnicodeDecodeError: 'utf-8' codec can't decode byte ...`. `open(path, encoding="latin-1")` maps every possible byte to a character, so it never fails.
+
+```python
+with open("results.txt", "a") as f:
+    f.write(f"Open: {port}\n")
+```
+
+`.write()` adds no newline of its own: leave out `\n` and every result lands on one line. It takes only a string — `f.write(22)` fails with `TypeError: write() argument must be str, not int` — so go through an f-string or `str()`.
+
+## Libraries
+
+A library (module) is code someone else wrote, pulled in with `import`. The standard library ships with Python; there is nothing to install.
+
+```python
+import os
+```
+
+Brings in the whole module; its contents are reached through the module name — `os.getcwd()`.
+
+```python
+from datetime import datetime
+```
+
+Brings in one name, used bare — `datetime.now()`. Mixing the two styles is the classic trap: after `import datetime`, `datetime.now()` fails with `AttributeError: module 'datetime' has no attribute 'now'`, because the module and the class inside it share a name. The long form is `datetime.datetime.now()`.
+
+```python
+import datetime as dt
+```
+
+An alias — a shorter name for the same module: `dt.datetime.now()`.
+
+Never name your own script after a module it imports — `string.py`, `random.py`, `requests.py`. Python finds your file first and imports that instead, and the next line fails with `AttributeError: module 'string' has no attribute 'digits'`. Rename the file.
+
+- `os` — the operating system: current directory, file listings, environment variables.
+- `sys` — the interpreter itself. `sys.argv` is the command-line arguments as a list: `sys.argv[0]` is the script's own name, the first real argument is `sys.argv[1]`, and every one of them is a string.
+- `random` — random numbers and choices.
+- `datetime` — dates, times, timestamps.
+- `json` — reads and writes JSON (JavaScript Object Notation), the format most APIs answer in.
+- `hashlib` — hashing. It hashes bytes, not text: `hashlib.sha256("abc")` fails with `TypeError: Strings must be encoded before hashing`.
+- `string` — ready-made character sets: `string.ascii_uppercase` (A–Z), `string.digits` (0–9), `string.punctuation`.
+
+```python
+hashlib.sha256("password".encode()).hexdigest()
+```
+
+`.encode()` turns the text into bytes; `.hexdigest()` turns the raw hash into the familiar hex string. Change one character of the input and the whole hash changes.
+
+The `string` sets are plain ASCII (American Standard Code for Information Interchange). `string.punctuation` is exactly these 32 symbols: `` !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ `` — no space, no `£`, no `é`. Likewise `"Ç" in string.ascii_uppercase` is `False`, while `"Ç".isupper()` is `True`. A check built on these sets simply does not count such characters.
+
+### pip
+
+Third-party libraries live on PyPI (the Python Package Index) and are installed with pip, Python's package installer. On Kali a bare `pip install` is refused with `error: externally-managed-environment`: the system Python belongs to APT, and since Python 3.12 Kali stops pip installing into it, `--user` included. The ways round it, best first:
+
+```bash
+sudo apt install python3-requests
+```
+
+Kali's own packaged copy, when one exists: `python3-` plus the library's name.
+
+```bash
+python3 -m venv venv
+```
+
+```bash
+source venv/bin/activate
+```
+
+```bash
+pip install requests
+```
+
+A virtual environment: a private Python in the `venv` folder that pip may install into freely. It works only while activated — the prompt shows `(venv)` — and the same script run outside it fails with `ModuleNotFoundError: No module named 'requests'`. `deactivate` leaves it.
+
+```bash
+pipx install <tool>
+```
+
+For a Python tool you run as a command rather than import: pipx gives each tool a venv of its own and puts the command on your PATH. Pre-installed since Kali 2024.4.
+
+`--break-system-packages` forces pip through regardless, and can break tools Kali itself depends on. Last resort.
+
+The install name and the import name do not always match: `pip install beautifulsoup4` is `import bs4` (HTML parsing), and `pip install pwntools` is `from pwn import *` (exploit and CTF toolkit). The rest of the usual set imports under its own name: `requests` (HTTP requests), `scapy` (crafting, sending and sniffing packets), `paramiko` (SSH client and server).
 
 ## The failures you will actually meet
 
