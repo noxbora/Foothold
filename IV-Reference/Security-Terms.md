@@ -42,6 +42,10 @@ _**Asset**_: A useful or valuable thing, person, or quality; in a technical cont
 
 _**At scale**_: describing an operation or attack carried out across a large number of systems, targets, or users simultaneously, rather than against a single target.
 
+_**Attack Surface**_: every point where someone outside can push data into a system, pull data out of it, or otherwise touch it — an open port, a login form, an API endpoint, a file upload, a VPN gateway. On a [[Security-Terms#^dfd|DFD]] it is every connection from an external entity and every flow that crosses a trust boundary. The smaller it is, the less there is to defend and the less there is to test; a management interface reachable from the internet that only staff ever use is surface that need not exist. ^attack-surface
+
+_**Attack Tree**_: one attacker goal at the root, branching into the alternative paths that reach it, each path broken down into the steps it needs. In threat modelling it doubles as the test plan: every branch is a scenario to attempt, and a branch that dies at one step — say, at an MFA prompt — is reported as a validated control, not as wasted time. ^attack-tree
+
 _**Auth Coercion**_: forcing a service or host to authenticate to a machine the attacker controls, so that its credential material arrives on its own rather than being read off disk. Nothing is stolen and nobody is pressured — a protocol feature is invoked against its owner, which is what separates it from coercion in the social-engineering sense. On Windows the privilege being abused (typically `SeImpersonatePrivilege`) is the constant; the trigger used to make the service connect back — RogueWinRM, PrintSpoofer, GodPotato — changes with the OS version. ^auth-coercion
 
 _**AutoLogon**_: the Windows feature that signs a fixed account in at boot with nobody at the keyboard, used for kiosks, lab machines and anything that must come back up unattended. Configured through the control panel it writes the password as literal text into `DefaultPassword` under the `Winlogon` registry key, readable by every user on the box; configured through the Sysinternals tool of the same name it writes the password into [[Security-Terms#^lsa-secrets|LSA secrets]] instead, where only SYSTEM can reach it. Two ways to set up one feature, with completely different consequences for you. ^autologon
@@ -126,6 +130,10 @@ _**CSRF (Cross-Site Request Forgery)**_: getting a logged-in victim's browser to
 
 _**CSS (Cascading Style Sheets)**_: the language describing how a page looks. It matters offensively in two small ways: a stylesheet is a file the server serves, so it can leak paths and framework versions, and CSS alone can be enough to exfiltrate data from a page when script is blocked. ^css
 
+_**CVSS (Common Vulnerability Scoring System)**_: the industry-standard 0–10 severity score for a vulnerability, used by the NVD, bug bounty platforms and most scanners; version 4.0 has been current since November 2023. It weighs a dozen-odd factors across the Base, Threat and Environmental metric groups (plus a Supplemental group that adds context without changing the number), which makes it slower than [[Security-Terms#^dread|DREAD]] but far more consistent between analysts — the score that belongs in a formal report. ^cvss
+
+_**Cyber Kill Chain**_: Lockheed Martin's seven-phase model of an intrusion — Reconnaissance, Weaponization, Delivery, Exploitation, Installation, Command and Control, Actions on Objectives. It is the strategic outline; [[Security-Terms#^mitre-attack|MITRE ATT&CK]] is the turn-by-turn detail. The gap between the two is the instructive part: privilege escalation, defense evasion, credential access, discovery and lateral movement — most of what happens inside a network after the first foothold — have no phase of their own in the Kill Chain. ^cyber-kill-chain
+
 _**Cypher**_: the query language of the [[Security-Terms#^neo4j|Neo4j]] graph database, and therefore the language BloodHound's search bar and prebuilt queries are written in. A query describes a shape — this kind of node, joined by that kind of edge, to that kind of node — and the database returns every instance of the shape it holds. "Shortest path to Domain Admins" is one line of it. ^cypher
 
 ## D
@@ -143,6 +151,8 @@ _**Deobfuscation**_: Analyzing and converting obfuscated code back into readable
 _**Deprecate**_: Refers to the process of marking a method, feature, or technology as obsolete, signaling that it should no longer be used, often due to security vulnerabilities or better alternatives being available.
 
 _**Deserialization**_: The process of converting serialized data (data transformed into a format suitable for storage or transmission) back into its original object or data structure. the process of converting stored or transmitted data back into an object — a common attack vector when untrusted data is deserialized without validation, potentially allowing remote code execution.
+
+_**DFD (Data Flow Diagram)**_: a drawing of how data moves through a system, built from five elements: external entity (rectangle — outside your control), process (circle — code that acts on data), data store (parallel lines — data at rest), data flow (arrow) and trust boundary (dashed line — where the level of trust changes). It is the map every threat-modelling framework works from, so a flow missing from the diagram is a threat nobody will ever list. ^dfd
 
 _**DHCP (Dynamic Host Configuration Protocol)**_: the protocol by which a machine joining a network is handed an address, a gateway and a DNS server. Two consequences worth carrying: the DNS server it hands out is usually the internal one, which is what makes internal name resolution work at all, and a machine that never got a DHCP answer falls back to [[Security-Terms#^apipa|APIPA]] and is effectively offline. ^dhcp
 
@@ -175,6 +185,8 @@ _**DOS (Disk Operating System)**_: A family of operating systems that run from a
 _**Dovecot**_: Dovecot is an open-source IMAP and POP3 server for Unix-like operating systems. It allows users to securely retrieve and manage their email messages stored on a server.
 
 _**DPAPI (Data Protection API)**_: the Windows service applications call to encrypt a secret without inventing their own crypto. The key is derived from the user's password, so the ciphertext is bound to that user on that machine. Chrome cookies, saved RDP credentials, Wi-Fi keys and many password managers all sit behind it — which is why stealing the encrypted blob is useless without either the user's password or SYSTEM on the box. ^dpapi
+
+_**DREAD**_: a quick risk score for a threat — Damage, Reproducibility, Exploitability, Affected users, Discoverability — each rated 1–10 and averaged (one common scale: 9+ Critical, 7+ High, 4+ Medium, below that Low). Microsoft, which published it, dropped it internally around 2008 because two teams would give the same threat a 4 and a 7; it survives as fast triage in a workshop, and on the CISSP. Discoverability is the contested letter: many score it 10 by default, since counting on a flaw staying hard to find is security through obscurity. ^dread
 
 _**Drill**_: a structured practice exercise simulating a security incident or attack scenario — such as a tabletop drill or red team drill — used to test an organization's detection and response capabilities.
 
@@ -382,6 +394,8 @@ _**Minification**_: Removing unnecessary characters (whitespace, comments, long 
 
 _**MITM (machine-in-the-middle)**_: sitting between two parties who believe they are talking directly. On a local segment it is usually reached by [[Security-Terms#^arp|ARP]] poisoning or by answering name-resolution broadcasts nobody else claims; over TLS it requires a certificate the client will accept, which is exactly what Burp's CA certificate is for. ^mitm
 
+_**MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge)**_: MITRE's public catalogue of what real attackers have been observed doing, laid out as a matrix. A tactic is the goal of a phase (*why* — Initial Access, Lateral Movement), a technique the method (*how* — T1566 Phishing), a sub-technique the specific variant (T1566.001, spearphishing attachment); the Enterprise matrix has 14 tactics. One technique can sit under several tactics — T1133 External Remote Services is both Initial Access and Persistence — so the tactic is settled by what the attacker is trying to achieve at that step, not by the technique's ID. ^mitre-attack
+
 _**MPM (Multi-Processing Module)**_: the part of Apache that decides how it handles concurrent requests — one process per request, threads, or an event loop. It surfaces in privilege escalation because the MPM decides which user the request handler runs as, and an `itk`-style MPM runs each virtual host as its own user rather than as `www-data`. ^mpm
 
 _**MsCacheV2 (DCC2)**_: the hash a Windows host caches when a domain user signs in, so they can still authenticate when the domain controller is unreachable — Domain Cached Credentials, version 2. It lives in the registry and is readable only as SYSTEM. Unlike an [[Security-Terms#^nt-hash|NT hash]] it cannot be passed; it is a slow salted key-derivation, so cracking offline is the only road (hashcat mode 2100, john `mscash2`). Its dumped form begins `$DCC2$`.
@@ -481,6 +495,8 @@ _**Parity**_: Refers to a method of error detection that uses an extra bit (pari
 _**Pass-the-Hash**_: authenticating with an [[Security-Terms#^nt-hash|NT hash]] instead of a password. NTLM puts the hash directly into its challenge-response, so the plaintext is never needed and cracking is optional — which is why a strong, uncrackable password protects nothing once its hash has been read. ^pass-the-hash
 
 _**Pass-the-Ticket**_: reusing a Kerberos ticket taken from memory or from a [[Security-Terms#^ccache|ccache]] file to act as its owner. No password and no hash are involved, and the ticket works until it expires, which makes it the quietest way to reuse a credential and the hardest to revoke. ^pass-the-ticket
+
+_**PASTA (Process for Attack Simulation and Threat Analysis)**_: a seven-stage threat-modelling methodology that starts from the client's business objectives and narrows down to attack paths: define objectives, define technical scope, decompose the application, analyse threats, analyse vulnerabilities, model attacks, analyse risk and impact. Where [[Security-Terms#^stride|STRIDE]] asks what can go wrong with a component, PASTA asks what an attacker would do to this business — and its last stage is what turns findings into an executive summary. Thorough, but days to weeks of work. ^pasta
 
 _**PATH**_: the ordered list of directories a shell searches when you type a command name with no slash in it. Order is everything: the first match wins, so a writable directory appearing before `/usr/bin` means you decide what `ls` is. A script that calls a command by bare name rather than by absolute path inherits whatever PATH it runs under, which is the whole of PATH abuse. ^path-var
 
@@ -592,6 +608,8 @@ _**Risk-driven**_: An approach or process guided primarily by the identification
 
 _**robots.txt**_: a file placed at a website's root that instructs web crawlers which paths they are allowed or disallowed to access, useful in reconnaissance since disallowed paths often reveal sensitive or hidden directories.
 
+_**RoE (Rules of Engagement)**_: the signed document that fixes what a test may touch and how: in-scope targets, permitted techniques, testing windows, limits such as "confirm database access but do not bulk-extract", and who to call when something breaks. Anything outside it is not a test but an intrusion, however good the finding. ^roe
+
 _**RPC (Remote Procedure Call)**_: a mechanism that lets one process expose functions (procedures) so another process can invoke them as if calling them locally, passing arguments and getting results over a socket. Widely used by Windows services; a procedure that runs a command while its service runs as SYSTEM turns a design feature into a privilege-escalation path. ^rpc
 
 _**RSAT (Remote Server Administration Tools)**_: the optional Windows feature that puts the server management tools, the ActiveDirectory PowerShell module among them, onto a machine that is not a server. It matters because `Get-ADUser` and its relatives exist on a domain controller and nowhere else by default, so a module-not-found error on a workstation is this feature being absent rather than a permission you are missing. ^rsat
@@ -690,6 +708,8 @@ _**STARTTLS**_: an email protocol command that upgrades a plaintext connection t
 
 _**Strace**_: It is a diagnostic, debugging, and troubleshooting tool for Linux. It is used to monitor and intercept system calls and signals made by a process.
 
+_**STRIDE**_: Microsoft's six-category checklist for finding threats, each letter the violation of one security property — Spoofing (authentication), Tampering (integrity), Repudiation (non-repudiation), Information disclosure (confidentiality), Denial of service (availability), Elevation of privilege (authorization). It is applied to each element of a [[Security-Terms#^dfd|DFD]]: a process is exposed to all six; a data flow to T, I and D; a data store to T, I and D, plus R only when the store is an audit log; an external entity to S and R. It finds threats but does not rank them. ^stride
+
 _**STS (Security Token Service)**_: the AWS service that issues temporary credentials — an access key beginning `ASIA`, a secret, and a session token that must accompany them. Every temporary credential set expires, and omitting the session token produces an authentication failure that reads as though the key itself were wrong. ^sts
 
 _**Subdomain takeover**_: a vulnerability where an attacker claims control of a subdomain by pointing it at a third-party service (e.g. cloud hosting, SaaS) that no longer has a valid resource there, since the DNS record was left pointing to a now-unclaimed service.
@@ -718,13 +738,19 @@ _**TGT (Ticket Granting Ticket)**_: the first ticket Kerberos issues, proving yo
 
 _**TheHarvester**_: an OSINT tool that collects email addresses, subdomains, hostnames and employee names for a domain from public sources. Its output feeds two things directly: a username list for spraying, and a subdomain list to resolve. ^theharvester
 
+_**Threat Modelling**_: the structured work, done before testing starts, of deciding what matters and where to aim. Every method answers the same four questions: what are we working on, what can go wrong, what are we going to do about it, did we do a good enough job. For a tester the first two become the test plan, the third the report's recommendations, the fourth the re-test. Phase 3 of [[Security-Terms#^ptes|PTES]]. ^threat-modelling
+
 _**TLS / SSL (Transport Layer Security)**_: the encryption layer under HTTPS and many other protocols. SSL is the obsolete original; every current version is TLS, and the two names are used interchangeably in tool names and options long after the thing itself was replaced. Two practical consequences: a certificate carries names — subject and Subject Alternative Names — that leak internal hostnames, and a plain `nc` to a TLS port produces nothing readable, which is what `openssl s_client` is for. ^tls
 
 _**Trail**_: Refers to the traces or records left behind by activity within a system, such as an audit trail that logs user actions and events, which can be used to track behavior, investigate incidents, or detect malicious activity.
 
 _**Triage**_: Refers to the process of prioritizing and categorizing security incidents, alerts, or vulnerabilities based on their severity and potential impact, allowing analysts to address the most critical threats first during incident response.
 
+_**Trust Boundary**_: a line on a [[Security-Terms#^dfd|DFD]] where data passes between zones of different trust — internet to DMZ, DMZ to internal network, application to database. At each crossing the receiving side has to decide what to believe, so it is where input validation, authentication and access control must exist, and where vulnerabilities cluster. Every flow that crosses one is a line on the test list. ^trust-boundary
+
 _**TShark**_: the command-line Wireshark. Same capture engine and the same display filters, printing to standard output — which is what makes it usable over a shell on a remote box, and scriptable. `-Y` takes a display filter, applied after capture; `-f` takes a capture filter, applied before, and mixing the two syntaxes is the usual first error. ^tshark
+
+_**TTP (Tactics, Techniques, and Procedures)**_: how an attacker operates, at three levels of detail: the tactic is the goal, the technique the method, the procedure the exact implementation one group uses. The vocabulary comes from [[Security-Terms#^mitre-attack|MITRE ATT&CK]], and a threat-intelligence report that names a group's TTPs is telling you which tests to run first. ^ttp
 
 _**TTY (Teletypewriter)**_: It is a terminal interface that allows direct interaction with a system through a command-line session. It traditionally refers to a physical or virtual terminal connected to the system.
 
